@@ -1,4 +1,4 @@
-﻿
+
 void static_pos_update(Dot &pos, bool is_static) {
     if (!is_static) {
         pos -= camera.pos;
@@ -17,13 +17,6 @@ bool arena_query(efloat left, efloat right, efloat top, efloat bottom) {
     );
 }
 
-#define simulate_draw_pixel(color, pos, half_size)      \
-    if (is_draw(color)) {                               \
-        draw_rect(pos, half_size, func(color));         \
-    } else if (debug_mode) {                            \
-        draw_rect(pos, half_size, Color(0xffffff, 60)); \
-    }
-
 Color standart_pixel_func(const Color &color) {
     return color;
 }
@@ -35,61 +28,32 @@ Color alpha_pixel_func(const Color &color) {
 
 #define shadow_pixel_func alpha_pixel_func<100>
 
-// рисует спрайт
+// вызывается из других функций draw_sprite
 template <typename func_t = Color(const Color &color)>
-void draw_sprite_static(
+void draw_sprite_basic(
     Dot pos,
     efloat size,
-    sprite_t sprite,
+    Matrix<Color> &pixels,
+    int sprite_x0,
+    int sprite_y0,
+    int sprite_x1,
+    int sprite_y1,
     func_t &&func = standart_pixel_func
 ) {
-    Dot half_size = Dot(0.5, 0.5) * size;
-
-    auto &pixels = Sprites[sprite].picture;
-
-    if (!arena_query(
-            pos.x - half_size.x, pos.x + pixels.width() * size + half_size.x,
-            pos.y + half_size.y, pos.y - pixels.height() * size - half_size.y
-        )) {
-        return;
-    }
-
-    /*efloat y = (arena_half_size.y - half_size.x) * scale_factor;
-
-    for (int i = 0; i < pixels.height(); i++) {
-        efloat x = (arena_half_size.x - half_size.x) * scale_factor;
-        for (int j = 0; j < pixels.width(); j++) {
-
-            // change to pixels
-            int x0 = static_cast<int>(x) + int(pos.x * scale_factor) - 1;
-            int y0 = static_cast<int>(y) + int(pos.y * scale_factor) - 1;
-
-            int x1 = static_cast<int>(x + size * scale_factor) +
-                     int(pos.x * scale_factor) + 1;
-            int y1 = static_cast<int>(y + size * scale_factor) +
-                     int(pos.y * scale_factor) + 1;
-
-            draw_rect_in_pixels(x0, y0, x1, y1, pixels[i][j]);
-
-            x += size * scale_factor;
-        }
-        y -= size * scale_factor;
-    }*/
-
     efloat rect_sz = size * scale_factor;
 
     efloat y = (pos.y + arena_half_size.y - size / 2) * scale_factor;
 
-    for (int i = 0; i < pixels.height(); i++) {
+    for (int i = sprite_y0; i < sprite_y1; i++) {
         efloat x = (pos.x + arena_half_size.x - size / 2) * scale_factor;
 
         s64 y0 = static_cast<s64>(y);
         s64 y1 = static_cast<s64>(y + rect_sz);
 
-        for (int j = 0; j < pixels.width();) {
+        for (int j = sprite_x0; j < sprite_x1;) {
             s64 x0 = static_cast<s64>(x);
             int k = j;
-            while (k < pixels.width() && pixels[i][k] == pixels[i][j]) {
+            while (k < sprite_x1 && pixels[i][k] == pixels[i][j]) {
                 k++;
             }
 
@@ -107,14 +71,87 @@ void draw_sprite_static(
         y -= rect_sz;
     }
 
-    /*for (int i = 0; i < pixels.height(); i++) {
-        for (int j = 0; j < pixels.width(); j++) {
-            simulate_draw_pixel(
-                pixels[i][j], Dot(pos.x + j * size, pos.y), half_size
-            );
+    // не переливает пиксели, но трясет сам спрайт
+    /*efloat y = (arena_half_size.y - size / 2) * scale_factor;
+
+    for (int i = sprite_y0; i < sprite_y1; i++) {
+        efloat x = (arena_half_size.x - size / 2) * scale_factor;
+        for (int j = sprite_x0; j < sprite_x1; j++) {
+            // change to pixels
+            int x0 = static_cast<int>(x) + int(pos.x * scale_factor);
+            int y0 = static_cast<int>(y) + int(pos.y * scale_factor);
+
+            int x1 = static_cast<int>(x + size * scale_factor) +
+                     int(pos.x * scale_factor);
+            int y1 = static_cast<int>(y + size * scale_factor) +
+                     int(pos.y * scale_factor);
+
+            if (is_draw(pixels[i][j])) {
+                draw_rect_in_pixels(x0, y0, x1, y1, func(pixels[i][j]));
+            } else if (debug_mode) {
+                draw_rect_in_pixels(x0, y0, x1, y1, Color(0xffffff, 60));
+            }
+
+            x += size * scale_factor;
         }
-        pos.y -= size;
+        y -= size * scale_factor;
     }*/
+
+    /*{
+        efloat y = (arena_half_size.y - size / 2) * scale_factor;
+
+        for (int i = sprite_y0; i < sprite_y1; i++) {
+            efloat x = (arena_half_size.x - size / 2) * scale_factor;
+            for (int j = sprite_x0; j < sprite_x1; j++) {
+                if (is_draw(pixels[i][j])) {
+                    int x0 = static_cast<int>(x) + int(pos.x * scale_factor);
+                    int y0 = static_cast<int>(y) + int(pos.y * scale_factor);
+
+                    if (x + pos.x * scale_factor + 0.5 < x0) {
+                        break;
+                    }
+                    x0--;
+
+                    int x1 = static_cast<int>(x + size * scale_factor) +
+                             int(pos.x * scale_factor);
+                    int y1 = static_cast<int>(y + size * scale_factor) +
+                             int(pos.y * scale_factor);
+
+                    if (is_draw(pixels[i][j])) {
+                        draw_rect_in_pixels(x0, y0, x1, y1, func(pixels[i][j]));
+                    } else if (debug_mode) {
+                        draw_rect_in_pixels(
+                            x0, y0, x1, y1, Color(0xffffff, 60)
+                        );
+                    }
+
+                    break;
+                }
+                x += size * scale_factor;
+            }
+            y -= size * scale_factor;
+        }
+    }*/
+}
+
+// рисует спрайт
+template <typename func_t = Color(const Color &color)>
+void draw_sprite_static(
+    Dot pos,
+    efloat size,
+    sprite_t sprite,
+    func_t &&func = standart_pixel_func
+) {
+    auto &pixels = Sprites[sprite].picture;
+
+    if (arena_query(
+            pos.x - size / 2, pos.x + pixels.width() * size + size / 2,
+            pos.y + size / 2, pos.y - pixels.height() * size - size / 2
+        )) {
+        draw_sprite_basic(
+            pos, size, pixels, 0, 0, pixels.width(), pixels.height(), func
+        );
+    }
 }
 
 template <typename func_t = Color(const Color &color)>
@@ -191,23 +228,19 @@ void draw_spritesheet_static(
 
     auto &pixels = Sprites[spritesheet].picture;
 
-    unsigned int begin_x = len_x * sprite_count;
-    unsigned int end_x = begin_x + len_x;
-
-    if (arena_query(
+    if (!arena_query(
             pos.x - half_size.x, pos.x + len_x * size + half_size.x,
             pos.y + half_size.y, pos.y - pixels.height() * size - half_size.y
         )) {
-        for (unsigned int i = 0; i < pixels.height(); i++) {
-            for (unsigned int j = begin_x; j < end_x; j++) {
-                simulate_draw_pixel(
-                    pixels[i][j], Dot(pos.x + size * (j - begin_x), pos.y),
-                    half_size
-                );
-            }
-            pos.y -= size;
-        }
+        return;
     }
+
+    unsigned int begin_x = len_x * sprite_count;
+    unsigned int end_x = begin_x + len_x;
+
+    draw_sprite_basic(
+        pos, size, pixels, begin_x, 0, end_x, pixels.height(), func
+    );
 }
 
 // рисует спрайт из листа спрайтов
