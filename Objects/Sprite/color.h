@@ -1,4 +1,4 @@
-﻿#ifndef GAME_ENGINE_COLOR
+#ifndef GAME_ENGINE_COLOR
 #define GAME_ENGINE_COLOR
 
 #include "utils.h"
@@ -61,8 +61,8 @@ struct Color {
 };
 
 bool operator==(const Color &lhs, const Color &rhs) {
-    return reinterpret_cast<const unsigned int *>(&lhs) ==
-           reinterpret_cast<const unsigned int *>(&rhs);
+    // very fast
+    return lhs.b == rhs.b && lhs.g == rhs.g && lhs.r == rhs.r && lhs.a == rhs.a;
 }
 
 bool is_draw(const Color &color) {
