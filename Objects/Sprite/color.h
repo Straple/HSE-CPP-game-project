@@ -1,49 +1,47 @@
-﻿#pragma once
+﻿#ifndef GAME_ENGINE_COLOR
+#define GAME_ENGINE_COLOR
 
-#include "../../utils.h"
+#include "utils.h"
 
 // 0xAARRGGBB
 // [a, r, g, b]
 // [0..255]
 struct Color {
+    u8 b = 0;  // blue
+    u8 g = 0;  // green
+    u8 r = 0;  // red
+    u8 a = 0;  // alpha
 
-    u8 b; // blue
-    u8 g; // green
-    u8 r; // red
-    u8 a; // alpha
+#define calc_color(alpha, c) ((static_cast<unsigned int>(alpha) * c) / 255)
 
-#define calc_color(alpha, c) ((static_cast<u32>(alpha) * c) / 255)
+    Color() = default;
 
-
-    Color() {
-        r = g = b = a = 0;
+    Color(u8 red, u8 green, u8 blue, u8 alpha = 0xff)
+        : a(alpha),
+          r(calc_color(alpha, red)),
+          g(calc_color(alpha, green)),
+          b(calc_color(alpha, blue)) {
     }
-    Color(u8 red, u8 green, u8 blue, u8 alpha = 0xff) {
-        r = calc_color(alpha, red);
-        g = calc_color(alpha, green);
-        b = calc_color(alpha, blue);
-        a = alpha;
-    }
+
     // 0xRRGGBB, alpha
-    Color(u32 rgb, u8 alpha) {
-        *reinterpret_cast<u32*>(this) = rgb;
-
+    Color(unsigned int rgb, u8 alpha) {
+        *reinterpret_cast<unsigned int *>(this) = rgb;
         r = calc_color(alpha, r);
         g = calc_color(alpha, g);
         b = calc_color(alpha, b);
         a = alpha;
     }
-    Color(u32 argb) {
-        *reinterpret_cast<u32*>(this) = argb;
 
+    // 0xAARRGGBB
+    Color(unsigned int argb) {
+        *reinterpret_cast<unsigned int *>(this) = argb;
         r = calc_color(a, r);
         g = calc_color(a, g);
         b = calc_color(a, b);
     }
 
     // накладывает на этот цвет color
-    Color combine(const Color& color) const {
-
+    [[nodiscard]] Color combine(const Color &color) const {
         u8 inv_alpha = 0xff - color.a;
 
         Color result;
@@ -57,12 +55,17 @@ struct Color {
 
 #undef calc_color
 
-    operator u32() const {
-        return static_cast<u32>(r << 16) + (g << 8) + b;
+    explicit operator unsigned int() const {
+        return static_cast<unsigned int>(r << 16) + (g << 8) + b;
     }
 };
 
-bool is_draw(const Color& color) {
+bool operator==(const Color &lhs, const Color &rhs) {
+    return reinterpret_cast<const unsigned int *>(&lhs) ==
+           reinterpret_cast<const unsigned int *>(&rhs);
+}
+
+bool is_draw(const Color &color) {
     return color.a != 0;
 }
 
@@ -76,3 +79,5 @@ bool is_draw(const Color& color) {
 #define GREY Color(0xffC4C4C4)
 #define YELLOW Color(0xffffff00)
 #define PURPLE Color(0xffff00ff)
+
+#endif  // GAME_ENGINE_COLOR

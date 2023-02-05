@@ -1,47 +1,44 @@
 ﻿
-#define LOG_DELTA_DRAW_POS dot(-30, 18) * gobj_state.size
+#define LOG_DELTA_DRAW_POS Dot(-30, 18) * gobj_state.size
 
 #define LOG_DP_SPEED 200
 
 struct Log {
+    inline static const game_object_state gobj_state =
+        game_object_state(1, 0, 0.3);
 
-	inline static const game_object_state gobj_state = game_object_state(1, 0, 0.3);
+    inline static const efloat collision_radius = 4;
 
-	inline static const point_t collision_radius = 4;
+    inline static const int hp = 1;
 
-	inline static const s16 hp = 1;
+    Dot pos;
+    Dot dp;
 
-	serialization_traits_byte(Log);
+    Log() = default;
 
-	dot pos;
-	dot dp;
+    Log(const Dot &p) : pos(p) {
+    }
 
+    [[nodiscard]] collision_circle get_collision() const {
+        return collision_circle(Circle(pos, collision_radius));
+    }
 
-	Log(){}
-	Log(const dot& p) {
-		pos = p;
-	}
+    void simulate(efloat delta_time) {
+        Dot ddp;
+        simulate_move2d(pos, dp, ddp, delta_time);
+    }
 
-	collision_circle get_collision() const {
-		return Circle(pos, collision_radius);
-	}
+    void draw() const {
+        draw_sprite(pos + LOG_DELTA_DRAW_POS, gobj_state.size, SP_LOG);
 
-	void simulate(point_t delta_time) {
-		dot ddp;
-		simulate_move2d(pos, dp, ddp, delta_time);
-	}
+        draw_collision_obj(*this);
+    }
 
-	void draw() const {
-		draw_sprite(pos + LOG_DELTA_DRAW_POS, gobj_state.size, SP_LOG);
+    void simulate_hit(const Player &player) {
+        add_hit_effect(pos + Dot(-10, 8) * gobj_state.size);
 
-		draw_collision_obj(*this);
-	}
-	
-	void simulate_hit(const Player& player) {
-		add_hit_effect(pos + dot(-10, 8) * gobj_state.size);
-
-		dp += player.get_dir() * LOG_DP_SPEED;
-	}
+        dp += player.get_dir() * LOG_DP_SPEED;
+    }
 };
 
 std::vector<Log> Logs;

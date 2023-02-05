@@ -1,141 +1,151 @@
-﻿#pragma once
+﻿#ifndef GAME_ENGINE_GEOMETRY_LINE
+#define GAME_ENGINE_GEOMETRY_LINE
 
 #include "dot.h"
-#include "../../utils.h"
+#include "utils.h"
 
-
-// a, b, c
+// (a, b, c)
 // ax * by + c = 0
 class Line {
-    point_t a, b, c;
-    // a, b нормализованы!
-
+    efloat a = 0, b = 0, c = 0;
+    // a, b нормализованы для оптимизации
     // во избежание ошибок a, b, c закрыты
-    // можно написать сеттеры и геттеры
+    // закоммиченный код показывает, что нужно было бы сделать, если бы a, b
+    // были не нормализованы
 
 public:
-
-    point_t get_a() const {
+    [[nodiscard]] efloat get_a() const {
         return a;
     }
-    point_t get_b() const {
+
+    [[nodiscard]] efloat get_b() const {
         return b;
     }
-    point_t get_c() const {
+
+    [[nodiscard]] efloat get_c() const {
         return c;
     }
 
-    Line() {
-        a = b = c = 0;
-    }
-    Line(const dot& begin, const dot& end) {
+    Line() = default;
+
+    Line(const Dot &begin, const Dot &end) {
         a = begin.y - end.y;
         b = end.x - begin.x;
         // normalize
         {
-            dot ab = dot(a, b).normalize();
+            Dot ab = Dot(a, b).normalize();
             a = ab.x;
             b = ab.y;
         }
         c = -a * begin.x - b * begin.y;
     }
-    Line(point_t A, point_t B, point_t C) {
-        a = A;
-        b = B;
-        c = C;
+
+    Line(efloat A, efloat B, efloat C) : a(A), b(B), c(C) {
         // normalize
         {
-            point_t d = dot(a, b).getLen();
-            if (d != 0) {
+            efloat d = Dot(a, b).get_len();
+            if (std::abs(d) > EPS) {
                 a /= d;
                 b /= d;
                 c /= d;
+            } else {
+                a = b = c = 0;
             }
         }
     }
 
     // возвращает перпендикуляр из точки
-    Line getPerp(const dot& point) const {
-        point_t A = -b, B = a;
-        point_t C = -A * point.x - B * point.y;
-        return Line(A, B, C);
+    [[nodiscard]] Line get_perp(const Dot &point) const {
+        efloat A = -b, B = a;
+        efloat C = -A * point.x - B * point.y;
+        return {A, B, C};
     }
 
     // возвращает параллельную прямую на расстоянии dist
     // если оно будет отрицательно, то вернет с другой стороны
-    Line getParallel(point_t dist) const {
-        return Line(a, b, c + dist /* * sqrt(a * a + b * b)*/);
+    [[nodiscard]] Line get_parallel(efloat dist) const {
+        return {a, b, c + dist /* * sqrt(a * a + b * b)*/};
     }
 
     // возвращает нормализованный вектор прямой умноженный на mult
-    dot getVector(point_t mult = 1) const {
-        return dot(-b, a)/*.normalize()*/ * mult;
+    [[nodiscard]] Dot get_vector(efloat mult = 1) const {
+        return Dot(-b, a) /*.normalize()*/ * mult;
     }
 
     // возвращает точку пересечения двух прямых
-    dot intersect(const Line& Rhs) const {
-        point_t x, y;
+    [[nodiscard]] Dot intersect(const Line &Rhs) const {
+        efloat x, y;
         // ax + by + c = 0
         // by = -c - ax
         // y  = (-ax - c) / b
 
-        if (Rhs.b != 0) {
+        if (std::abs(Rhs.b) > EPS) {
             x = (b * Rhs.c / Rhs.b - c) / (a - b * Rhs.a / Rhs.b);
             y = (-x * Rhs.a - Rhs.c) / Rhs.b;
-        }
-        else {
+        } else {
             x = -Rhs.c / Rhs.a;
             y = (-x * a - c) / b;
         }
-        return dot(x, y);
+        return {x, y};
     }
 
     // возвращает точку пересечения перпендикуляра
-    dot perpIntersect(const dot& point) const {
-        return intersect(getPerp(point));
+    [[nodiscard]] Dot perp_intersect(const Dot &point) const {
+        return intersect(get_perp(point));
     }
 
-    // отражает точки от прямой
-    std::vector<dot> reflection(const std::vector<dot>& Dots) const {
-        std::vector<dot> Result(Dots.size());
-        for (int i = 0; i < Result.size(); i++) {
-            Result[i] = Dots[i] + (perpIntersect(Dots[i]) - Dots[i]) * 2;
-        }
-        return Result;
+    // отражает точку от прямой
+    [[nodiscard]] Dot reflection(const Dot &p) const {
+        return p + (perp_intersect(p) - p) * 2;
     }
 
     // возвращает длину перпендикуляра
-    point_t dist(const dot& point) const {
-        return abs(a * point.x + b * point.y + c) /* / std::sqrt(a * a + b * b)*/;
-    }
-    // возвращает расстояние между ПАРАЛЛЕЛЬНЫМИ прямыми
-    point_t dist(const Line& parallel) const {
-        return abs(c - parallel.c) /* / sqrt(a * a + b * b)*/;
+    [[nodiscard]] efloat dist(const Dot &point) const {
+        return std::abs(
+            a * point.x + b * point.y + c
+        ) /* / std::sqrt(a * a + b * b)*/;
     }
 
-    bool isParallel(const Line& Rhs) const {
-        return a * Rhs.b - b * Rhs.a == 0;
+    // возвращает расстояние между ПАРАЛЛЕЛЬНЫМИ прямыми
+    [[nodiscard]] efloat dist(const Line &parallel) const {
+        return std::abs(c - parallel.c) /* / sqrt(a * a + b * b)*/;
     }
-    bool isPerp(const Line& Rhs) const {
-        return a * Rhs.a + b * Rhs.b == 0;
+
+    // параллельны ли прямые
+    [[nodiscard]] bool is_parallel(const Line &rhs) const {
+        return std::abs(a * rhs.b - b * rhs.a) < EPS;
     }
-    bool ison(const dot& point) const {
+
+    // перпендикулярны ли прямые
+    [[nodiscard]] bool is_perp(const Line &rhs) const {
+        return std::abs(a * rhs.a + b * rhs.b) < EPS;
+    }
+
+    // лежит ли точка на прямой
+    [[nodiscard]] bool ison(const Dot &point) const {
         return a * point.x + b * point.y + c == 0;
     }
 
-    bool operator == (const Line& Rhs) const {
-        // 1 1 1
+    bool operator==(const Line &Rhs) const {
+        // 1 1  1
         // 1 0 -1
         // 0 1 -1
-        // 0 0 1
-        point_t sign;
+        // 0 0  1
+        efloat sign;
         if ((a < 0) ^ (Rhs.a < 0)) {
             sign = -1;
-        }
-        else {
+        } else {
             sign = 1;
         }
 
-        return (a == sign * Rhs.a) && (b == sign * Rhs.b) && (c == sign * Rhs.c);
+        return std::abs(a - sign * Rhs.a) < EPS &&
+               std::abs(b - sign * Rhs.b) < EPS &&
+               std::abs(c - sign * Rhs.c) < EPS;
+    }
+
+    friend std::ostream &operator<<(std::ostream &output, const Line &l) {
+        return output << "Line(" << l.a << ", " << l.b << ", " << l.c << ')';
     }
 };
+
+#endif  // GAME_ENGINE_GEOMETRY_LINE

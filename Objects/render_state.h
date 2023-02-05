@@ -1,44 +1,75 @@
-﻿#pragma once
+﻿#ifndef GAME_ENGINE_RENDER_STATE
+#define GAME_ENGINE_RENDER_STATE
 
 #include <windows.h>
-#include "../utils.h"
+#include "Sprite\color.h"
+#include "utils.h"
 
-struct Render_state {
-    u32 height, width;
+class Render_state {
+    unsigned int m_height = 0, m_width = 0;
 
-    Color* render_memory; // память для рендера
-    u32 render_memory_len = 0;
+    Color *m_render_memory = nullptr;  // память для рендера
 
-    BITMAPINFO bitmap_info;
+    unsigned int m_render_memory_len = 0;
+
+    BITMAPINFO m_bitmap_info{};
+
+public:
+    Render_state() = default;
+    Render_state(const Render_state &copy_object) = delete;
+    Render_state(Render_state &&move_object) = delete;
+
+    Render_state &operator=(const Render_state &source) = delete;
+    Render_state &operator=(Render_state &&source) = delete;
 
     // изменение размеров окна
-    void resize(u32 w, u32 h) {
-        width = w;
-        height = h;
+    void resize(unsigned int new_width, unsigned int new_height) {
+        m_width = new_width;
+        m_height = new_height;
 
         // update render_memory
         {
-            u64 size = static_cast<u64>(w) * h;
+            u64 size = static_cast<u64>(new_width) * new_height;
 
-            if (render_memory_len < size) { // не хватает памяти
-                delete[] render_memory;
-                render_memory = new Color[size];
-                render_memory_len = size;
+            if (m_render_memory_len < size) {  // не хватает памяти
+                delete[] m_render_memory;
+                m_render_memory = new Color[size];
+                m_render_memory_len = size;
             }
         }
-        
+
         // update bitmap_info
         {
-            auto& header = bitmap_info.bmiHeader;
+            auto &header = m_bitmap_info.bmiHeader;
             header.biSize = sizeof(header);
-            header.biWidth = w;
-            header.biHeight = h;
+            header.biWidth = static_cast<LONG>(new_width);
+            header.biHeight = static_cast<LONG>(new_height);
             header.biPlanes = 1;
             header.biBitCount = 32;
             header.biCompression = BI_RGB;
         }
     }
 
-    Render_state& operator = (const Render_state& source) = delete;
-    Render_state& operator = (Render_state&& source) = delete;
+    // вернет указатель на начало строки памяти экрана
+    [[nodiscard]] Color *operator[](unsigned int row) const {
+        return m_render_memory + row * m_width;
+    }
+
+    [[nodiscard]] unsigned int width() const {
+        return m_width;
+    }
+
+    [[nodiscard]] unsigned int height() const {
+        return m_height;
+    }
+
+    [[nodiscard]] Color *render_memory() const {
+        return m_render_memory;
+    }
+
+    [[nodiscard]] BITMAPINFO &bitmap_info() {
+        return m_bitmap_info;
+    }
 };
+
+#endif  // GAME_ENGINE_RENDER_STATE

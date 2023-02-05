@@ -2,29 +2,30 @@
 #define BUSH_SIZE 0.5
 
 // fixeds
-#define BUSH_DELTA_DRAW_POS dot(-15, 20) * BUSH_SIZE
+#define BUSH_DELTA_DRAW_POS Dot(-15, 20) * BUSH_SIZE
 
 // physics
 #define BUSH_COLLISION_RADIUS 5
 
 struct Bush {
-	dot pos;
+    Dot pos;
 
-	serialization_traits_byte(Bush);
+    Bush() = default;
 
-	Bush(dot pos) {
-		this->pos = pos - BUSH_DELTA_DRAW_POS;
-	}
-	Bush() {}
+    explicit Bush(const Dot &new_pos) : pos(new_pos - BUSH_DELTA_DRAW_POS) {
+    }
 
-	collision_circle get_collision() const {
-		return Circle(pos, BUSH_COLLISION_RADIUS);
-	}
+    [[nodiscard]] collision_circle get_collision() const {
+        return collision_circle(Circle(pos, BUSH_COLLISION_RADIUS));
+    }
 
-	void draw() const {
-		draw_sprite(pos + BUSH_DELTA_DRAW_POS + dot(0, -13) * BUSH_SIZE, BUSH_SIZE, SP_LARGE_SHADOW);
-		draw_sprite(pos + BUSH_DELTA_DRAW_POS, BUSH_SIZE, SP_BUSH);
+    void draw() const {
+        draw_sprite(
+            pos + BUSH_DELTA_DRAW_POS + Dot(0, -13) * BUSH_SIZE, BUSH_SIZE,
+            SP_LARGE_SHADOW
+        );
+        draw_sprite(pos + BUSH_DELTA_DRAW_POS, BUSH_SIZE, SP_BUSH);
 
-		draw_collision_obj(*this);
-	}
+        draw_collision_obj(*this);
+    }
 };

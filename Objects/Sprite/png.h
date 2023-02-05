@@ -1969,8 +1969,8 @@ LodePNG. If you encounter a PNG image that doesn't work properly with this
 decoder, feel free to send it and I'll use it to find and fix the problem.
 
 My email address is (puzzle the account and domain together with an @ symbol):
-Domain: gmail dot com.
-Account: lode dot vandevenne.
+Domain: gmail Dot com.
+Account: lode Dot vandevenne.
 
 
 Copyright (c) 2005-2020 Lode Vandevenne

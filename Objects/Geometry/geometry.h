@@ -1,8 +1,4 @@
-﻿
-#define PI acos(-1)
-
+﻿#include "circle.h"
 #include "dot.h"
-
-#include "circle.h"
-
+#include "geometry_utils.h"
 #include "line.h"

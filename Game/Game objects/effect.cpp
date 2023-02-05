@@ -1,20 +1,18 @@
 ﻿
 struct effect {
-	dot pos;
+	Dot pos;
 
 	animation anim;
 
-	serialization_traits_byte(effect);
-
 	effect() {}
 
-	effect(const dot& pos, const animation& anim) {
+	effect(const Dot& pos, const animation& anim) {
 		this->pos = pos;
 		this->anim = anim;
 	}
 
 	// вернет правду, если его анимация закончилась и нужно удалить объект
-	bool simulate(point_t delta_time) {
+	bool simulate(efloat delta_time) {
 		return anim.frame_update(delta_time);
 	}
 
@@ -28,11 +26,11 @@ struct effect {
 
 std::vector<effect> Effects;
 
-void add_hit_effect(const dot& pos) {
+void add_hit_effect(const Dot& pos) {
 	Effects.push_back(effect(pos, HIT_EFFECT_ANIM));
 }
 
-void add_death_effect(const dot& pos) {
+void add_death_effect(const Dot& pos) {
 	Effects.push_back(effect(pos, DEATH_EFFECT_ANIM));
 }
 

@@ -1,120 +1,121 @@
-﻿#pragma once
+﻿#ifndef GAME_ENGINE_MATRIX
+#define GAME_ENGINE_MATRIX
 
-#include "../utils.h"
+#include "..\utils.h"
 
 /*
-    matrix
-
-     col
-   +-----+
-   |#####| r
-   |#####| o
-   |#####| w
-   +-----+
-*/
-template<typename T>
-class matrix {
-    u32 colLen; // колво столбцов
-    u32 rowLen; // колво строк
-    T* memory;
-    
+ *     width
+ *  h +-----+
+ *  e |#####|
+ *  i |#####|
+ *  g |#####|
+ *  h |#####|
+ *  t +-----+
+ */
+template <typename T>
+class Matrix {
+    unsigned int m_height = 0;  // колво строк
+    unsigned int m_width = 0;   // колво столбцов
+    T *m_memory = nullptr;
 
     // обнуление
     void zeroing() {
-        memory = 0;
-        rowLen = colLen = 0;
+        m_height = m_width = 0;
+        m_memory = nullptr;
     }
 
-    void copy(const matrix& source) {
-        colLen = source.colLen;
-        rowLen = source.rowLen;
-        u32 n = colLen * rowLen;
-        memory = new T[n];
-        for (u32 i = 0; i < n; i++) {
-            memory[i] = source.memory[i];
+    void copy_matrix(const Matrix &copy_object) {
+        m_height = copy_object.m_height;
+        m_width = copy_object.m_width;
+        unsigned int n = m_height * m_width;
+        m_memory = new T[n];
+        for (unsigned int i = 0; i < n; i++) {
+            m_memory[i] = copy_object.m_memory[i];
         }
     }
-    void move(matrix& source) {
-        memory = source.memory;
-        rowLen = source.rowLen;
-        colLen = source.colLen;
 
-        source.zeroing();
+    void move_matrix(Matrix &move_object) {
+        m_memory = move_object.m_memory;
+        m_height = move_object.m_height;
+        m_width = move_object.m_width;
+        move_object.zeroing();
     }
 
 public:
+    Matrix() = default;
 
-    u32 getRowLen() const {
-        return rowLen;
-    }
-    u32 getColLen() const {
-        return colLen;
-    }
-
-    matrix() {
-        zeroing();
-    }
-    matrix(u32 rowLen, u32 colLen) {
-        this->colLen = colLen;
-        this->rowLen = rowLen;
-
-        u32 n = colLen * rowLen;
-        memory = new T[n];
+    Matrix(unsigned int height, unsigned int width)
+        : m_height(height), m_width(width) {
+        unsigned int n = height * width;
+        m_memory = new T[n];
         for (int i = 0; i < n; i++) {
-            memory[i] = T();
+            m_memory[i] = T();
         }
     }
-    matrix(std::initializer_list<std::initializer_list<T>> lists) {
 
-        rowLen = lists.size();
-        if (rowLen != 0) {
-            colLen = (*lists.begin()).size();
+    Matrix(std::initializer_list<std::initializer_list<T>> lists) {
+        m_height = lists.size();
+        if (m_height != 0) {
+            m_width = (*lists.begin()).size();
         }
 
-        memory = new T[rowLen * colLen];
+        m_memory = new T[m_height * m_width];
 
-        T* temp = memory;
-        for (auto& it : lists) {
-            for (auto& jt : it) {
-                *temp = jt;
+        // move items from lists
+        T *temp = m_memory;
+        for (auto &it : lists) {
+            for (auto &jt : it) {
+                *temp = std::move(jt);
                 temp++;
             }
         }
     }
-    matrix(const matrix& source) {
-        copy(source);
+
+    Matrix(const Matrix &copy_object) {
+        copy_matrix(copy_object);
     }
-    matrix(matrix&& source) noexcept {
-        move(source);
+
+    Matrix(Matrix &&move_object) noexcept {
+        move_matrix(move_object);
     }
-    ~matrix() {
-        delete[] memory;
+
+    ~Matrix() {
+        delete[] m_memory;
+    }
+
+    [[nodiscard]] unsigned int height() const {
+        return m_height;
+    }
+
+    [[nodiscard]] unsigned int width() const {
+        return m_width;
     }
 
     void clear() {
-        delete[] memory;
-        memory = 0;
-        colLen = rowLen = 0;
+        delete[] m_memory;
+        zeroing();
     }
 
-    matrix& operator = (const matrix& source) {
-        if (memory != source.memory) {
-            delete[] memory;
-            copy(source);
-        }
-        return *this;
-    }
-    matrix& operator = (matrix&& source) noexcept {
-        if (memory != source.memory) {
-            delete[] memory;
-            move(source);
+    Matrix &operator=(const Matrix &copy_object) {
+        if (this != &copy_object) {
+            delete[] m_memory;
+            copy_matrix(copy_object);
         }
         return *this;
     }
 
-    T* operator [](u32 row) const {
-        ASSERT(row < rowLen, "WRONG ROW");
+    Matrix &operator=(Matrix &&move_object) noexcept {
+        if (this != &move_object) {
+            delete[] m_memory;
+            move_matrix(move_object);
+        }
+        return *this;
+    }
 
-        return memory + row * colLen;
+    T *operator[](unsigned int row) const {
+        ASSERT(row < m_height, "wrong row");
+        return m_memory + row * m_width;
     }
 };
+
+#endif  // GAME_ENGINE_MATRIX
