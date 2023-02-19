@@ -1,6 +1,10 @@
 ﻿
 // заполняет значения dest[0], dest[1], ..., dest[len-1] значением val32
 void fill(unsigned int *dest, unsigned int val32, unsigned int len) {
+    // можно использовать и это, но реализация ниже оказывается быстрее
+    // std::fill_n(dest, len, val32);
+    // memset(dest, val32, len);
+
     u64 val64 = (static_cast<u64>(val32) << 32) | val32;
 
     len--;

@@ -5,6 +5,10 @@ efloat scale_factor = 0; // множитель масштабирования = 
 
 #include "basic_render.cpp"
 
+//
+#include "multi_threaded_render.cpp"
+//
+
 #include "render_geometry.cpp"
 
 #include "render_text.cpp"

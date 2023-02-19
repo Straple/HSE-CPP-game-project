@@ -90,7 +90,11 @@ public:
         hdc = GetDC(window);
     }
 
+    // симулирует один игровой кадр
+    // delta_time = время между кадрами
     void simulate_frame(efloat delta_time) {
+        global_time_accum = 0;
+
         update_controls();
 
         simulate_game(input, delta_time, [&]() -> void {
@@ -125,9 +129,11 @@ public:
                     WHITE
                 );
 
-                // draw_object(render_state.width(), Dot(), 1, WHITE);
-                // draw_object(render_state.height(), Dot(0, 10), 1, WHITE);
+                draw_object(render_state.width(), Dot(0, 10), 0.5, WHITE);
+                draw_object(render_state.height(), Dot(0, 20), 0.5, WHITE);
             }
+
+            draw_object(global_time_accum / delta_time * 100, Dot(), 0.5, RED);
         }
 
         release_frame();
@@ -179,15 +185,20 @@ public:
     }
 
 private:
+    // передает кадр ОС, чтобы та вывела его на монитор
     void release_frame() {
         StretchDIBits(
-            hdc, 0, 0, static_cast<int>(render_state.width()), render_state.height(), 0, 0,
-            static_cast<int>(render_state.width()), render_state.height(),
-            reinterpret_cast<void*>(render_state.render_memory()),
+            hdc, 0, 0, static_cast<int>(render_state.width()),
+            static_cast<int>(render_state.height()), 0, 0,
+            static_cast<int>(render_state.width()),
+            static_cast<int>(render_state.height()),
+            reinterpret_cast<void *>(render_state.render_memory()),
             &render_state.bitmap_info(), DIB_RGB_COLORS, SRCCOPY
         );
     }
 
+    // обновляет состояние окна:
+    // окно закрыли, изменили размер
     static LRESULT CALLBACK
     window_callback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         LRESULT result = 0;
@@ -196,7 +207,6 @@ private:
             case WM_DESTROY: {
                 running = false;
             } break;
-
             case WM_SIZE: {
                 // get rect window
                 {
@@ -215,7 +225,6 @@ private:
                                   0.5;
 
             } break;
-
             default: {
                 result = DefWindowProc(hwnd, uMsg, wParam, lParam);
             }
@@ -223,6 +232,7 @@ private:
         return result;
     }
 
+    // обновляет входные данные с клавиатуры и мыши
     void update_controls() {
         // обнуляем значение нажатия кнопки
         for (int i = 0; i < BUTTON_COUNT; i++) {
@@ -234,7 +244,6 @@ private:
         auto button_up = [&](button_t b) -> void {
             input.set_button(b, false, true);
         };
-
         auto button_down = [&](button_t b) -> void {
             input.set_button(b, true, true);
         };
@@ -248,11 +257,9 @@ private:
             switch (message.message) {
                 case WM_LBUTTONUP: {
                     button_up(BUTTON_MOUSE_L);
-
                 } break;
                 case WM_LBUTTONDOWN: {
                     button_down(BUTTON_MOUSE_L);
-
                 } break;
                 case WM_RBUTTONUP: {
                     button_up(BUTTON_MOUSE_R);
@@ -305,9 +312,7 @@ private:
                     }
 
 #undef update_button
-
                 } break;
-
                 default: {
                     TranslateMessage(&message);
                     DispatchMessage(&message);
@@ -321,9 +326,9 @@ private:
             RECT rect;
             GetWindowRect(window, &rect);
 
-            mouse.pos = Dot(static_cast<s64>(message.pt.x) -
+            mouse.pos = Dot(static_cast<double>(message.pt.x) -
                                 std::max<int>(0, rect.left) + 0.2,
-                            static_cast<s64>(rect.bottom) - message.pt.y) /
+                            static_cast<double>(rect.bottom) - message.pt.y) /
                             scale_factor -
                         arena_half_size;
         }
@@ -338,7 +343,11 @@ int main() {
     ShowCursor(show_cursor);
 
     read_sprites();
+    read_spritesheets();
+
     build_world();
+
+    init_render_threads();
 
     engine_app eng;
 
@@ -364,5 +373,7 @@ int main() {
             time_tick_prev = cur_time_tick;
         }
     }
+
+    join_all_render_threads();
     return 0;
 }

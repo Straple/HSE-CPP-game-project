@@ -1,4 +1,4 @@
-﻿enum sprite_t : u8 {
+﻿enum sprite_t {
 
     // world
 
@@ -11,23 +11,6 @@
     SP_GRASS_BACKGROUND,
     // SP_WALL,
     SP_FLOOR,
-
-    // player
-
-    SP_PLAYER,
-    SP_PLAYER_CLOSED_EYES,
-
-    // enemies
-
-    SP_BAT,
-    SP_BAT_INVERSE,
-
-    SP_SLIME,
-
-    // effects
-
-    SP_HIT_EFFECT,
-    SP_DEATH_EFFECT,
 
     // shadows
 
@@ -49,20 +32,46 @@
     SP_COUNT,
 };
 
-sprite Sprites[sprite_t::SP_COUNT];
+std::vector<Sprite> Sprites(sprite_t::SP_COUNT);
+
+enum spritesheet_t {
+    SS_PLAYER,
+
+    // enemies
+
+    SS_BAT,
+    SS_BAT_INVERSE,
+
+    SS_SLIME,
+
+    // effects
+
+    SS_HIT_EFFECT,
+    SS_DEATH_EFFECT,
+
+    SS_COUNT,
+};
+
+std::vector<Spritesheet> Spritesheets(spritesheet_t::SS_COUNT);
+
+void read_sprite(sprite_t type, const std::string &path) {
+    Timer time;
+    Sprites[type] = read_sprite_from_png(std::string("Sprites\\") + path);
+    std::cout << type << " " << time << " " << Sprites[type].height() << 'x'
+              << Sprites[type].width() << std::endl;
+}
 
 void read_sprites() {
     Timer finish_time;
 
     std::cout << "read_sprites:\n";
 
-#define read(type, name)                                         \
-    {                                                            \
-        Timer time;                                              \
-        Sprites[type] = sprite(std::string("Sprites\\") + name); \
-        std::cout << #type << " " << time << " "                 \
-                  << Sprites[type].picture.height() << 'x'       \
-                  << Sprites[type].picture.width() << std::endl; \
+#define read(type, path)                                                       \
+    {                                                                          \
+        Timer time;                                                            \
+        Sprites[type] = read_sprite_from_png(std::string("Sprites\\") + path); \
+        std::cout << #type << " " << time << " " << Sprites[type].height()     \
+                  << 'x' << Sprites[type].width() << std::endl;                \
     }
 
     read(SP_KEK, "kek.png");
@@ -78,26 +87,6 @@ void read_sprites() {
         read(SP_GRASS_BACKGROUND, "World\\grass_background.png");
         // read(SP_WALL, "World\\wall.png");
         read(SP_FLOOR, "World\\floor.png");
-    }
-
-    // player
-    {
-        read(SP_PLAYER, "Player\\player.png");
-        read(SP_PLAYER_CLOSED_EYES, "Player\\player_closed_eyes.png");
-    }
-
-    // enemies
-    {
-        read(SP_BAT, "Enemies\\bat.png");
-        read(SP_BAT_INVERSE, "Enemies\\bat_inverse.png");
-
-        read(SP_SLIME, "Enemies\\slime.png");
-    }
-
-    // effects
-    {
-        read(SP_HIT_EFFECT, "Effects\\hit_effect.png");
-        read(SP_DEATH_EFFECT, "Effects\\death_effect.png");
     }
 
     // shadow
@@ -120,5 +109,44 @@ void read_sprites() {
 
 #undef read
 
-    std::cout << "total_time: " << finish_time << std::endl;
+    std::cout << "total_time: " << finish_time << std::endl << std::endl;
+}
+
+void read_spritesheets() {
+    Timer finish_time;
+    std::cout << "read_spritesheets:\n";
+
+#define read(type, path, frame_len_x)                                          \
+    {                                                                          \
+        Timer time;                                                            \
+        Spritesheets[type] = Spritesheet(                                      \
+            read_sprite_from_png(std::string("Sprites\\") + path), frame_len_x \
+        );                                                                     \
+        std::cout << #type << " " << time << " " << Sprites[type].height()     \
+                  << 'x' << Sprites[type].width() << std::endl;                \
+    }
+
+    // player
+    {
+        read(SS_PLAYER, "Player\\player.png", 64);
+        // read(SP_PLAYER_CLOSED_EYES, "Player\\player_closed_eyes.png");
+    }
+
+    // enemies
+    {
+        read(SS_BAT, "Enemies\\bat.png", 16);
+        read(SS_BAT_INVERSE, "Enemies\\bat_inverse.png", 16);
+
+        read(SS_SLIME, "Enemies\\slime.png", 64);
+    }
+
+    // effects
+    {
+        read(SS_HIT_EFFECT, "Effects\\hit_effect.png", 24);
+        read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
+    }
+
+#undef read
+
+    std::cout << "total_time: " << finish_time << std::endl << std::endl;
 }

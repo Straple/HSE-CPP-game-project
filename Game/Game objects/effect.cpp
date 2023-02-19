@@ -21,8 +21,8 @@ struct effect {
 	}
 };
 
-#define HIT_EFFECT_ANIM animation(SP_HIT_EFFECT, 0, 2, 0.1, 24)
-#define DEATH_EFFECT_ANIM animation(SP_DEATH_EFFECT, 0, 10, 0.1, 32)
+#define HIT_EFFECT_ANIM animation(SS_HIT_EFFECT, 0, 2, 0.1)
+#define DEATH_EFFECT_ANIM animation(SS_DEATH_EFFECT, 0, 10, 0.1)
 
 std::vector<effect> Effects;
 

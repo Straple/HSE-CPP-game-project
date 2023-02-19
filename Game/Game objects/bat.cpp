@@ -16,7 +16,7 @@ struct Bat {
 
     Dot walk_to;
 
-    // cooldowns
+    // cool-downs
     efloat attack_cooldown_accum = enemy_state.attack_cooldown;
     efloat paralyzed_cooldown_accum = enemy_state.paralyzed_cooldown;
     efloat walk_accum = 0;
@@ -27,7 +27,7 @@ struct Bat {
     bool looking = true;
 
     // animation
-    animation anim = animation(SP_BAT, 0, 5, BAT_FRAME_DURATION, 16);
+    animation anim = animation(SS_BAT, 0, 5, BAT_FRAME_DURATION);
 
     Bat() {
     }
@@ -54,9 +54,9 @@ struct Bat {
             anim.frame_update(delta_time);
 
             if (dp.x < 0) {
-                anim.sprite_sheet = SP_BAT_INVERSE;
+                anim.sprite_sheet = SS_BAT_INVERSE;
             } else {
-                anim.sprite_sheet = SP_BAT;
+                anim.sprite_sheet = SS_BAT;
             }
 
             if (looking) {

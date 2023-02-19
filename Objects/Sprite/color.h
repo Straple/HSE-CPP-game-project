@@ -1,4 +1,4 @@
-#ifndef GAME_ENGINE_COLOR
+﻿#ifndef GAME_ENGINE_COLOR
 #define GAME_ENGINE_COLOR
 
 #include "utils.h"

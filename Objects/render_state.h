@@ -52,6 +52,7 @@ public:
 
     // вернет указатель на начало строки памяти экрана
     [[nodiscard]] Color *operator[](unsigned int row) const {
+        ASSERT(row < height(), "row is bad");
         return m_render_memory + row * m_width;
     }
 

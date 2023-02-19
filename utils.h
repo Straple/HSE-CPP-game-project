@@ -1,8 +1,6 @@
 ﻿#ifndef GAME_ENGINE_UTILS
 #define GAME_ENGINE_UTILS
 
-#define GAME_ENGINE_DEBUG_MODE
-
 #include "Objects/Geometry/geometry_utils.h"
 #include "assert.h"
 
@@ -78,5 +76,11 @@ bool randomness(unsigned int percent) {
 
     return rnd_range(rnd) <= percent;
 }
+
+double global_time_accum = 0;
+
+#define CALC_TIME_START Timer timer_for_calc_time;
+
+#define CALC_TIME_END global_time_accum += timer_for_calc_time.time();
 
 #endif  // GAME_ENGINE_UTILS

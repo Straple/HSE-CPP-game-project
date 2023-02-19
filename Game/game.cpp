@@ -384,6 +384,7 @@ void render_game() {
                     default:
                         ASSERT(false, "undefind object type");
                 }
+                return 0;
             }
 
             void draw() const {
@@ -487,6 +488,7 @@ template <typename func_t>
 void simulate_input(const Input &input, func_t &&window_mode_callback) {
     if (pressed(BUTTON_ESC)) {
         running = false;
+        return;
     }
 
     if (pressed(BUTTON_ENTER)) {
@@ -535,7 +537,6 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
             scale_factor = render_state.height() * render_scale;
 
             // relax arena
-
             arena_half_size =
                 Dot(static_cast<efloat>(render_state.width()) / scale_factor,
                     static_cast<efloat>(1) / render_scale) *
@@ -555,6 +556,9 @@ void simulate_game(
     func_t &&window_mode_callback
 ) {
     simulate_input(input, window_mode_callback);
+    if (!running) {
+        return;
+    }
 
     camera.simulate(player.pos, delta_time);
 
@@ -569,8 +573,8 @@ void simulate_game(
 
     mouse.simulate(input);
 
-    //clear_screen(BLACK);
-    //draw_sprite(Dot(), 0.1, SP_KEK);
+    // clear_screen(BLACK);
+    // draw_sprite(Dot(), 0.1, SP_KEK);
 
     render_game();
 

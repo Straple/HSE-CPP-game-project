@@ -72,6 +72,7 @@ Dot get_direction(direction_t dir) {
             break;
     }
     ASSERT(false, "incorrect direction type");
+    return {0, 0};
 }
 
 #endif  // GAME_ENGINE_MOVE

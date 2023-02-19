@@ -1,31 +1,27 @@
 ﻿
 
 struct animation {
-    sprite_t sprite_sheet;  // лист спрайтов
+    spritesheet_t sprite_sheet;  // лист спрайтов
 
     u8 frame_begin;  // начало кадра в листе спрайтов
     u8 frame_size;   // количество кадров в анимации
     u8 frame_count;  // счетчик текущего кадра с 0
-    u8 len_x;        // длина спрайта одного кадра по x
 
     efloat frame_duration;    // продолжительность кадра
-    efloat frame_time_accum;  // время накопления до продолжительности кадра
+    efloat frame_time_accum;  // время накопления продолжительности кадра
 
-    animation() {
-    }
+    animation() = default;
 
     animation(
-        sprite_t sprite_sheet,
+        spritesheet_t sprite_sheet,
         u8 frame_begin,
         u8 frame_size,
-        efloat frame_duration,
-        u8 len_x
+        efloat frame_duration
     ) {
         this->sprite_sheet = sprite_sheet;
         this->frame_begin = frame_begin;
         this->frame_size = frame_size;
         this->frame_duration = frame_duration;
-        this->len_x = len_x;
         frame_count = 0;
         frame_time_accum = 0;
     }
@@ -53,7 +49,7 @@ struct animation {
     void draw(Dot pos, efloat size, func_t &&func = standart_pixel_func)
         const {
         draw_spritesheet(
-            pos, size, sprite_sheet, len_x, frame_begin + frame_count, func
+            pos, size, sprite_sheet, frame_begin + frame_count, func
         );
     }
 };

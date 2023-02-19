@@ -12,25 +12,25 @@
 #define PLAYER_RECOVERY_COOLDOWN 1
 
 const static animation player_anims[] = {
-    animation(SP_PLAYER, 0, 6, 0.1, 64),   // run right
-    animation(SP_PLAYER, 6, 6, 0.1, 64),   // run up
-    animation(SP_PLAYER, 12, 6, 0.1, 64),  // run left
-    animation(SP_PLAYER, 18, 6, 0.1, 64),  // run down
+    animation(SS_PLAYER, 0, 6, 0.1),   // run right
+    animation(SS_PLAYER, 6, 6, 0.1),   // run up
+    animation(SS_PLAYER, 12, 6, 0.1),  // run left
+    animation(SS_PLAYER, 18, 6, 0.1),  // run down
 
-    animation(SP_PLAYER, 24, 4, 0.12, 64),  // attack right
-    animation(SP_PLAYER, 28, 4, 0.12, 64),  // attack up
-    animation(SP_PLAYER, 32, 4, 0.12, 64),  // attack left
-    animation(SP_PLAYER, 36, 4, 0.12, 64),  // attack down
+    animation(SS_PLAYER, 24, 4, 0.12),  // attack right
+    animation(SS_PLAYER, 28, 4, 0.12),  // attack up
+    animation(SS_PLAYER, 32, 4, 0.12),  // attack left
+    animation(SS_PLAYER, 36, 4, 0.12),  // attack down
 
-    animation(SP_PLAYER, 40, 5, 0.1, 64),  // roll right
-    animation(SP_PLAYER, 45, 5, 0.1, 64),  // roll up
-    animation(SP_PLAYER, 50, 5, 0.1, 64),  // roll left
-    animation(SP_PLAYER, 55, 5, 0.1, 64),  // roll down
+    animation(SS_PLAYER, 40, 5, 0.1),  // roll right
+    animation(SS_PLAYER, 45, 5, 0.1),  // roll up
+    animation(SS_PLAYER, 50, 5, 0.1),  // roll left
+    animation(SS_PLAYER, 55, 5, 0.1),  // roll down
 
-    animation(SP_PLAYER, 0, 1, 0.1, 64),   // idle right
-    animation(SP_PLAYER, 6, 1, 0.1, 64),   // idle up
-    animation(SP_PLAYER, 12, 1, 0.1, 64),  // idle left
-    animation(SP_PLAYER, 18, 1, 0.1, 64),  // idle down
+    animation(SS_PLAYER, 0, 1, 0.1),   // idle right
+    animation(SS_PLAYER, 6, 1, 0.1),   // idle up
+    animation(SS_PLAYER, 12, 1, 0.1),  // idle left
+    animation(SS_PLAYER, 18, 1, 0.1),  // idle down
 };
 
 // дерево анимаций игрока
@@ -255,7 +255,8 @@ struct Player {
                     anim = player_anims[current_anim.get_num()];
 
                     // начинаем с 1 кадра, чтобы мы сразу начинали движение
-                    anim.frame_count = std::min<unsigned int>(1, anim.frame_size - 1);
+                    anim.frame_count =
+                        std::min<unsigned int>(1, anim.frame_size - 1);
                 }
 
                 anim.frame_update(delta_time);

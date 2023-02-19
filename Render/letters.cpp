@@ -1,4 +1,4 @@
-﻿const char* small_letters[][7] = {
+﻿const char *small_letters[][7] = {
     "",      "",
     " 000",  // a
     "    0", " 0000", "0   0", " 0000",
@@ -90,7 +90,7 @@
     "00000",  // z
     "   0",  "  0",   " 0",    "00000",
 };
-const char* letters[][7] = {
+const char *letters[][7] = {
     " 000",  // A
     "0   0", "0   0", "0   0", "00000", "0   0", "0   0",
 
@@ -169,7 +169,7 @@ const char* letters[][7] = {
     "00000",  // Z
     "    0", "   0",  "  0",   " 0",    "0",     "00000",
 };
-const char* digits[][7] = {
+const char *digits[][7] = {
     " 000",  // 0
     "0   0", "0  00", "0 0 0", "00  0", "0   0", " 000",
 
@@ -200,7 +200,7 @@ const char* digits[][7] = {
     " 000",  // 9
     "0   0", "0   0", " 0000", "    0", "0   0", " 000",
 };
-const char* symbols[][7] = {
+const char *symbols[][7] = {
     "",  // -
     "",      "",      " 000 ", "",      "",      "",
 
@@ -219,11 +219,11 @@ const char* symbols[][7] = {
     "  0  ",  // |
     "  0  ", "  0  ", "  0  ", "  0  ", "  0  ", "  0  ",
 };
-const char* unused_character[7] = {
+const char *unused_character[7] = {
     "00000", "0 0 0", "0 0 0", "00000", "00 00", "0 0 0", "00000",
 };
 
-const char* *get_symbol(char symbol) {
+const char **get_symbol(char symbol) {
     if (is_between('a', symbol, 'z')) {  // small letter
         return small_letters[symbol - 'a'];
     } else if (is_between('A', symbol, 'Z')) {  // letter
@@ -264,14 +264,14 @@ int symbol_len(char symbol) {
         int right_x = -1;
 
         auto memory = get_symbol(symbol);
-        for (unsigned int i = 0; i < 7; i++) {
+        for (int i = 0; i < 7; i++) {
             right_x = std::max<int>(right_x, strlen(memory[i]));
         }
         return right_x + 1;
     }
 }
 
-int text_len(const char* text) {
+int text_len(const char *text) {
     int max_len = 0;
     int len = 0;
     while (*text) {
@@ -289,15 +289,14 @@ int text_len(const char* text) {
 
 int sprite_len(sprite_t sprite) {
     int right_x = -1;
-    auto &pixels = Sprites[sprite].picture;
+    auto &pixels = Sprites[sprite];
 
-    for (unsigned int i = 0; i < pixels.height(); i++) {
-        for (unsigned int j = 0; j < pixels.width(); j++) {
+    for (int i = 0; i < pixels.height(); i++) {
+        for (int j = 0; j < pixels.width(); j++) {
             if (is_draw(pixels[i][j]) && right_x < j) {
                 right_x = j;
             }
         }
     }
-
     return right_x + 2;
 }

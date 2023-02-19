@@ -1,4 +1,4 @@
-#ifndef GAME_ENGINE_ASSERT
+﻿#ifndef GAME_ENGINE_ASSERT
 #define GAME_ENGINE_ASSERT
 
 #include <iostream>
