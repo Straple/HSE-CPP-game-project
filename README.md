@@ -21,3 +21,12 @@ implementation in assert.h
 implementation in utils.h
 
 ![image](https://user-images.githubusercontent.com/54230867/221964455-a50ea4b8-88a8-48b2-8700-a02ebfff701c.png)
+
+# to_string(val)
+
+Обертка над std::to_string(val). Нужна чтобы переопределить to_string для efloat и выписывать его с определенной точностью для однообразности. Используется для отрисовки плавающих чисел на экран.
+
+implementation in utils.h
+
+![image](https://user-images.githubusercontent.com/54230867/221967929-e8d29afd-95fe-4598-b80d-28086af892cf.png)
+
