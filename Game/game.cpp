@@ -517,6 +517,9 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
             // relax scaling
             scale_factor = render_state.height() * render_scale;
+#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+            clear_sprites_cache();
+#endif
 
             // relax arena
             arena_half_size =
@@ -535,6 +538,9 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
             // relax scaling
             scale_factor = render_state.height() * render_scale;
+#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+            clear_sprites_cache();
+#endif
 
             // relax arena
             arena_half_size =
@@ -580,10 +586,10 @@ void simulate_game(
 
     // draw_object(player.is_jumped, Dot(), 1, BLACK);
 
-    draw_text_align("1234567890+-!?.,|()", Dot(0, 0), 0.6, 0xffffffffff);
+    /*draw_text_align("1234567890+-!?.,|()", Dot(0, 0), 0.6, 0xffffffffff);
     draw_text_align(
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n\
 abcdefghijklmnopqrstuvwxyz",
         Dot(0, -20), 0.6, 0xffffffffff
-    );
+    );*/
 }

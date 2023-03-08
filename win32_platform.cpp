@@ -25,8 +25,8 @@ bool debug_mode = true;
 bool show_locator = false;
 bool running = true;
 
-bool show_console = false;
-bool show_cursor = false;
+bool show_console = true;
+bool show_cursor = true;
 bool show_fps = true;
 
 bool fullscreen_mode = true;
@@ -130,16 +130,22 @@ public:
                 draw_object(fps, Dot(5, 5) - arena_half_size, 0.5, WHITE);
 
                 draw_object(
-                    int(delta_time * 1000), Dot(20, 5) - arena_half_size, 0.5,
-                    WHITE
+                    static_cast<int>(delta_time * 1000),
+                    Dot(20, 5) - arena_half_size, 0.5, WHITE
                 );
 
-                // draw_object(render_state.width(), Dot(0, 10), 0.5, WHITE);
-                // draw_object(render_state.height(), Dot(0, 20), 0.5, WHITE);
-            }
+                draw_object(
+                    to_string(render_state.height()) + "x" +
+                        to_string(render_state.width()),
+                    Dot(30, 5) - arena_half_size, 0.5, WHITE
+                );
 
-            // draw_object(global_time_accum * 1000, Dot(), 0.5, RED);
-            global_time_accum = 0;
+                // draw_object(
+                //     static_cast<int>(global_time_accum * 1000),
+                //     Dot(60, 5) - arena_half_size, 0.5, RED
+                //);
+                global_time_accum = 0;
+            }
         }
 
         release_frame();
@@ -223,6 +229,9 @@ private:
 
                 // relax scaling
                 scale_factor = render_state.height() * render_scale;
+#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+                clear_sprites_cache();
+#endif
 
                 // relax arena
                 arena_half_size = Dot(static_cast<efloat>(render_state.width()

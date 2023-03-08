@@ -119,11 +119,10 @@ void read_spritesheets() {
 #define read(type, path, frame_len_x)                                          \
     {                                                                          \
         Timer time;                                                            \
-        Spritesheets[type] = Spritesheet(                                      \
-            read_sprite_from_png(std::string("Sprites\\") + path), frame_len_x \
-        );                                                                     \
-        std::cout << #type << " " << time << " " << Sprites[type].height()     \
-                  << 'x' << Sprites[type].width() << std::endl;                \
+        auto sprite = read_sprite_from_png(std::string("Sprites\\") + (path)); \
+        Spritesheets[type] = Spritesheet(sprite, frame_len_x);                 \
+        std::cout << #type << " " << time << " " << sprite.height() << 'x'     \
+                  << sprite.width() << std::endl;                              \
     }
 
     // player

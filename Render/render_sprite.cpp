@@ -1,4 +1,5 @@
-﻿
+﻿#define GAME_ENGINE_STANDARD_RENDER_SYSTEM
+
 void static_pos_update(Dot &pos, bool is_static) {
     if (!is_static) {
         pos -= camera.pos;
@@ -39,10 +40,11 @@ Color alpha_pixel_func(const Color &color) {
 
 #define shadow_pixel_func alpha_pixel_func<100>
 
-/*Sprite build_sprite_scaling(const Sprite &sprite, efloat size) {
+#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+Sprite build_sprite_scaling(const Sprite &sprite, efloat size) {
     Sprite result(
-        sprite.height() * size * scale_factor,
-        sprite.width() * size * scale_factor
+        static_cast<int>(sprite.height() * size * scale_factor),
+        static_cast<int>(sprite.width() * size * scale_factor)
     );
     efloat y = 0;
     for (int i = 0; i < sprite.height(); i++) {
@@ -63,7 +65,8 @@ Color alpha_pixel_func(const Color &color) {
         y += size * scale_factor;
     }
     return result;
-}*/
+}
+#endif
 
 // вызывается из других функций draw_sprite
 template <typename func_t = Color(const Color &color)>
@@ -73,50 +76,6 @@ void draw_sprite_matrix(
     const Sprite &pixels,
     func_t &&func = standart_pixel_func
 ) {
-    efloat rect_sz = size * scale_factor;
-
-    // auto colors = build_sprite_scaling(pixels, size);
-
-    /*pos.y *= scale_factor;
-    pos.y = int(pos.y);
-    pos.y /= scale_factor;
-
-    pos.x *= scale_factor;
-    pos.x = int(pos.x);
-    pos.x /= scale_factor;*/
-
-    /*int posx = (pos.x - size / 2 + arena_half_size.x) * scale_factor;
-    int posy = (pos.y - size / 2 + arena_half_size.y) * scale_factor;
-    posy -= pixels.height();
-
-    for (int i = std::max(-posy, 0);
-         i < std::min(int(render_state.height()) - posy, int(pixels.height()));
-         i++) {
-        for (int j = std::max(-posx, 0);
-             j <
-             std::min(int(render_state.width()) - posx, (int)pixels.width());
-             j++) {
-            ASSERT(
-                0 <= posx + j && posx + j < render_state.width(),
-                "something went wrong"
-            );
-            ASSERT(
-                0 <= posy + i && posy + i < render_state.height(),
-                "something went wrong"
-            );
-
-            if (is_draw(pixels[i][j])) {
-                render_state[posy + i][posx + j] =
-                    render_state[posy + i][posx + j].combine(func(pixels[i][j])
-                    );
-            } else if (debug_mode) {
-                render_state[posy + i][posx + j] =
-                    render_state[posy + i][posx + j].combine(Color(0xffffff, 60)
-                    );
-            }
-        }
-    }*/
-
     // efloat y = (pos.y + arena_half_size.y - size / 2) * scale_factor;
 
     /*{
@@ -136,6 +95,9 @@ void draw_sprite_matrix(
                   (sprite_y1 - sprite_y0) * id / count_of_render_threads);
         }
     }*/
+
+#ifdef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+    efloat rect_sz = size * scale_factor;
 
     // против разрывов в изображении
     s64 end_x = 0;
@@ -180,6 +142,52 @@ void draw_sprite_matrix(
 
         y -= rect_sz;
     }
+#else
+    /*efloat rect_sz = size * scale_factor;
+
+    pos.y *= scale_factor;
+    pos.y = int(pos.y);
+    pos.y /= scale_factor;
+
+    pos.x *= scale_factor;
+    pos.x = int(pos.x);
+    pos.x /= scale_factor;*/
+
+    int posx = (pos.x - size / 2 + arena_half_size.x) * scale_factor;
+    int posy = (pos.y - size / 2 + arena_half_size.y) * scale_factor;
+    posy -= pixels.height();
+
+    int i0 = std::max(-posy, 0);
+    int i1 = std::min(int(render_state.height()) - posy, int(pixels.height()));
+
+    int j0 = std::max(-posx, 0);
+    int j1 = std::min(int(render_state.width()) - posx, (int)pixels.width());
+
+    for (int i = i0; i < i1; i++) {
+        for (int j = j0; j < j1; j++) {
+            /*ASSERT(
+                0 <= posx + j && posx + j < render_state.width(),
+                "something went wrong"
+            );
+            ASSERT(
+                0 <= posy + i && posy + i < render_state.height(),
+                "something went wrong"
+            );*/
+
+            if (is_draw(pixels[i][j])) {
+                // more faster
+                // render_state[posy + i][posx + j] = pixels[i][j];
+                render_state[posy + i][posx + j] =
+                    render_state[posy + i][posx + j].combine(func(pixels[i][j])
+                    );
+            } else if (debug_mode) {
+                render_state[posy + i][posx + j] =
+                    render_state[posy + i][posx + j].combine(Color(0xffffff, 60)
+                    );
+            }
+        }
+    }
+#endif
 
     // std::this_thread::yield();
     // wait_all_render_threads();
@@ -285,11 +293,23 @@ void draw_sprite_matrix(
     }*/
 }
 
-// #include <map>
+#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+#include <map>
 
-// std::vector<std::map<efloat, Sprite>> Sprites_cache(SP_COUNT);
-// std::vector<std::map<efloat, std::map<unsigned int, Sprite>>>
-//     Spritesheets_cache(SS_COUNT);
+std::vector<std::map<efloat, Sprite>> Sprites_cache(SP_COUNT);
+std::vector<std::map<efloat, std::map<unsigned int, Sprite>>>
+    Spritesheets_cache(SS_COUNT);
+
+void clear_sprites_cache() {
+    for (auto &map : Sprites_cache) {
+        map.clear();
+    }
+    for (auto &map : Spritesheets_cache) {
+        map.clear();
+    }
+}
+
+#endif
 
 // рисует спрайт
 template <typename func_t = Color(const Color &color)>
@@ -305,14 +325,18 @@ void draw_sprite_static(
             pos.x - size / 2, pos.x + pixels.width() * size + size / 2,
             pos.y + size / 2, pos.y - pixels.height() * size - size / 2
         )) {
+#ifdef GAME_ENGINE_STANDARD_RENDER_SYSTEM
         draw_sprite_matrix(pos, size, Sprites[sprite], func);
-        /*if (!Sprites_cache[sprite].count(size)) {
-            CALC_TIME_START
+#else
+        if (!Sprites_cache[sprite].count(size)) {
+            global_time_accum++;
+            // CALC_TIME_START
             Sprites_cache[sprite][size] = build_sprite_scaling(pixels, size);
-            std::cout << "build" << std::endl;
-            CALC_TIME_END
+            // CALC_TIME_END
+            //  std::cout << "build" << std::endl;
         }
-        draw_sprite_matrix(pos, size, Sprites_cache[sprite][size], func);*/
+        draw_sprite_matrix(pos, size, Sprites_cache[sprite][size], func);
+#endif
     }
 }
 
@@ -396,25 +420,27 @@ void draw_spritesheet_static(
         return;
     }
 
+#ifdef GAME_ENGINE_STANDARD_RENDER_SYSTEM
     draw_sprite_matrix(
         pos, size, Spritesheets[spritesheet][sprite_count], func
     );
-
-    /*if (!Spritesheets_cache[spritesheet][size].count(sprite_count)) {
-        CALC_TIME_START
+#else
+    if (!Spritesheets_cache[spritesheet][size].count(sprite_count)) {
+        global_time_accum++;
+        // CALC_TIME_START
         Spritesheets_cache[spritesheet][size][sprite_count] =
             build_sprite_scaling(pixels, size);
-        CALC_TIME_END
-        std::cout << "build" << std::endl;
+        // CALC_TIME_END
+        // std::cout << "build" << std::endl;
     }
 
     draw_sprite_matrix(
         pos, size, Spritesheets_cache[spritesheet][size][sprite_count], func
-    );*/
+    );
+#endif
 }
 
 // рисует спрайт из листа спрайтов
-// len_x - длина спрайта по x
 // sprite_count - идентификатор спрайта
 template <typename func_t = Color(const Color &color)>
 void draw_spritesheet(

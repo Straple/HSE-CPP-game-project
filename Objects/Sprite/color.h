@@ -70,7 +70,7 @@ bool operator==(const Color &lhs, const Color &rhs) {
     return lhs.b == rhs.b && lhs.g == rhs.g && lhs.r == rhs.r && lhs.a == rhs.a;
 }
 
-bool is_draw(const Color &color) {
+inline bool is_draw(const Color &color) {
     return color.a != 0;
 }
 

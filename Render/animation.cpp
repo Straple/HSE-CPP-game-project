@@ -1,5 +1,4 @@
 ﻿
-
 struct animation {
     spritesheet_t sprite_sheet = spritesheet_t::SS_COUNT;  // лист спрайтов
 
