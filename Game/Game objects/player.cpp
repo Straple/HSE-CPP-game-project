@@ -255,8 +255,8 @@ struct Player {
                     anim = player_anims[current_anim.get_num()];
 
                     // начинаем с 1 кадра, чтобы мы сразу начинали движение
-                    anim.frame_count =
-                        std::min<unsigned int>(1, anim.frame_size - 1);
+                    anim.frame_cur_count =
+                        std::min<unsigned int>(1, anim.frame_count - 1);
                 }
 
                 anim.frame_update(delta_time);

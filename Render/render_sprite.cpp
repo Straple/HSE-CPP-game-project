@@ -39,7 +39,7 @@ Color alpha_pixel_func(const Color &color) {
 
 #define shadow_pixel_func alpha_pixel_func<100>
 
-Sprite build_sprite_scaling(const Sprite &sprite, efloat size) {
+/*Sprite build_sprite_scaling(const Sprite &sprite, efloat size) {
     Sprite result(
         sprite.height() * size * scale_factor,
         sprite.width() * size * scale_factor
@@ -63,7 +63,7 @@ Sprite build_sprite_scaling(const Sprite &sprite, efloat size) {
         y += size * scale_factor;
     }
     return result;
-}
+}*/
 
 // вызывается из других функций draw_sprite
 template <typename func_t = Color(const Color &color)>
@@ -137,6 +137,16 @@ void draw_sprite_matrix(
         }
     }*/
 
+    // против разрывов в изображении
+    s64 end_x = 0;
+    {
+        efloat x = (pos.x + arena_half_size.x - size / 2) * scale_factor;
+        for (int j = 0; j < pixels.width(); j++) {
+            x += rect_sz;
+        }
+        end_x = static_cast<s64>(x + 0.1);
+    }
+
     efloat y = (pos.y + arena_half_size.y - size / 2) * scale_factor;
     for (int i = 0; i < pixels.height(); i++) {
         efloat x = (pos.x + arena_half_size.x - size / 2) * scale_factor;
@@ -153,6 +163,11 @@ void draw_sprite_matrix(
 
             x += (k - j) * rect_sz;
             s64 x1 = static_cast<s64>(x);
+
+            // против разрывов в изображении
+            if (k == pixels.width()) {
+                x1 = end_x;
+            }
 
             if (is_draw(pixels[i][j])) {
                 draw_rect_in_pixels(x0, y0, x1, y1, func(pixels[i][j]));
@@ -270,11 +285,11 @@ void draw_sprite_matrix(
     }*/
 }
 
-#include <map>
+// #include <map>
 
-std::vector<std::map<efloat, Sprite>> Sprites_cache(SP_COUNT);
-std::vector<std::map<efloat, std::map<unsigned int, Sprite>>>
-    Spritesheets_cache(SS_COUNT);
+// std::vector<std::map<efloat, Sprite>> Sprites_cache(SP_COUNT);
+// std::vector<std::map<efloat, std::map<unsigned int, Sprite>>>
+//     Spritesheets_cache(SS_COUNT);
 
 // рисует спрайт
 template <typename func_t = Color(const Color &color)>
@@ -381,7 +396,9 @@ void draw_spritesheet_static(
         return;
     }
 
-    draw_sprite_matrix(pos, size, Spritesheets[spritesheet][sprite_count], func);
+    draw_sprite_matrix(
+        pos, size, Spritesheets[spritesheet][sprite_count], func
+    );
 
     /*if (!Spritesheets_cache[spritesheet][size].count(sprite_count)) {
         CALC_TIME_START

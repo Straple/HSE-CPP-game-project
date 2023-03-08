@@ -25,7 +25,7 @@ struct Mouse {
         focus = false;
     }
 
-    void draw() {
+    void draw() const {
         if (is_down) {
             Dot pos0(
                 std::min(focus_pos.x, pos.x), std::max(focus_pos.y, pos.y)

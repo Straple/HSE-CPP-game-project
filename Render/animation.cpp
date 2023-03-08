@@ -1,33 +1,31 @@
 ﻿
 
 struct animation {
-    spritesheet_t sprite_sheet;  // лист спрайтов
+    spritesheet_t sprite_sheet = spritesheet_t::SS_COUNT;  // лист спрайтов
 
-    u8 frame_begin;  // начало кадра в листе спрайтов
-    u8 frame_size;   // количество кадров в анимации
-    u8 frame_count;  // счетчик текущего кадра с 0
+    u8 frame_begin{};  // начало кадра в листе спрайтов
+    u8 frame_count{};  // количество кадров в анимации
+    u8 frame_cur_count = 0;  // счетчик текущего кадра с 0
 
-    efloat frame_duration;    // продолжительность кадра
-    efloat frame_time_accum;  // время накопления продолжительности кадра
+    efloat frame_duration{};  // продолжительность кадра
+    efloat frame_time_accum = 0;  // время накопления продолжительности кадра
 
     animation() = default;
 
     animation(
         spritesheet_t sprite_sheet,
         u8 frame_begin,
-        u8 frame_size,
+        u8 frame_count,
         efloat frame_duration
-    ) {
-        this->sprite_sheet = sprite_sheet;
-        this->frame_begin = frame_begin;
-        this->frame_size = frame_size;
-        this->frame_duration = frame_duration;
-        frame_count = 0;
-        frame_time_accum = 0;
+    )
+        : sprite_sheet(sprite_sheet),
+          frame_begin(frame_begin),
+          frame_count(frame_count),
+          frame_duration(frame_duration) {
     }
 
     void reset() {
-        frame_count = 0;
+        frame_cur_count = 0;
         frame_time_accum = 0;
     }
 
@@ -36,9 +34,9 @@ struct animation {
         frame_time_accum += delta_time;
         if (frame_time_accum > frame_duration) {
             frame_time_accum = 0;
-            frame_count++;
-            if (frame_count >= frame_size) {
-                frame_count = 0;
+            frame_cur_count++;
+            if (frame_cur_count >= frame_count) {
+                frame_cur_count = 0;
                 return true;
             }
         }
@@ -46,10 +44,9 @@ struct animation {
     }
 
     template <typename func_t = Color(const Color &color)>
-    void draw(Dot pos, efloat size, func_t &&func = standart_pixel_func)
-        const {
+    void draw(Dot pos, efloat size, func_t &&func = standart_pixel_func) const {
         draw_spritesheet(
-            pos, size, sprite_sheet, frame_begin + frame_count, func
+            pos, size, sprite_sheet, frame_begin + frame_cur_count, func
         );
     }
 };

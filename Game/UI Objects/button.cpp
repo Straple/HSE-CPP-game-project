@@ -1,6 +1,6 @@
 ﻿// текст с колизией
 struct button {  // кнопка
-    const char* text;
+    const char *text;
     Dot pos;  // центр текста по x
     efloat size;
     collision_box coll;
@@ -12,7 +12,7 @@ struct button {  // кнопка
     }
 
     button(
-        const char* _text,
+        const char *_text,
         Dot _pos,
         efloat _size,
         Color _color,
@@ -53,9 +53,9 @@ struct button {  // кнопка
     }
 
     // обновит состояние фокуса мыши
-    void simulate(Mouse *mouse) {
-        if (coll.trigger(mouse->pos)) {
-            mouse->focus = true;
+    void simulate(Mouse &mouse) {
+        if (coll.trigger(mouse.pos)) {
+            mouse.focus = true;
             is_focus = true;
         } else {
             is_focus = false;

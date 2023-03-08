@@ -129,11 +129,12 @@ public:
                     WHITE
                 );
 
-                draw_object(render_state.width(), Dot(0, 10), 0.5, WHITE);
-                draw_object(render_state.height(), Dot(0, 20), 0.5, WHITE);
+                // draw_object(render_state.width(), Dot(0, 10), 0.5, WHITE);
+                // draw_object(render_state.height(), Dot(0, 20), 0.5, WHITE);
             }
 
-            draw_object(global_time_accum / delta_time * 100, Dot(), 0.5, RED);
+            // draw_object(global_time_accum * 1000, Dot(), 0.5, RED);
+            global_time_accum = 0;
         }
 
         release_frame();
@@ -347,7 +348,7 @@ int main() {
 
     build_world();
 
-    init_render_threads();
+    // init_render_threads();
 
     engine_app eng;
 
@@ -374,6 +375,6 @@ int main() {
         }
     }
 
-    join_all_render_threads();
+    // join_all_render_threads();
     return 0;
 }

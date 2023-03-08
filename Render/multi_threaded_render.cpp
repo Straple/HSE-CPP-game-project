@@ -87,12 +87,11 @@ void simulate_render_thread(render_thread_values &thr) {
     }
 }
 
-const int count_of_render_threads = 0;
+const int count_of_render_threads = 1;
 
-render_thread_values *Threads_vals =
-    new render_thread_values[count_of_render_threads];
+render_thread_values Threads_vals[count_of_render_threads];
 
-std::thread *Threads = new std::thread[count_of_render_threads];
+std::thread Threads[count_of_render_threads];
 
 void init_render_threads() {
     for (int i = 0; i < count_of_render_threads; i++) {
@@ -102,13 +101,13 @@ void init_render_threads() {
 }
 
 void wait_all_render_threads() {
-    for (int i = 0; i < count_of_render_threads; i++) {
-        Threads_vals[i].wait();
+    for (const auto &Threads_val : Threads_vals) {
+        Threads_val.wait();
     }
 }
 
 void join_all_render_threads() {
-    for (int i = 0; i < count_of_render_threads; i++) {
-        Threads[i].join();
+    for (auto &Thread : Threads) {
+        Thread.join();
     }
 }

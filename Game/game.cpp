@@ -578,6 +578,8 @@ void simulate_game(
 
     render_game();
 
+    // draw_object(player.pos, Dot(), 1, BLACK);
+
     /*draw_text_align(
         "\
 +---------------+\n\

@@ -62,7 +62,7 @@ public:
     }
 
     // вернет время между начальным тиком и текущим
-    [[nodiscard]] efloat time() const {
+    [[nodiscard]] efloat get() const {
         return static_cast<efloat>(get_ticks() - start_tick) /
                performance_frequency;
     }
@@ -79,7 +79,7 @@ public:
 };
 
 std::ostream &operator<<(std::ostream &output, const Timer &time) {
-    return output << std::fixed << std::setprecision(4) << time.time() << "s";
+    return output << std::fixed << std::setprecision(4) << time.get() << "s";
 }
 
 #endif  // GAME_ENGINE_TIME

@@ -52,11 +52,13 @@ bool is_between(const T &min, const T &val, const T &max) {
     return min <= val && val <= max;
 }
 
+// object -> string
 template <typename T>
 std::string to_string(const T &val) {
     std::ostringstream oss;
     oss << val;
-    return oss.str();
+    std::string s = oss.str();
+    return s;
 }
 
 std::string to_string(efloat val) {
@@ -81,6 +83,6 @@ double global_time_accum = 0;
 
 #define CALC_TIME_START Timer timer_for_calc_time;
 
-#define CALC_TIME_END global_time_accum += timer_for_calc_time.time();
+#define CALC_TIME_END global_time_accum += timer_for_calc_time.get();
 
 #endif  // GAME_ENGINE_UTILS

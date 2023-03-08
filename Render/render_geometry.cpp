@@ -40,12 +40,18 @@ void draw_rect2(Dot top_left, Dot bottom_right, const Color &color) {
 
 void draw_circle(const Circle &circle, const Color &color) {
     int top_y = clamp<int>(
-        0, (circle.pos.y + arena_half_size.y - circle.radius) * scale_factor,
-        render_state.height()
+        0,
+        static_cast<int>(
+            (circle.pos.y + arena_half_size.y - circle.radius) * scale_factor
+        ),
+        static_cast<int>(render_state.height())
     );
     int bottom_y = clamp<int>(
-        0, (circle.pos.y + arena_half_size.y + circle.radius) * scale_factor,
-        render_state.height() - 1
+        0,
+        static_cast<int>(
+            (circle.pos.y + arena_half_size.y + circle.radius) * scale_factor
+        ),
+        static_cast<int>(render_state.height()) - 1
     );
 
     for (int y = top_y; y <= bottom_y; y++) {
@@ -57,12 +63,18 @@ void draw_circle(const Circle &circle, const Color &color) {
         efloat delta = sqrt(quare(circle.radius) - quare(h));
 
         int left_x = clamp<int>(
-            0, (circle.pos.x + arena_half_size.x - delta) * scale_factor,
-            render_state.width()
+            0,
+            static_cast<int>(
+                (circle.pos.x + arena_half_size.x - delta) * scale_factor
+            ),
+            static_cast<int>(render_state.width())
         );
         int right_x = clamp<int>(
-            -1, (circle.pos.x + arena_half_size.x + delta) * scale_factor,
-            render_state.width() - 1
+            -1,
+            static_cast<int>(
+                (circle.pos.x + arena_half_size.x + delta) * scale_factor
+            ),
+            static_cast<int>(render_state.width()) - 1
         );
 
         draw_pixels(left_x, y, right_x + 1, y + 1, color);
@@ -97,12 +109,18 @@ void draw_line(const Line &line, efloat half_size, const Color &color) {
 
 void draw_rhombus(Dot pos, Dot half_size, const Color &color) {
     int top_y = clamp<int>(
-        0, (pos.y + arena_half_size.y - half_size.y) * scale_factor,
-        render_state.height()
+        0,
+        static_cast<int>(
+            (pos.y + arena_half_size.y - half_size.y) * scale_factor
+        ),
+        static_cast<int>(render_state.height())
     );
     int bottom_y = clamp<int>(
-        0, (pos.y + arena_half_size.y + half_size.y) * scale_factor,
-        render_state.height() - 1
+        0,
+        static_cast<int>(
+            (pos.y + arena_half_size.y + half_size.y) * scale_factor
+        ),
+        static_cast<int>(render_state.height()) - 1
     );
 
     for (int y = top_y; y <= bottom_y; y++) {
@@ -110,12 +128,18 @@ void draw_rhombus(Dot pos, Dot half_size, const Color &color) {
         efloat delta = (half_size.y - cur_h) * half_size.x / half_size.y;
 
         int left_x = clamp<int>(
-            0, (pos.x + arena_half_size.x - delta) * scale_factor,
-            render_state.width()
+            0,
+            static_cast<int>(
+                (pos.x + arena_half_size.x - delta) * scale_factor
+            ),
+            static_cast<int>(render_state.width())
         );
         int right_x = clamp<int>(
-            -1, (pos.x + arena_half_size.x + delta) * scale_factor,
-            render_state.width() - 1
+            -1,
+            static_cast<int>(
+                (pos.x + arena_half_size.x + delta) * scale_factor
+            ),
+            static_cast<int>(render_state.width()) - 1
         );
 
         draw_pixels(left_x, y, right_x + 1, y + 1, color);

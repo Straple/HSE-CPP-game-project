@@ -40,20 +40,24 @@ enum button_t : u8 {
     BUTTON_COUNT,
 };
 
-struct Input {
+class Input {
     u64 buttons_state[(BUTTON_COUNT * 2 + 64 - 1) / 64]{};
 
-    Input() {
-        for (u64 & i : buttons_state) {
-            i = 0;
-        }
-    }
+    /*
+     * у каждой кнопки есть состояние: is_down, is_changed
+     * используется битовое сжатие
+     * каждая кнопка записывается в двух битах рядом. Сначала is_down, потом
+     * is_changed
+     */
+
+public:
+    Input() = default;
 
     [[nodiscard]] bool button_is_down(button_t b) const {
         return (buttons_state[b / 32] >> b % 32 * 2) & 1;
     }
 
-    [[nodiscard]] bool button_changed(button_t b) const {
+    [[nodiscard]] bool button_is_changed(button_t b) const {
         return (buttons_state[b / 32] >> (b % 32 * 2 + 1)) & 1;
     }
 
@@ -61,14 +65,14 @@ struct Input {
         if (button_is_down(b) != is_down) {
             buttons_state[b / 32] ^= (1ULL << b % 32 * 2);
         }
-        if (button_changed(b) != changed) {
+        if (button_is_changed(b) != changed) {
             buttons_state[b / 32] ^= (1ULL << (b % 32 * 2 + 1));
         }
     }
 };
 
 #define is_down(b) (input.button_is_down(b))
-#define pressed(b) (is_down(b) && input.button_changed(b))
-#define released(b) (!is_down(b) && input.button_changed(b))
+#define pressed(b) (is_down(b) && input.button_is_changed(b))
+#define released(b) (!is_down(b) && input.button_is_changed(b))
 
 #endif  // GAME_ENGINE_PLATFORM_COMMON
