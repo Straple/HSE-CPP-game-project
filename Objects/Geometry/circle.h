@@ -2,7 +2,7 @@
 #define GAME_ENGINE_GEOMETRY_CIRCLE
 
 #include "dot.h"
-#include "utils.h"
+#include "geometry_utils.h"
 
 // (pos, radius)
 struct Circle {

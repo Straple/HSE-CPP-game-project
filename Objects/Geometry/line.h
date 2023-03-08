@@ -2,7 +2,7 @@
 #define GAME_ENGINE_GEOMETRY_LINE
 
 #include "dot.h"
-#include "utils.h"
+#include "geometry_utils.h"
 
 // (a, b, c)
 // ax * by + c = 0

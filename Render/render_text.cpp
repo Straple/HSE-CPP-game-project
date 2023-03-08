@@ -7,7 +7,8 @@ void draw_symbol(char symbol, Dot pos, efloat size, const Color &color) {
         return;
     }
 
-    if (symbol == 'q' || symbol == 'p' || symbol == 'y' || symbol == 'g') {
+    if (symbol == 'q' || symbol == 'p' || symbol == 'y' || symbol == 'g' ||
+        symbol == ',') {
         pos.y -= 2 * size;
     }
 

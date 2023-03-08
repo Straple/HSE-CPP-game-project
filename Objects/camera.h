@@ -1,8 +1,8 @@
 ﻿#ifndef GAME_ENGINE_CAMERA
 #define GAME_ENGINE_CAMERA
 
+#include "..\utils.h"
 #include "move.h"
-#include "utils.h"
 
 struct Camera {
     Dot pos;

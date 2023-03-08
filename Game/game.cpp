@@ -578,23 +578,12 @@ void simulate_game(
 
     render_game();
 
-    // draw_object(player.pos, Dot(), 1, BLACK);
+    // draw_object(player.is_jumped, Dot(), 1, BLACK);
 
-    /*draw_text_align(
-        "\
-+---------------+\n\
-|1234567890+-!?.|\n\
-+---------------+\n\
-",
-        Dot(0, 0), 0.6, 0xffffffffff
-    );
+    draw_text_align("1234567890+-!?.,|()", Dot(0, 0), 0.6, 0xffffffffff);
     draw_text_align(
-        "\
-+--------------------------+\n\
-|ABCDEFGHIJKLMNOPQRSTUVWXYZ|\n\
-|abcdefghijklmnopqrstuvwxyz|\n\
-+--------------------------+\n\
-",
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n\
+abcdefghijklmnopqrstuvwxyz",
         Dot(0, -20), 0.6, 0xffffffffff
-    );*/
+    );
 }

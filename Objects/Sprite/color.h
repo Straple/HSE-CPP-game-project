@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_ENGINE_COLOR
 #define GAME_ENGINE_COLOR
 
-#include "utils.h"
+#include "..\..\utils.h"
 
 // 0xAARRGGBB
 // [a, r, g, b]
