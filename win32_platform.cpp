@@ -61,10 +61,10 @@ public:
         // Create Window class
         {
             window_class.style = CS_HREDRAW | CS_VREDRAW;
-            window_class.lpszClassName = "Game Window Class";
+            window_class.lpszClassName = LPCWSTR("Game Window Class");
             window_class.lpfnWndProc = window_callback;
             window_class.hIcon = static_cast<HICON>(LoadImage(
-                nullptr, "apple.ico", IMAGE_ICON, 0, 0, LR_LOADFROMFILE
+                nullptr, LPCWSTR("apple.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE
             ));
 
             window_class.cbClsExtra = 0;
@@ -82,7 +82,7 @@ public:
         // Create window
         window = CreateWindow(
             window_class.lpszClassName,
-            reinterpret_cast<LPCSTR>("C++ Game Engine"),
+            reinterpret_cast<LPCWSTR>("C++ Game Engine"),
             WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 0,
             0, nullptr, nullptr, hInstance, nullptr
         );
