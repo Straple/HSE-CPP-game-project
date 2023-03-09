@@ -1,8 +1,8 @@
 ﻿#ifndef GAME_ENGINE_MOVE
 #define GAME_ENGINE_MOVE
 
+#include "..\utils.h"
 #include "Geometry\dot.h"
-#include "utils.h"
 
 void simulate_move(efloat &p, efloat &dp, efloat ddp, efloat dt) {
     ddp -= dp * 15;
@@ -39,8 +39,6 @@ void move_to2d(Dot &p, const Dot &p_to, Dot &dp, Dot ddp, efloat dt) {
 }
 
 enum class direction_t : u8 {
-    // DON'T SHUFFLE THIS CODE
-
     NONE = 0,
 
     RIGHT = 1,

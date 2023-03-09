@@ -1,5 +1,7 @@
 ﻿#define GAME_ENGINE_STANDARD_RENDER_SYSTEM
 
+#define GAME_ENGINE_MULTITHREAD_RENDER
+
 void static_pos_update(Dot &pos, bool is_static) {
     if (!is_static) {
         pos -= camera.pos;
@@ -29,7 +31,7 @@ bool arena_query(efloat left, efloat right, efloat top, efloat bottom) {
     );
 }
 
-Color standart_pixel_func(const Color &color) {
+inline Color standart_pixel_func(const Color &color) {
     return color;
 }
 
@@ -72,7 +74,7 @@ Sprite build_sprite_scaling(const Sprite &sprite, efloat size) {
 template <typename func_t = Color(const Color &color)>
 void draw_sprite_matrix(
     Dot pos,
-    efloat size,
+    const efloat size,
     const Sprite &pixels,
     func_t &&func = standart_pixel_func
 ) {
@@ -97,51 +99,53 @@ void draw_sprite_matrix(
     }*/
 
 #ifdef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+
+    pos += arena_half_size;
+    pos -= Dot(1, 1) * size / 2;
+    pos *= scale_factor;
+
     efloat rect_sz = size * scale_factor;
 
-    // против разрывов в изображении
-    s64 end_x = 0;
+    // std::vector<s64> posy(pixels.height() + 1), posx(pixels.width() + 1);
+    static s64 posy[10'000], posx[10'000];
+
+    ASSERT(pixels.height() + 1 < sizeof(posy) / sizeof(s64), "out of range");
+    ASSERT(pixels.width() + 1 < sizeof(posy) / sizeof(s64), "out of range");
+
     {
-        efloat x = (pos.x + arena_half_size.x - size / 2) * scale_factor;
-        for (int j = 0; j < pixels.width(); j++) {
+        efloat x = pos.x;
+        for (int j = 0; j <= pixels.width(); j++) {
+            posx[j] = static_cast<s64>(x + 0.1);
             x += rect_sz;
         }
-        end_x = static_cast<s64>(x + 0.1);
+        efloat y = pos.y;
+        for (int i = 0; i <= pixels.height(); i++) {
+            posy[i] = static_cast<s64>(y + 0.1);
+            y -= rect_sz;
+        }
     }
 
-    efloat y = (pos.y + arena_half_size.y - size / 2) * scale_factor;
     for (int i = 0; i < pixels.height(); i++) {
-        efloat x = (pos.x + arena_half_size.x - size / 2) * scale_factor;
-
-        s64 y0 = static_cast<s64>(y);
-        s64 y1 = static_cast<s64>(y + rect_sz);
-
         for (int j = 0; j < pixels.width();) {
-            s64 x0 = static_cast<s64>(x);
             int k = j;
             while (k < pixels.width() && pixels[i][k] == pixels[i][j]) {
                 k++;
             }
 
-            x += (k - j) * rect_sz;
-            s64 x1 = static_cast<s64>(x);
-
-            // против разрывов в изображении
-            if (k == pixels.width()) {
-                x1 = end_x;
-            }
-
             if (is_draw(pixels[i][j])) {
-                draw_rect_in_pixels(x0, y0, x1, y1, func(pixels[i][j]));
+                draw_rect_in_pixels(
+                    posx[j], posy[i + 1], posx[k], posy[i], func(pixels[i][j])
+                );
             } else if (debug_mode) {
-                draw_rect_in_pixels(x0, y0, x1, y1, Color(0xffffff, 60));
+                draw_rect_in_pixels(
+                    posx[j], posy[i + 1], posx[k], posy[i], Color(0xffffff, 60)
+                );
             }
 
             j = k;
         }
-
-        y -= rect_sz;
     }
+
 #else
     /*efloat rect_sz = size * scale_factor;
 

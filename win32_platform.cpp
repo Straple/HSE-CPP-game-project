@@ -98,8 +98,6 @@ public:
     // симулирует один игровой кадр
     // delta_time = время между кадрами
     void simulate_frame(efloat delta_time) {
-        global_time_accum = 0;
-
         update_controls();
 
         simulate_game(input, delta_time, [&]() -> void {
@@ -114,20 +112,39 @@ public:
 
         // update fps
         {
-            static int fps = 0;
-            static int frame_count = 0;
-            static efloat frame_time_accum = 0;
+            static efloat global_time_accum = 0;
+            global_time_accum += delta_time;
 
-            frame_count++;
+            static int summary_fps = 0;
+            summary_fps++;
+
+            static int visible_fps = 0;
+
+            static int frame_accum = 0;
+            frame_accum++;
+
+            static efloat frame_time_accum = 0;
             frame_time_accum += delta_time;
+
             if (frame_time_accum > 0.5) {
-                fps = frame_count * 2;
+                visible_fps = frame_accum * 2;
                 frame_time_accum = 0;
-                frame_count = 0;
+                frame_accum = 0;
             }
 
             if (show_fps) {
-                draw_object(fps, Dot(5, 5) - arena_half_size, 0.5, WHITE);
+                draw_object(
+                    static_cast<int>(summary_fps / global_time_accum),
+                    Dot(5, 12) - arena_half_size, 0.5, WHITE
+                );
+
+                draw_object(
+                    global_time_accum, Dot(20, 12) - arena_half_size, 0.5, WHITE
+                );
+
+                draw_object(
+                    visible_fps, Dot(5, 5) - arena_half_size, 0.5, WHITE
+                );
 
                 draw_object(
                     static_cast<int>(delta_time * 1000),
@@ -141,10 +158,10 @@ public:
                 );
 
                 // draw_object(
-                //     static_cast<int>(global_time_accum * 1000),
+                //     static_cast<int>(game_engine_time_for_calc * 1000),
                 //     Dot(60, 5) - arena_half_size, 0.5, RED
                 //);
-                global_time_accum = 0;
+                game_engine_time_for_calc = 0;
             }
         }
 
@@ -351,25 +368,29 @@ private:
 };
 
 int main() {
-    std::cout << "performance_frequency: " << performance_frequency
-              << std::endl;
+    // initialize
+    {
+        std::cout << "performance_frequency: " << performance_frequency
+                  << std::endl;
 
-    ShowWindow(GetConsoleWindow(), show_console ? SW_SHOW : SW_HIDE);
-    ShowCursor(show_cursor);
+        ShowWindow(GetConsoleWindow(), show_console ? SW_SHOW : SW_HIDE);
+        ShowCursor(show_cursor);
 
-    read_sprites();
-    read_spritesheets();
+        read_sprites();
+        read_spritesheets();
 
-    build_world();
+        build_world();
 
-    // init_render_threads();
+        init_render_threads();
+    }
 
     engine_app eng;
-
-    if (fullscreen_mode) {
-        eng.set_fullscreen_mode();
-    } else {
-        eng.set_window_mode();
+    {
+        if (fullscreen_mode) {
+            eng.set_fullscreen_mode();
+        } else {
+            eng.set_window_mode();
+        }
     }
 
     u64 time_tick_global_start = get_ticks();
@@ -389,6 +410,6 @@ int main() {
         }
     }
 
-    // join_all_render_threads();
+    join_all_render_threads();
     return 0;
 }

@@ -79,10 +79,10 @@ bool randomness(unsigned int percent) {
     return rnd_range(rnd) <= percent;
 }
 
-double global_time_accum = 0;
+double game_engine_time_for_calc = 0;
 
 #define CALC_TIME_START Timer timer_for_calc_time;
 
-#define CALC_TIME_END global_time_accum += timer_for_calc_time.get();
+#define CALC_TIME_END game_engine_time_for_calc += timer_for_calc_time.get();
 
 #endif  // GAME_ENGINE_UTILS
