@@ -1,4 +1,4 @@
-﻿static const Dot world_half_size(500, 500);
+static const Dot world_half_size(500, 500);
 
 #include "game_utils.cpp"
 // don't shuffle
@@ -508,7 +508,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     }
 
     // update render_scale
-    {
+    /*{
         if (is_down(BUTTON_UP)) {
             efloat pt_x = (mouse.pos.x + arena_half_size.x) * scale_factor;
             efloat pt_y = (mouse.pos.y + arena_half_size.y) * scale_factor;
@@ -550,7 +550,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
             mouse.pos = Dot(pt_x, pt_y) / scale_factor - arena_half_size;
         }
-    }
+    }*/
 
     mouse.simulate(input);
 }
@@ -582,7 +582,59 @@ void simulate_game(
     // clear_screen(BLACK);
     // draw_sprite(Dot(), 0.1, SP_KEK);
 
+    for (auto &bush : Bushes) {
+        bush.pos  = player.get_collision().bubble(bush.get_collision());
+        //player.pos = bush.get_collision().bubble(player.get_collision());
+    }
+
     render_game();
+
+    // p = pos
+    // dp = pos'
+    // ddp = pos''
+
+    // static Dot pos;
+    // static Dot dp;
+    // move_to2d(pos, Dot(100, 100), dp, Dot(20, 100), delta_time);
+
+    /*if (is_down(BUTTON_LEFT)) {
+        simulate_move2d(pos, dp, Dot(-1, 0) * 1000, delta_time);
+    }
+    if (is_down(BUTTON_RIGHT)) {
+        simulate_move2d(pos, dp, Dot(1, 0) * 1000, delta_time);
+    }
+    if (is_down(BUTTON_UP)) {
+        simulate_move2d(pos, dp, Dot(0, 1) * 1000, delta_time);
+    }
+    if (is_down(BUTTON_DOWN)) {
+        simulate_move2d(pos, dp, Dot(0, -1) * 1000, delta_time);
+    }*/
+
+    //draw_rect(pos, Dot(1, 1), RED);
+
+    // draw_spritesheet(Dot(), 1, SS_SLIME, 3);
+
+    // static animation anim(SS_SLIME, 0, 10, 0.1);
+    // anim.frame_update(delta_time);
+    // anim.draw(Dot(), 1);
+
+    // clear_screen(BLACK);
+
+    // draw_sprite(Dot(), 1, SP_TREE);
+    // draw_sprite_static(Dot(), 1, SP_TREE);
+
+    // draw_text("hello world", Dot() - camera.pos, 1, WHITE);
+
+    // draw_rect_in_pixels(0, 0, 100, 100, 0xffffffff);
+
+    // draw_rect2(Dot(), Dot(10, -20), BLACK);
+
+    // alpha 100/255
+    // draw_circle(Circle(Dot(), 3), Color(0xff0000, 100));
+
+    // draw_text("hello world", Dot(), 1, WHITE);
+
+    // draw_object("hello world", Dot(), 0.3, 0xffff0000);
 
     // draw_object(player.is_jumped, Dot(), 1, BLACK);
 
