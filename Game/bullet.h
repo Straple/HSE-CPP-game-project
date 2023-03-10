@@ -5,10 +5,7 @@
 #ifndef BULLETPROOF_BULLET_H
 #define BULLETPROOF_BULLET_H
 
-#include "../Objects/Geometry/dot.h"
-#include "../Objects/Geometry/line.h"
-#include "../Objects/Geometry/circle.h"
-#include "../Objects/Sprite/color.h"
+#include "../Objects/Geometry/geometry.h"
 #include "../Objects/Sprite/sprite.h"
 
 struct Shape;
@@ -48,10 +45,6 @@ struct Weapon {
     
     //TODO
 };
-
-
-
-
 
 
 #endif //BULLETPROOF_BULLET_H
