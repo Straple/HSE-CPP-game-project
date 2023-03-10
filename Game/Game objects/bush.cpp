@@ -1,31 +1,27 @@
-﻿// visibility
-#define BUSH_SIZE 0.5
+﻿#include "abstract_game_object.h"
 
-// fixeds
-#define BUSH_DELTA_DRAW_POS Dot(-15, 20) * BUSH_SIZE
-
-// physics
-#define BUSH_COLLISION_RADIUS 5
-
-struct Bush {
-    Dot pos;
-
+struct Bush : abstract_game_object {
     Bush() = default;
 
-    explicit Bush(const Dot &new_pos) : pos(new_pos - BUSH_DELTA_DRAW_POS) {
+    explicit Bush(const Dot &new_pos) {
+        size = 0.5;
+        delta_draw_pos = Dot(-15, 20) * size;
+        collision_radius = 5;
+        pos = new_pos - delta_draw_pos;
     }
 
-    [[nodiscard]] collision_circle get_collision() const {
-        return collision_circle(Circle(pos, BUSH_COLLISION_RADIUS));
+    [[nodiscard]] collision_circle get_collision() const override {
+        return collision_circle(Circle(pos, collision_radius));
     }
 
-    void draw() const {
+    void draw() const override {
         draw_sprite(
-            pos + BUSH_DELTA_DRAW_POS + Dot(0, -13) * BUSH_SIZE, BUSH_SIZE,
-            SP_LARGE_SHADOW
+            pos + delta_draw_pos + Dot(0, -13) * size, size, SP_LARGE_SHADOW
         );
-        draw_sprite(pos + BUSH_DELTA_DRAW_POS, BUSH_SIZE, SP_BUSH);
+        draw_sprite(pos + delta_draw_pos, size, SP_BUSH);
 
         draw_collision_obj(*this);
+
+        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
     }
 };

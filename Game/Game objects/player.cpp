@@ -308,7 +308,7 @@ struct Player {
     bool simulate_attack(container_t &Enemies) {
         bool is_attack = false;
 
-        for (int i = 0; i < Enemies.size(); i++) {
+        /*for (int i = 0; i < Enemies.size(); i++) {
             if (attack_trigger(Enemies[i].pos) &&
                 reinterpret_cast<char *>(&Enemies[i]) !=
                     reinterpret_cast<char *>(this)) {
@@ -330,7 +330,7 @@ struct Player {
                     }
                 }
             }
-        }
+        }*/
 
         return is_attack;
     }

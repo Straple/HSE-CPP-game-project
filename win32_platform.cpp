@@ -26,7 +26,7 @@ bool show_locator = false;
 bool running = true;
 
 bool show_console = true;
-bool show_cursor = true;
+bool show_cursor = false;
 bool show_fps = true;
 
 bool fullscreen_mode = true;

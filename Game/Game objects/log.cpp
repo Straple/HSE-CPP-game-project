@@ -1,43 +1,37 @@
 ﻿
-#define LOG_DELTA_DRAW_POS Dot(-30, 18) * gobj_state.size
+#include "abstract_game_object.h"
 
-#define LOG_DP_SPEED 200
-
-struct Log {
-    inline static const game_object_state gobj_state =
-        game_object_state(1, 0, 0.3);
-
-    inline static const efloat collision_radius = 4;
-
-    inline static const int hp = 1;
-
-    Dot pos;
-    Dot dp;
-
+struct Log : abstract_game_object {
     Log() = default;
 
-    Log(const Dot &p) : pos(p) {
+    explicit Log(const Dot &new_pos) {
+        size = 0.3;
+        delta_draw_pos = Dot(-30, 18) * size;
+        collision_radius = 4;
+        pos = new_pos - delta_draw_pos;
     }
 
-    [[nodiscard]] collision_circle get_collision() const {
+    [[nodiscard]] collision_circle get_collision() const override {
         return collision_circle(Circle(pos, collision_radius));
+    }
+
+    void draw() const override {
+        draw_sprite(pos + delta_draw_pos, size, SP_LOG);
+
+        draw_collision_obj(*this);
+
+        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+    }
+
+    void simulate_hit(const Player &player) {
+        add_hit_effect(pos + Dot(-10, 8) * size);
+
+        dp += player.get_dir() * 200;
     }
 
     void simulate(efloat delta_time) {
         Dot ddp;
         simulate_move2d(pos, dp, ddp, delta_time);
-    }
-
-    void draw() const {
-        draw_sprite(pos + LOG_DELTA_DRAW_POS, gobj_state.size, SP_LOG);
-
-        draw_collision_obj(*this);
-    }
-
-    void simulate_hit(const Player &player) {
-        add_hit_effect(pos + Dot(-10, 8) * gobj_state.size);
-
-        dp += player.get_dir() * LOG_DP_SPEED;
     }
 };
 

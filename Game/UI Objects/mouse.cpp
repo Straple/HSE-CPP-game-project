@@ -38,11 +38,11 @@ struct Mouse {
             /*draw_object(Line(focus_pos, pos).get_a(), Dot(), 0.3, 0xffffffff);
             draw_object(Line(focus_pos, pos).get_b(), Dot(0, 10), 0.3,
             0xffffffff); draw_object(Line(focus_pos, pos).get_c(), Dot(0, 20),
-            0.3, 0xffffffff);
+            0.3, 0xffffffff);*/
 
-            draw_line(Line(focus_pos, pos), 0.3, 0xffffffff);
+            // draw_line(Line(focus_pos, pos), 0.3, 0xffffffff);
 
-            draw_circle(Circle(pos, 20), Color(0xff0000, 60));*/
+            // draw_circle(Circle(pos, 20), Color(0xff0000, 60));*/
         }
 
         if (focus) {

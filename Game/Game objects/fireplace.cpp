@@ -1,40 +1,49 @@
-﻿
-#define FIREPLACE_SIZE 0.4
+﻿#include "abstract_game_object.h"
 
-#define FIREPLACE_DELTA_DRAW_POS Dot(-42, 10) * FIREPLACE_SIZE
-
-#define FIREPLACE_COLLISION_RADIUS 10
-
-#define FIREPLACE_LOG_EATE_RADIUS 20
-
-#define FIREPLACE_LOG_ADD_TIME 1.5 * 60
-
-struct Fireplace {
-    Dot pos;
-
+struct Fireplace : abstract_game_object {
     Fire_machine fire;
 
     efloat time = 5 * 60;
     efloat cooldown_add_time_accum = 0;
 
-    Fireplace() {
-    }
+    const int eate_radius = 20;
+    const efloat add_time = 1.5 * 60;
 
-    Fireplace(const Dot &p) {
-        pos = p;
+    Fireplace() = default;
+
+    explicit Fireplace(const Dot &new_pos) {
+        size = 0.4;
+        delta_draw_pos = Dot(-42, 10) * size;
+        collision_radius = 10;
+        pos = new_pos - delta_draw_pos;
+
         fire = Fire_machine(pos, 5, 0.5, 0.5, 4, 0.15);
     }
 
-    collision_circle get_collision() const {
-        return collision_circle(Circle(
-            pos + Dot(0, -10) * FIREPLACE_SIZE, FIREPLACE_COLLISION_RADIUS
-        ));
+    [[nodiscard]] collision_circle get_collision() const override {
+        return collision_circle(
+            Circle(pos + Dot(0, -10) * size, collision_radius)
+        );
+    }
+
+    void draw() const override {
+        draw_sprite(
+            pos + delta_draw_pos + Dot(10, 0) * size, size * 2, SP_LARGE_SHADOW
+        );
+        draw_sprite(pos + delta_draw_pos, size, SP_FIREPLACE);
+
+        fire.draw();
+
+        Dot p = pos + Dot(-10, -30) * size;
+        static_pos_update(p);
+        draw_object(int(time), p, 0.5, 0xff000000);
+
+        draw_collision_obj(*this);
+
+        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
     }
 
     void simulate(efloat delta_time) {
-        /*if (rain.is_full_raining()) {
-                time -= delta_time;
-        }*/
         time -= delta_time;
 
         cooldown_add_time_accum += delta_time;
@@ -47,31 +56,13 @@ struct Fireplace {
         fire.simulate(delta_time);
 
         for (int i = 0; i < Logs.size(); i++) {
-            if ((pos - Logs[i].pos).get_len() <= FIREPLACE_LOG_EATE_RADIUS) {
+            if ((pos - Logs[i].pos).get_len() <= eate_radius) {
                 Logs.erase(Logs.begin() + i);
                 i--;
 
-                time += FIREPLACE_LOG_ADD_TIME;
+                time += add_time;
                 fire.cooldown_add = std::max(0.3, fire.cooldown_add - 0.3);
             }
         }
-    }
-
-    void draw() const {
-        draw_sprite(
-            pos + FIREPLACE_DELTA_DRAW_POS + Dot(10, 0) * FIREPLACE_SIZE,
-            FIREPLACE_SIZE * 2, SP_LARGE_SHADOW
-        );
-        draw_sprite(
-            pos + FIREPLACE_DELTA_DRAW_POS, FIREPLACE_SIZE, SP_FIREPLACE
-        );
-
-        fire.draw();
-
-        Dot p = pos + Dot(-10, -30) * FIREPLACE_SIZE;
-        static_pos_update(p);
-        draw_object(int(time), p, 0.5, 0xff000000);
-
-        draw_collision_obj(*this);
     }
 };

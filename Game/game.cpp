@@ -1,4 +1,4 @@
-static const Dot world_half_size(500, 500);
+﻿static const Dot world_half_size(500, 500);
 
 #include "game_utils.cpp"
 // don't shuffle
@@ -17,7 +17,7 @@ std::vector<Tree> Trees;
 std::vector<Bat> Bats;
 
 std::vector<Fireplace> Fireplaces = {
-    Dot(30, -30),
+    Fireplace(Dot(30, -30)),
 };
 
 // Players
@@ -172,7 +172,7 @@ void simulate_player(const Input &input, efloat delta_time) {
 
     // player attack
     {
-        if (player.simulate_attack(Logs) | player.simulate_attack(Slimes) |
+        if (/*player.simulate_attack(Logs) | */ player.simulate_attack(Slimes) |
             player.simulate_attack(Bats) | player.simulate_attack(Trees)) {
             player.now_is_attached = false;
         }
@@ -216,7 +216,7 @@ void simulate_physics(efloat delta_time) {
             int cnt = range(rnd);
 
             while (cnt--) {
-                Trees.push_back(random_dot());
+                Trees.emplace_back(random_dot());
                 // std::cout << "new tree: " << Trees.back().pos << "\n";
             }
 
@@ -583,8 +583,8 @@ void simulate_game(
     // draw_sprite(Dot(), 0.1, SP_KEK);
 
     for (auto &bush : Bushes) {
-        bush.pos  = player.get_collision().bubble(bush.get_collision());
-        //player.pos = bush.get_collision().bubble(player.get_collision());
+        bush.pos = player.get_collision().bubble(bush.get_collision());
+        // player.pos = bush.get_collision().bubble(player.get_collision());
     }
 
     render_game();
@@ -610,7 +610,7 @@ void simulate_game(
         simulate_move2d(pos, dp, Dot(0, -1) * 1000, delta_time);
     }*/
 
-    //draw_rect(pos, Dot(1, 1), RED);
+    // draw_rect(pos, Dot(1, 1), RED);
 
     // draw_spritesheet(Dot(), 1, SS_SLIME, 3);
 
