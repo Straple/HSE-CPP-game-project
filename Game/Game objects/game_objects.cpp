@@ -1,4 +1,4 @@
-﻿
+
 // int hp, int exp_cnt, int damage,
 // efloat collision_radius, efloat locator_radius, efloat persec_radius,
 // efloat size
@@ -73,6 +73,10 @@ struct enemy_state {
 #include "bush.cpp"
 #include "effect.cpp"
 #include "player.cpp"
+
+
+#include "bullet.cpp"
+#include "weapon.cpp"
 #include "rain.cpp"
 
 // don't shuffle
