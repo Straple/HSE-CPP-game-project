@@ -1,4 +1,6 @@
-﻿// visibility
+// visibility
+
+
 #define PLAYER_DELTA_DRAW_POS Dot(-30.5, 41) * gobj_state.size
 
 // physics
@@ -92,8 +94,12 @@ struct Player {
     int max_hp = gobj_state.hp;
     int hp = max_hp;
     int damage = 70;
+//    Sprite sword;
+//    Spritesheet attack;
+//    Melee_weapon weapon = Melee_weapon(sword, PLAYER_ATTACK_COOLDOWN, damage+30,attack);
     int exp = 0;
 
+    Range_weapon weapon(gun, PLAYER_ATTACK_COOLDOWN, damage+30, attack);
     // каждый уровень:
     // max_hp += 30
     // damage += 2
