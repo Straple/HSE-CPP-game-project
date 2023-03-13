@@ -1,7 +1,8 @@
 // visibility
 #define BAT_DELTA_DRAW_POS Dot(-8, 26) * gobj_state.size
 #define BAT_FRAME_DURATION 1.0 / 7
-#include "../bullet.h"
+
+
 
 struct Bat {
     inline static const game_object_state gobj_state =
@@ -173,16 +174,16 @@ struct Bat {
             paralyzed_cooldown_accum = 0;
         }
     }
-    void simulate_hit(const Bullet &bullet) {
-        add_hit_effect(pos + BAT_DELTA_DRAW_POS);
-
-        hp -= bullet.damage;
-
-        if (hp <= 0) {
-            add_death_effect(pos + Dot(-16, 22) * gobj_state.size);
-        } else {
-            ddp += bullet.get_closest_dir() * enemy_state.ddp_speed * 1.5;
-            paralyzed_cooldown_accum = 0;
-        }
-    }
+//    void simulate_hit(const Bullet &bullet) {
+//        add_hit_effect(pos + BAT_DELTA_DRAW_POS);
+//
+//        hp -= bullet.damage;
+//
+//        if (hp <= 0) {
+//            add_death_effect(pos + Dot(-16, 22) * gobj_state.size);
+//        } else {
+//            ddp += bullet.get_closest_dir() * enemy_state.ddp_speed * 1.5;
+//            paralyzed_cooldown_accum = 0;
+//        }
+//    }
 };
