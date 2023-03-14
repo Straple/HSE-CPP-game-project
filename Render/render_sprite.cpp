@@ -78,26 +78,6 @@ void draw_sprite_matrix(
     const Sprite &pixels,
     func_t &&func = standart_pixel_func
 ) {
-    // efloat y = (pos.y + arena_half_size.y - size / 2) * scale_factor;
-
-    /*{
-        efloat x = (pos.x + arena_half_size.x - size / 2) * scale_factor;
-
-        for (int id = 0; id < count_of_render_threads; id++) {
-            Threads_vals[id].give_task(
-                {x, y}, size, sprite, sprite_x0,
-                sprite_y0 +
-                    (sprite_y1 - sprite_y0) * id / count_of_render_threads,
-                sprite_x1,
-                sprite_y0 +
-                    (sprite_y1 - sprite_y0) * (id + 1) / count_of_render_threads
-            );
-            y -= rect_sz *
-                 ((sprite_y1 - sprite_y0) * (id + 1) / count_of_render_threads -
-                  (sprite_y1 - sprite_y0) * id / count_of_render_threads);
-        }
-    }*/
-
 #ifdef GAME_ENGINE_STANDARD_RENDER_SYSTEM
 
     pos += arena_half_size;
@@ -192,6 +172,26 @@ void draw_sprite_matrix(
         }
     }
 #endif
+
+    // efloat y = (pos.y + arena_half_size.y - size / 2) * scale_factor;
+
+    /*{
+        efloat x = (pos.x + arena_half_size.x - size / 2) * scale_factor;
+
+        for (int id = 0; id < count_of_render_threads; id++) {
+            Threads_vals[id].give_task(
+                {x, y}, size, sprite, sprite_x0,
+                sprite_y0 +
+                    (sprite_y1 - sprite_y0) * id / count_of_render_threads,
+                sprite_x1,
+                sprite_y0 +
+                    (sprite_y1 - sprite_y0) * (id + 1) / count_of_render_threads
+            );
+            y -= rect_sz *
+                 ((sprite_y1 - sprite_y0) * (id + 1) / count_of_render_threads -
+                  (sprite_y1 - sprite_y0) * id / count_of_render_threads);
+        }
+    }*/
 
     // std::this_thread::yield();
     // wait_all_render_threads();

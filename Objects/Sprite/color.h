@@ -81,7 +81,7 @@ inline bool is_draw(const Color &color) {
 #define BLUE Color(0xff0000ff)
 #define GREEN Color(0xff00ff00)
 
-#define GREY Color(0xffC4C4C4)
+#define GREY Color(0xff4C4C4C)
 #define YELLOW Color(0xffffff00)
 #define PURPLE Color(0xffff00ff)
 

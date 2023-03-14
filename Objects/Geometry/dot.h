@@ -105,4 +105,27 @@ std::ostream &operator<<(std::ostream &output, const Dot &p) {
     return output << "Dot(" << p.x << ", " << p.y << ')';
 }
 
+// возвращает угол между векторами
+efloat get_angle(const Dot &a, const Dot &b) {
+    return atan2(a % b, a * b);
+}
+
+// возвращает неотрицательный угол между векторами
+efloat get_good_angle(const Dot &a, const Dot &b) {
+    efloat res = get_angle(a, b);
+    if (res < 0) {
+        res += 2 * PI;
+    }
+    return res;
+}
+
+// возвращает неотрицательный угол меньше 180 между векторами
+efloat getVeryGoodAngle(const Dot &a, const Dot &b) {
+    efloat res = get_good_angle(a, b);
+    if (res > PI) {
+        res = 2 * PI - res;
+    }
+    return res;
+}
+
 #endif  // GAME_ENGINE_GEOMETRY_DOT

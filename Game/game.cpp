@@ -508,7 +508,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     }
 
     // update render_scale
-    /*{
+    {
         if (is_down(BUTTON_UP)) {
             efloat pt_x = (mouse.pos.x + arena_half_size.x) * scale_factor;
             efloat pt_y = (mouse.pos.y + arena_half_size.y) * scale_factor;
@@ -550,7 +550,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
             mouse.pos = Dot(pt_x, pt_y) / scale_factor - arena_half_size;
         }
-    }*/
+    }
 
     mouse.simulate(input);
 }
@@ -588,6 +588,41 @@ void simulate_game(
     }
 
     render_game();
+
+    // bullet!
+    // TODO: нужно это все потом перенести в simulate_player, render и т.п.
+    {
+        static std::vector<Bullet> Bullets;
+
+        draw_sprite(player.pos, 0.1, SP_TREE);
+        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
+
+        if (pressed(BUTTON_MOUSE_L)) {
+            // new bullet!
+            Bullets.emplace_back(
+                // player.pos,
+                player.get_collision()
+                    .circle.pos,  // центрированная позиция относительно спрайта
+                mouse.pos + camera.pos, 1000000000, 1000
+            );
+        }
+
+        for (auto &bullet : Bullets) {
+            bullet.simulate(delta_time);
+        }
+
+        for (auto &bullet : Bullets) {
+            bullet.draw();
+        }
+    }
+
+    /*player.hp = 300;
+    player.pos = Dot();
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            draw_sprite_static(Dot(j, i) * 10 - arena_half_size, 0.5, SP_TREE);
+        }
+    }*/
 
     // p = pos
     // dp = pos'

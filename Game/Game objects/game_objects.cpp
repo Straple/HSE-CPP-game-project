@@ -70,9 +70,14 @@ struct enemy_state {
 // draw - рисовать объект
 // get_collision - выдать коллизию объекта (если есть)
 
+
 #include "bush.cpp"
 #include "effect.cpp"
 #include "player.cpp"
+
+
+#include "bullet.cpp"
+#include "weapon.cpp"
 #include "rain.cpp"
 
 // don't shuffle

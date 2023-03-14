@@ -21,11 +21,11 @@ UP, DOWN = render_scale
 #undef min
 
 bool camera_is_static = false;
-bool debug_mode = true;
+bool debug_mode = false;
 bool show_locator = false;
 bool running = true;
 
-bool show_console = true;
+bool show_console = false;
 bool show_cursor = false;
 bool show_fps = true;
 

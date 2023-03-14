@@ -3,7 +3,6 @@
 void fill(unsigned int *dest, unsigned int val32, unsigned int len) {
     // можно использовать и это, но реализация ниже оказывается быстрее
     // std::fill_n(dest, len, val32);
-    // memset(dest, val32, len);
 
     u64 val64 = (static_cast<u64>(val32) << 32) | val32;
 
@@ -38,25 +37,25 @@ void draw_pixels(
         "out of render pixels"
     );
 
-    Color *row = render_state[y0];
+    Color *row = render_state[y0] + x0;
+    const unsigned int screen_width = render_state.width();
+    unsigned int len = x1 - x0;
 
     if (color.a == 0xff) {
-        for (unsigned int y = y0; y < y1; y++) {
+        for (unsigned int y = y0; y < y1; y++, row += screen_width) {
             fill(
-                reinterpret_cast<unsigned int *>(row + x0),
-                static_cast<unsigned int>(color), x1 - x0
+                reinterpret_cast<unsigned int *>(row),
+                static_cast<unsigned int>(color), len
             );
-
-            row += render_state.width();
         }
     } else {
-        for (unsigned int y = y0; y < y1; y++) {
-            unsigned int x = x0;
+        for (unsigned int y = y0; y < y1; y++, row += screen_width) {
+            unsigned int x = 0;
 
-            while (x < x1) {
+            while (x < len) {
                 unsigned int k = x + 1;
 
-                while (k < x1 && row[k] == row[x]) {
+                while (k < len && row[k] == row[x]) {
                     k++;
                 }
 
@@ -66,7 +65,6 @@ void draw_pixels(
                 );
                 x = k;
             }
-            row += render_state.width();
         }
     }
 }
