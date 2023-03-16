@@ -8,6 +8,33 @@
 
     SP_FIREPLACE,
 
+    SP_BARREL,
+
+    SP_PILLAR,
+    SP_BROKEN_PILLAR,
+
+    SP_CHESTER,
+    SP_OPEN_CHESTER,
+
+    SP_NUN_STATE,
+
+    SP_TELEPORT,
+    SP_TABLE,
+
+    SP_WOODEN_FLOOR,
+
+    // wall
+    SP_WALL_LEFT,
+    SP_WALL_RIGHT,
+    SP_WALL_BOTTOM,
+    SP_WALL_BOTTOM_LEFT,
+    SP_WALL_BOTTOM_RIGHT,
+    SP_WALL_TOP,
+
+    // carpet
+    SP_CARPET_PATTERN,
+    SP_CARPET_TOP_LEFT,
+
     SP_GRASS_BACKGROUND,
     // SP_WALL,
     SP_FLOOR,
@@ -87,6 +114,30 @@ void read_sprites() {
         read(SP_GRASS_BACKGROUND, "World\\grass_background.png");
         // read(SP_WALL, "World\\wall.png");
         read(SP_FLOOR, "World\\floor.png");
+
+        read(SP_BARREL, "World\\barrel.png");
+        read(SP_PILLAR, "World\\pillar.png");
+        read(SP_BROKEN_PILLAR, "World\\broken_pillar.png");
+        read(SP_CHESTER, "World\\chester.png");
+        read(SP_OPEN_CHESTER, "World\\open_chester.png");
+        read(SP_NUN_STATE, "World\\nun_state.png");
+        read(SP_TELEPORT, "World\\teleport.png");
+
+        read(SP_TABLE, "World\\table.png");
+
+        read(SP_CARPET_PATTERN, "World\\carpet_pattern.png");
+        read(SP_CARPET_TOP_LEFT, "World\\carpet_top_left.png");
+
+        read(SP_WALL_LEFT, "World\\wall_left.png");
+        read(SP_WALL_RIGHT, "World\\wall_right.png");
+        read(SP_WALL_BOTTOM, "World\\wall_bottom.png");
+
+        read(SP_WALL_BOTTOM_LEFT, "World\\wall_bottom_left.png");
+        read(SP_WALL_BOTTOM_RIGHT, "World\\wall_bottom_right.png");
+
+        read(SP_WALL_TOP, "World\\wall_top.png");
+
+        read(SP_WOODEN_FLOOR, "World\\wooden_floor.png");
     }
 
     // shadow

@@ -105,6 +105,19 @@ std::ostream &operator<<(std::ostream &output, const Dot &p) {
     return output << "Dot(" << p.x << ", " << p.y << ')';
 }
 
+std::istream &operator>>(std::istream &input, Dot &p) {
+    char c;
+    input >> c;  // D
+    input >> c;  // o
+    input >> c;  // t
+    input >> c;  // (
+    input >> p.x;
+    input >> c;  // ,
+    input >> p.y;
+    input >> c;  // )
+    return input;
+}
+
 // возвращает угол между векторами
 efloat get_angle(const Dot &a, const Dot &b) {
     return atan2(a % b, a * b);

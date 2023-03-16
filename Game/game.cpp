@@ -510,45 +510,11 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     // update render_scale
     {
         if (is_down(BUTTON_UP)) {
-            efloat pt_x = (mouse.pos.x + arena_half_size.x) * scale_factor;
-            efloat pt_y = (mouse.pos.y + arena_half_size.y) * scale_factor;
-
-            render_scale *= 0.95;
-
-            // relax scaling
-            scale_factor = render_state.height() * render_scale;
-#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
-            clear_sprites_cache();
-#endif
-
-            // relax arena
-            arena_half_size =
-                Dot(static_cast<efloat>(render_state.width()) / scale_factor,
-                    static_cast<efloat>(1) / render_scale) *
-                0.5;
-
-            mouse.pos = Dot(pt_x, pt_y) / scale_factor - arena_half_size;
+            increase_window_scaling(mouse.pos);
         }
 
         if (is_down(BUTTON_DOWN)) {
-            efloat pt_x = (mouse.pos.x + arena_half_size.x) * scale_factor;
-            efloat pt_y = (mouse.pos.y + arena_half_size.y) * scale_factor;
-
-            render_scale /= 0.95;
-
-            // relax scaling
-            scale_factor = render_state.height() * render_scale;
-#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
-            clear_sprites_cache();
-#endif
-
-            // relax arena
-            arena_half_size =
-                Dot(static_cast<efloat>(render_state.width()) / scale_factor,
-                    static_cast<efloat>(1) / render_scale) *
-                0.5;
-
-            mouse.pos = Dot(pt_x, pt_y) / scale_factor - arena_half_size;
+            decrease_window_scaling(mouse.pos);
         }
     }
 
