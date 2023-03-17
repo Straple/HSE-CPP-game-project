@@ -365,64 +365,19 @@ bool collision_in_draw_sprite(
 
     const auto &pixels = Sprites[sprite];
 
-    pos += arena_half_size;
-    pos *= scale_factor;
-
-    collision_pos += arena_half_size;
-    collision_pos *= scale_factor;
-
-    efloat rect_sz = size * scale_factor;
-
-    // std::vector<s64> posy(pixels.height() + 1), posx(pixels.width() + 1);
-    static s64 posy[10'000], posx[10'000];
-
-    ASSERT(pixels.height() + 1 < sizeof(posy) / sizeof(s64), "out of range");
-    ASSERT(pixels.width() + 1 < sizeof(posy) / sizeof(s64), "out of range");
-
-    {
-        efloat x = pos.x;
-        for (int j = 0; j <= pixels.width(); j++) {
-            posx[j] = static_cast<s64>(x + 0.1);
-            x += rect_sz;
-        }
-        efloat y = pos.y;
-        for (int i = 0; i <= pixels.height(); i++) {
-            posy[i] = static_cast<s64>(y + 0.1);
-            y -= rect_sz;
-        }
-    }
-
     for (int i = 0; i < pixels.height(); i++) {
         for (int j = 0; j < pixels.width(); j++) {
             if (is_draw(pixels[i][j]) &&
                 is_between(
-                    posx[j], static_cast<s64>(collision_pos.x), posx[j + 1]
+                    pos.x + size * j, collision_pos.x, pos.x + size * (j + 1)
                 ) &&
                 is_between(
-                    posy[i + 1], static_cast<s64>(collision_pos.y), posy[i]
+                    pos.y - size * (i + 1), collision_pos.y, pos.y - size * i
                 )) {
                 return true;
             }
-
-            /*int k = j;
-            while (k < pixels.width() && pixels[i][k] == pixels[i][j]) {
-                k++;
-            }
-
-            if (is_draw(pixels[i][j])) {
-                draw_rect_in_pixels(
-                    posx[j], posy[i + 1], posx[k], posy[i], func(pixels[i][j])
-                );
-            } else if (debug_mode) {
-                draw_rect_in_pixels(
-                    posx[j], posy[i + 1], posx[k], posy[i], Color(0xffffff, 60)
-                );
-            }
-
-            j = k;*/
         }
     }
-
     return false;
 }
 

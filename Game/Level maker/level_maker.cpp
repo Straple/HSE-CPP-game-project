@@ -61,18 +61,18 @@ void render_game(const Input &input) {
         }
     }
 
-    if (is_down(BUTTON_R)) {
+    {
+        Dot pos = current_pos;
+        if (is_down(BUTTON_R)) {
+            pos.x -= Sprites[current_type_of_sprite].width() * current_size;
+        }
+
+        if (is_down(BUTTON_T)) {
+            pos.y += Sprites[current_type_of_sprite].height() * current_size;
+        }
+
         draw_sprite(
-            current_pos -
-                Dot(Sprites[current_type_of_sprite].width() * current_size, 0),
-            current_size, current_type_of_sprite,
-            [&](const Color &color) {
-                return Color(color.operator unsigned int(), 180);
-            }
-        );
-    } else {
-        draw_sprite(
-            current_pos, current_size, current_type_of_sprite,
+            pos, current_size, current_type_of_sprite,
             [&](const Color &color) {
                 return Color(color.operator unsigned int(), 180);
             }
@@ -146,7 +146,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
             for (int i = 0; i < pixels.height(); i++) {
                 for (int j = 0; j < pixels.width(); j++) {
-                    if (is_draw(pixels[i][j])) {
+                    if (debug_mode || is_draw(pixels[i][j])) {
                         for (int x = 0; x <= 1; x++) {
                             for (int y = 0; y <= 1; y++) {
                                 Dot draw_pos = pos + Dot(j + x, -i - y) * size;
@@ -167,23 +167,23 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
     // set sprite
     if (pressed(BUTTON_MOUSE_L)) {
+        Dot pos = current_pos;
         if (is_down(BUTTON_R)) {
-            Draw_objects.push_back(
-                {current_pos -
-                     Dot(Sprites[current_type_of_sprite].width() * current_size,
-                         0),
-                 current_size, current_type_of_sprite}
-            );
-        } else {
-            Draw_objects.push_back(
-                {current_pos, current_size, current_type_of_sprite}
-            );
+            pos.x -= Sprites[current_type_of_sprite].width() * current_size;
         }
+
+        if (is_down(BUTTON_T)) {
+            pos.y += Sprites[current_type_of_sprite].height() * current_size;
+        }
+
+        Draw_objects.push_back({pos, current_size, current_type_of_sprite});
     }
 
     // pop back sprite
     if (pressed(BUTTON_Z)) {
-        Draw_objects.pop_back();
+        if (!Draw_objects.empty()) {
+            Draw_objects.pop_back();
+        }
     }
 
     // remove sprite

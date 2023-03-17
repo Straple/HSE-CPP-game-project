@@ -378,6 +378,7 @@ private:
                         update_button(BUTTON_Z, 'Z');
                         update_button(BUTTON_V, 'V');
                         update_button(BUTTON_R, 'R');
+                        update_button(BUTTON_T, 'T');
                         update_button(BUTTON_DEL, VK_DELETE);
                         update_button(BUTTON_LEFT, VK_LEFT);
                         update_button(BUTTON_RIGHT, VK_RIGHT);

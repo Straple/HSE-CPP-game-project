@@ -30,6 +30,7 @@ enum button_t : u8 {
     BUTTON_Z,
     BUTTON_V,
     BUTTON_R,
+    BUTTON_T,
 
     BUTTON_0,
     BUTTON_1,
