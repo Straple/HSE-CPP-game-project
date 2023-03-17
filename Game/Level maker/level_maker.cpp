@@ -1,3 +1,13 @@
+
+void cast_to_top_left_and_bottom_right(Dot &p0, Dot &p1) {
+    if (p0.x > p1.x) {
+        std::swap(p0.x, p1.x);
+    }
+    if (p0.y < p1.y) {
+        std::swap(p0.y, p1.y);
+    }
+}
+
 struct drawing_objects {
     Dot pos;
     efloat size;
@@ -6,33 +16,66 @@ struct drawing_objects {
 
 std::vector<drawing_objects> Draw_objects;
 
+std::vector<collision_box> Collision_boxes;
+
 void write_level() {
     std::ofstream file("level.txt");
-    file << Draw_objects.size() << '\n';
     file << std::fixed << std::setprecision(10);
+
+    file << "SPRITES\n";
+    file << Draw_objects.size() << '\n';
     for (auto [pos, size, sprite] : Draw_objects) {
-        file << "sprite ";
-        file << sprite << ' ' << pos << ' ' << size << '\n';
+        file << sprite_type_to_string(sprite) << ' ' << pos << ' ' << size
+             << '\n';
+    }
+
+    file << "COLLISION BOXES\n";
+    file << Collision_boxes.size() << '\n';
+    for (auto [p0, p1] : Collision_boxes) {
+        file << p0 << ' ' << p1 << '\n';
     }
 }
 
 void read_level() {
     std::ifstream file("level.txt");
-    int count;
-    file >> count;
-    Draw_objects.assign(count, {});
-    for (auto &[pos, size, sprite] : Draw_objects) {
-        std::string sprite_str;
-        file >> sprite_str;
-        int sprite_id;
-        file >> sprite_id >> pos >> size;
-        sprite = static_cast<sprite_t>(sprite_id);
+
+    {
+        std::string str;
+        file >> str;  // SPRITES
+
+        int count;
+        file >> count;
+        Draw_objects.assign(count, {});
+        for (auto &[pos, size, sprite] : Draw_objects) {
+            std::string sprite_name;
+            file >> sprite_name >> pos >> size;
+            sprite = string_to_sprite_type(sprite_name);
+        }
+    }
+
+    {
+        std::string str;
+        file >> str >> str;  // COLLISION BOXES
+
+        int count;
+        file >> count;
+        std::cout << count << std::endl;
+        Collision_boxes.assign(count, {});
+        for (auto &[p0, p1] : Collision_boxes) {
+            file >> p0 >> p1;
+            std::cout << p0 << ' ' << p1 << std::endl;
+        }
     }
 }
 
 sprite_t current_type_of_sprite = static_cast<sprite_t>(0);
 efloat current_size = 1;
 Dot current_pos;
+
+// "sprite" or "collision_box"
+std::string current_mode = "sprite";
+
+Dot downed_pos;
 
 void render_game(const Input &input) {
     clear_screen(GREY);
@@ -62,21 +105,38 @@ void render_game(const Input &input) {
     }
 
     {
-        Dot pos = current_pos;
-        if (is_down(BUTTON_R)) {
-            pos.x -= Sprites[current_type_of_sprite].width() * current_size;
-        }
-
-        if (is_down(BUTTON_T)) {
-            pos.y += Sprites[current_type_of_sprite].height() * current_size;
-        }
-
-        draw_sprite(
-            pos, current_size, current_type_of_sprite,
-            [&](const Color &color) {
-                return Color(color.operator unsigned int(), 180);
+        if (current_mode == "sprite") {
+            Dot pos = current_pos;
+            if (is_down(BUTTON_R)) {
+                pos.x -= Sprites[current_type_of_sprite].width() * current_size;
             }
-        );
+
+            if (is_down(BUTTON_T)) {
+                pos.y +=
+                    Sprites[current_type_of_sprite].height() * current_size;
+            }
+
+            draw_sprite(
+                pos, current_size, current_type_of_sprite,
+                [&](const Color &color) {
+                    return Color(color.operator unsigned int(), 180);
+                }
+            );
+        } else {
+            for (auto [p0, p1] : Collision_boxes) {
+                draw_rect2(
+                    p0 - camera.pos, p1 - camera.pos, Color(0x00fff0, 30)
+                );
+            }
+
+            if (is_down(BUTTON_MOUSE_L)) {
+                Dot p0 = downed_pos - camera.pos;
+                Dot p1 = current_pos - camera.pos;
+
+                cast_to_top_left_and_bottom_right(p0, p1);
+                draw_rect2(p0, p1, Color(0xff0000, 30));
+            }
+        }
     }
 
     draw_rect(mouse.pos, Dot(1, 1) / render_scale / 300, RED);
@@ -117,8 +177,19 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
         }
     }
 
+    // change mode
+    if (pressed(BUTTON_C)) {
+        if (current_mode == "sprite") {
+            current_mode = "collision_box";
+        } else if (current_mode == "collision_box") {
+            current_mode = "sprite";
+        } else {
+            ASSERT(false, "what is mode?");
+        }
+    }
+
     // change choose sprite
-    {
+    if (current_mode == "sprite") {
         if (pressed(BUTTON_Q)) {
             int id = static_cast<int>(current_type_of_sprite);
             id--;
@@ -166,7 +237,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     }
 
     // set sprite
-    if (pressed(BUTTON_MOUSE_L)) {
+    if (current_mode == "sprite" && pressed(BUTTON_MOUSE_L)) {
         Dot pos = current_pos;
         if (is_down(BUTTON_R)) {
             pos.x -= Sprites[current_type_of_sprite].width() * current_size;
@@ -179,22 +250,52 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
         Draw_objects.push_back({pos, current_size, current_type_of_sprite});
     }
 
-    // pop back sprite
+    // pop object
     if (pressed(BUTTON_Z)) {
-        if (!Draw_objects.empty()) {
-            Draw_objects.pop_back();
+        if (current_mode == "sprite") {
+            if (!Draw_objects.empty()) {
+                Draw_objects.pop_back();
+            }
+        } else {
+            if (!Collision_boxes.empty()) {
+                Collision_boxes.pop_back();
+            }
         }
     }
 
-    // remove sprite
+    // remove
     if (pressed(BUTTON_MOUSE_R)) {
-        for (int i = static_cast<int>(Draw_objects.size()) - 1; i >= 0; i--) {
-            auto [pos, size, sprite] = Draw_objects[i];
-            if (collision_in_draw_sprite(pos, size, sprite, mouse.pos)) {
-                Draw_objects.erase(Draw_objects.begin() + i);
-                break;
+        if (current_mode == "sprite") {
+            for (int i = static_cast<int>(Draw_objects.size()) - 1; i >= 0;
+                 i--) {
+                auto [pos, size, sprite] = Draw_objects[i];
+                if (collision_in_draw_sprite(pos, size, sprite, mouse.pos)) {
+                    Draw_objects.erase(Draw_objects.begin() + i);
+                    break;
+                }
+            }
+        } else {
+            for (int i = static_cast<int>(Collision_boxes.size()) - 1; i >= 0;
+                 i--) {
+                if (Collision_boxes[i].trigger(current_pos)) {
+                    Collision_boxes.erase(Collision_boxes.begin() + i);
+                    break;
+                }
             }
         }
+    }
+
+    if (pressed(BUTTON_MOUSE_L)) {
+        downed_pos = current_pos;
+    }
+
+    if (current_mode == "collision_box" && released(BUTTON_MOUSE_L)) {
+        Dot p0 = downed_pos;
+        Dot p1 = current_pos;
+
+        cast_to_top_left_and_bottom_right(p0, p1);
+
+        Collision_boxes.push_back({p0, p1});
     }
 
     if (pressed(BUTTON_V)) {
@@ -215,7 +316,7 @@ void simulate_game(
         return;
     }
 
-    // simulate physics
+    // simulate camera move
     {
         // накопление вектора движения
         auto accum_ddp = [&input](
@@ -239,4 +340,6 @@ void simulate_game(
     render_game(input);
 
     draw_object(current_size, arena_half_size + Dot(-20, -20), 0.5, BLUE);
+
+    draw_object(current_mode, Dot(0, -arena_half_size.y + 5), 0.5, RED);
 }
