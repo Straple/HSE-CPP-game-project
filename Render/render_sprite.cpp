@@ -81,6 +81,7 @@ void draw_sprite_matrix(
 #ifdef GAME_ENGINE_STANDARD_RENDER_SYSTEM
 
     pos += arena_half_size;
+    pos -= Dot(1, 1) * size / 2;
     pos *= scale_factor;
 
     efloat rect_sz = size * scale_factor;
@@ -353,32 +354,6 @@ void draw_sprite(
     static_pos_update(pos);
 
     draw_sprite_static(pos, size, sprite, func);
-}
-
-bool collision_in_draw_sprite(
-    Dot pos,
-    efloat size,
-    sprite_t sprite,
-    Dot collision_pos
-) {
-    static_pos_update(pos);
-
-    const auto &pixels = Sprites[sprite];
-
-    for (int i = 0; i < pixels.height(); i++) {
-        for (int j = 0; j < pixels.width(); j++) {
-            if (is_draw(pixels[i][j]) &&
-                is_between(
-                    pos.x + size * j, collision_pos.x, pos.x + size * (j + 1)
-                ) &&
-                is_between(
-                    pos.y - size * (i + 1), collision_pos.y, pos.y - size * i
-                )) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 // WARGNING NOT ARENA QUERY

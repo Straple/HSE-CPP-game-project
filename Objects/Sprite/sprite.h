@@ -37,8 +37,7 @@ public:
         ASSERT(
             frame_len_x > 0 && frame_len_x < sprite.width() &&
                 sprite.width() % frame_len_x == 0,
-            "bad frame_len_x"
-        );
+            "bad frame_len_x");
 
         for (int j = 0; j < sprite.width(); j += frame_len_x) {
             frames.emplace_back(sprite.height(), frame_len_x);

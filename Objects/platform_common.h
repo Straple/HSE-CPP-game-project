@@ -14,7 +14,6 @@ enum button_t : u8 {
     BUTTON_MOUSE_L,
     BUTTON_MOUSE_R,
     BUTTON_DEL,
-    BUTTON_SHIFT,
 
     BUTTON_A,
     BUTTON_B,
@@ -26,11 +25,6 @@ enum button_t : u8 {
     BUTTON_S,
     BUTTON_J,
     BUTTON_K,
-    BUTTON_Q,
-    BUTTON_Z,
-    BUTTON_V,
-    BUTTON_R,
-    BUTTON_T,
 
     BUTTON_0,
     BUTTON_1,

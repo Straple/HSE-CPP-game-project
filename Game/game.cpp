@@ -510,11 +510,45 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     // update render_scale
     {
         if (is_down(BUTTON_UP)) {
-            increase_window_scaling(mouse.pos);
+            efloat pt_x = (mouse.pos.x + arena_half_size.x) * scale_factor;
+            efloat pt_y = (mouse.pos.y + arena_half_size.y) * scale_factor;
+
+            render_scale *= 0.95;
+
+            // relax scaling
+            scale_factor = render_state.height() * render_scale;
+#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+            clear_sprites_cache();
+#endif
+
+            // relax arena
+            arena_half_size =
+                Dot(static_cast<efloat>(render_state.width()) / scale_factor,
+                    static_cast<efloat>(1) / render_scale) *
+                0.5;
+
+            mouse.pos = Dot(pt_x, pt_y) / scale_factor - arena_half_size;
         }
 
         if (is_down(BUTTON_DOWN)) {
-            decrease_window_scaling(mouse.pos);
+            efloat pt_x = (mouse.pos.x + arena_half_size.x) * scale_factor;
+            efloat pt_y = (mouse.pos.y + arena_half_size.y) * scale_factor;
+
+            render_scale /= 0.95;
+
+            // relax scaling
+            scale_factor = render_state.height() * render_scale;
+#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
+            clear_sprites_cache();
+#endif
+
+            // relax arena
+            arena_half_size =
+                Dot(static_cast<efloat>(render_state.width()) / scale_factor,
+                    static_cast<efloat>(1) / render_scale) *
+                0.5;
+
+            mouse.pos = Dot(pt_x, pt_y) / scale_factor - arena_half_size;
         }
     }
 
@@ -562,9 +596,10 @@ void simulate_game(
 
         draw_sprite(player.pos, 0.1, SP_TREE);
         draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
-
-        if (pressed(BUTTON_MOUSE_L)) {
+        static efloat last_hit_time = 3;
+        if (pressed(BUTTON_MOUSE_L) && last_hit_time >= PLAYER_ATTACK_COOLDOWN ) {
             // new bullet!
+            last_hit_time = 0;
             Bullets.emplace_back(
                 // player.pos,
                 player.get_collision()
@@ -572,6 +607,8 @@ void simulate_game(
                 mouse.pos + camera.pos, 1000000000, 1000
             );
         }
+        last_hit_time += delta_time;
+
 
         for (auto &bullet : Bullets) {
             bullet.simulate(delta_time);
@@ -579,6 +616,16 @@ void simulate_game(
 
         for (auto &bullet : Bullets) {
             bullet.draw();
+        }
+
+    for (int i = 0; i < Bullets.size(); i++) {
+
+            bool attack1 = Bullets[i].simulate_attack(player, Bats);
+            bool attack2 = Bullets[i].simulate_attack(player, Slimes);
+            if (attack1 || attack2) {
+                Bullets.erase(Bullets.begin()+i);
+                i--;
+            }
         }
     }
 

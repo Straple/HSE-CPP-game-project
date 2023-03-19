@@ -8,39 +8,8 @@
 
     SP_FIREPLACE,
 
-    SP_BARREL,
-
-    SP_PILLAR,
-    SP_BROKEN_PILLAR,
-
-    SP_CHESTER,
-    SP_OPEN_CHESTER,
-
-    SP_NUN_STATUE,
-
-    SP_TELEPORT,
-    SP_TABLE,
-
-    SP_WOODEN_FLOOR,
-
-    // wall
-
-    SP_WALL_LEFT,
-    SP_WALL_RIGHT,
-    SP_WALL_BOTTOM,
-    SP_WALL_TOP,
-
-    SP_WALL_BOTTOM_LEFT,
-    SP_WALL_BOTTOM_RIGHT,
-    SP_WALL_TOP_LEFT,
-    SP_WALL_TOP_RIGHT,
-
-    SP_WALL_BOTTOM_LEFT_INSIDE,
-    SP_WALL_BOTTOM_RIGHT_INSIDE,
-    SP_WALL_TOP_LEFT_INSIDE,
-    SP_WALL_TOP_RIGHT_INSIDE,
-
     SP_GRASS_BACKGROUND,
+    // SP_WALL,
     SP_FLOOR,
 
     // shadows
@@ -62,82 +31,6 @@
 
     SP_COUNT,
 };
-
-std::string sprite_type_to_string(sprite_t sp) {
-#define foo(x)     \
-    case x: {      \
-        return #x; \
-    }
-    switch (sp) {
-        foo(SP_BUSH);
-        foo(SP_TREE);
-        foo(SP_LOG);
-
-        foo(SP_FIREPLACE);
-
-        foo(SP_BARREL);
-
-        foo(SP_PILLAR);
-        foo(SP_BROKEN_PILLAR);
-
-        foo(SP_CHESTER);
-        foo(SP_OPEN_CHESTER);
-
-        foo(SP_NUN_STATUE);
-
-        foo(SP_TELEPORT);
-        foo(SP_TABLE);
-
-        foo(SP_WOODEN_FLOOR);
-
-        // wall
-
-        foo(SP_WALL_LEFT);
-        foo(SP_WALL_RIGHT);
-        foo(SP_WALL_BOTTOM);
-        foo(SP_WALL_TOP);
-
-        foo(SP_WALL_BOTTOM_LEFT);
-        foo(SP_WALL_BOTTOM_RIGHT);
-        foo(SP_WALL_TOP_LEFT);
-        foo(SP_WALL_TOP_RIGHT);
-
-        foo(SP_WALL_BOTTOM_LEFT_INSIDE);
-        foo(SP_WALL_BOTTOM_RIGHT_INSIDE);
-        foo(SP_WALL_TOP_LEFT_INSIDE);
-        foo(SP_WALL_TOP_RIGHT_INSIDE);
-
-        foo(SP_GRASS_BACKGROUND);
-        foo(SP_FLOOR);
-
-        // shadows
-
-        foo(SP_LARGE_SHADOW);
-        foo(SP_MEDIUM_SHADOW);
-        foo(SP_SMALL_SHADOW);
-
-        foo(SP_SLIME_MEDIUM_SHADOW);
-        foo(SP_SLIME_LARGE_SHADOW);
-
-        // UI
-        foo(SP_CURSOR);
-        foo(SP_FOCUS_CURSOR);
-        foo(SP_HEART);
-        foo(SP_COIN);
-
-        foo(SP_KEK);
-    }
-    ASSERT(false, "undefined sprite to string");
-}
-
-sprite_t string_to_sprite_type(const std::string &str) {
-    for (int i = 0; i != SP_COUNT; i++) {
-        if (sprite_type_to_string(static_cast<sprite_t>(i)) == str) {
-            return static_cast<sprite_t>(i);
-        }
-    }
-    ASSERT(false, "undefined string to sprite");
-}
 
 std::vector<Sprite> Sprites(sprite_t::SP_COUNT);
 
@@ -194,50 +87,6 @@ void read_sprites() {
         read(SP_GRASS_BACKGROUND, "World\\grass_background.png");
         // read(SP_WALL, "World\\wall.png");
         read(SP_FLOOR, "World\\floor.png");
-
-        read(SP_BARREL, "World\\barrel.png");
-        read(SP_PILLAR, "World\\pillar.png");
-        read(SP_BROKEN_PILLAR, "World\\broken_pillar.png");
-        read(SP_CHESTER, "World\\chester.png");
-        read(SP_OPEN_CHESTER, "World\\open_chester.png");
-        read(SP_NUN_STATUE, "World\\nun_statue.png");
-        read(SP_TELEPORT, "World\\teleport.png");
-
-        read(SP_TABLE, "World\\table.png");
-
-        // read(SP_CARPET_PATTERN, "World\\carpet_pattern.png");
-        // read(SP_CARPET_TOP_LEFT, "World\\carpet_top_left.png");
-
-        read(SP_WOODEN_FLOOR, "World\\wooden_floor.png");
-
-        // Wall
-        {
-            read(SP_WALL_LEFT, "World\\Wall\\wall_left.png");
-            read(SP_WALL_RIGHT, "World\\Wall\\wall_right.png");
-            read(SP_WALL_BOTTOM, "World\\Wall\\wall_bottom.png");
-            read(SP_WALL_TOP, "World\\Wall\\wall_top.png");
-
-            read(SP_WALL_BOTTOM_LEFT, "World\\Wall\\wall_bottom_left.png");
-            read(SP_WALL_BOTTOM_RIGHT, "World\\Wall\\wall_bottom_right.png");
-            read(SP_WALL_TOP_LEFT, "World\\Wall\\wall_top_left.png");
-            read(SP_WALL_TOP_RIGHT, "World\\Wall\\wall_top_right.png");
-
-            read(
-                SP_WALL_BOTTOM_LEFT_INSIDE,
-                "World\\Wall\\wall_bottom_left_inside.png"
-            );
-            read(
-                SP_WALL_BOTTOM_RIGHT_INSIDE,
-                "World\\Wall\\wall_bottom_right_inside.png"
-            );
-            read(
-                SP_WALL_TOP_LEFT_INSIDE, "World\\Wall\\wall_top_left_inside.png"
-            );
-            read(
-                SP_WALL_TOP_RIGHT_INSIDE,
-                "World\\Wall\\wall_top_right_inside.png"
-            );
-        }
     }
 
     // shadow

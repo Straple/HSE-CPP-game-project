@@ -15,9 +15,6 @@ BUTTON_F = fps mode
 UP, DOWN = render_scale
 */
 
-// #define GAME_MODE
-#define LEVEL_MAKER_MODE
-
 #include <windows.h>
 
 #undef max
@@ -28,7 +25,7 @@ bool debug_mode = false;
 bool show_locator = false;
 bool running = true;
 
-bool show_console = true;
+bool show_console = false;
 bool show_cursor = false;
 bool show_fps = true;
 
@@ -46,54 +43,8 @@ Render_state render_state;
 Dot arena_half_size;
 
 #include "Render\render.cpp"
-
-struct Mouse {
-    Dot pos;
-} mouse;
-
-efloat mouse_wheel = 0;
-
-void relax_scaling_after_change_window_scaling(Dot &mouse_pos) {
-    scale_factor = render_state.height() * render_scale;
-#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
-    clear_sprites_cache();
-#endif
-
-    // relax arena
-    arena_half_size =
-        Dot(static_cast<efloat>(render_state.width()) / scale_factor,
-            static_cast<efloat>(1) / render_scale) *
-        0.5;
-
-    mouse_pos /= scale_factor;
-    mouse_pos -= arena_half_size;
-}
-
-void increase_window_scaling(Dot &mouse_pos) {
-    mouse_pos += arena_half_size;
-    mouse_pos *= scale_factor;
-
-    render_scale *= 0.99;
-
-    relax_scaling_after_change_window_scaling(mouse_pos);
-}
-
-void decrease_window_scaling(Dot &mouse_pos) {
-    mouse_pos += arena_half_size;
-    mouse_pos *= scale_factor;
-
-    render_scale /= 0.99;
-
-    relax_scaling_after_change_window_scaling(mouse_pos);
-}
-
-#ifdef GAME_MODE
+// don't delete this
 #include "Game\game.cpp"
-#endif
-
-#ifdef LEVEL_MAKER_MODE
-#include "Game\Level maker\level_maker.cpp"
-#endif
 
 class engine_app {
     HINSTANCE hInstance;  // дескриптор указанного модуля
@@ -306,9 +257,6 @@ private:
                                   0.5;
 
             } break;
-            case WM_MOUSEWHEEL: {
-                mouse_wheel += GET_WHEEL_DELTA_WPARAM(wParam);
-            } break;
             default: {
                 result = DefWindowProc(hwnd, uMsg, wParam, lParam);
             }
@@ -374,11 +322,6 @@ private:
                         update_button(BUTTON_F, 'F');
                         update_button(BUTTON_J, 'J');
                         update_button(BUTTON_K, 'K');
-                        update_button(BUTTON_Q, 'Q');
-                        update_button(BUTTON_Z, 'Z');
-                        update_button(BUTTON_V, 'V');
-                        update_button(BUTTON_R, 'R');
-                        update_button(BUTTON_T, 'T');
                         update_button(BUTTON_DEL, VK_DELETE);
                         update_button(BUTTON_LEFT, VK_LEFT);
                         update_button(BUTTON_RIGHT, VK_RIGHT);
@@ -386,7 +329,6 @@ private:
                         update_button(BUTTON_ESC, VK_ESCAPE);
                         update_button(BUTTON_TAB, VK_TAB);
                         update_button(BUTTON_SPACE, VK_SPACE);
-                        update_button(BUTTON_SHIFT, VK_SHIFT);
                         update_button(BUTTON_0, VK_NUMPAD0);
                         update_button(BUTTON_1, VK_NUMPAD1);
                         update_button(BUTTON_2, VK_NUMPAD2);
@@ -437,13 +379,7 @@ int main() {
         read_sprites();
         read_spritesheets();
 
-#ifdef GAME_MODE
         build_world();
-#endif
-
-#ifdef LEVEL_MAKER_MODE
-        read_level();
-#endif
 
         init_render_threads();
     }
