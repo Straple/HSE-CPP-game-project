@@ -71,6 +71,7 @@ struct enemy_state {
 // get_collision - выдать коллизию объекта (если есть)
 
 
+
 #include "bush.cpp"
 #include "effect.cpp"
 #include "player.cpp"
@@ -79,6 +80,8 @@ struct enemy_state {
 #include "bullet.cpp"
 #include "weapon.cpp"
 #include "rain.cpp"
+#include "loot.cpp"
+#include "heart.cpp"
 
 // don't shuffle
 #include "log.cpp"

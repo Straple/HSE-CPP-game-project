@@ -629,6 +629,14 @@ void simulate_game(
         }
     }
 
+    for (auto& object: Loot_objects) {
+        object->simulate(delta_time);
+        if (object->simulate_collection()) {
+            std::swap(object, Loot_objects.back());
+            Loot_objects.pop_back();
+        }
+        object->draw();
+    }
     /*player.hp = 300;
     player.pos = Dot();
     for (int i = 0; i < 10; i++) {

@@ -16,6 +16,9 @@ struct Bat {
 
     Dot walk_to;
 
+    int hp_loot = 10;
+    int coins_loot = 5;
+
     // cool-downs
     efloat attack_cooldown_accum = enemy_state.attack_cooldown;
     efloat paralyzed_cooldown_accum = enemy_state.paralyzed_cooldown;
@@ -159,6 +162,9 @@ struct Bat {
             draw_rect(p, Dot(0.3, 0.3), 0xffff0000);
         }
     }
+    void drop_loot(Dot pos) {
+
+    }
 
     // вернет правду, если враг уничтожен
     void simulate_hit(const Player &player) {
@@ -168,6 +174,8 @@ struct Bat {
 
         if (hp <= 0) {
             add_death_effect(pos + Dot(-16, 22) * gobj_state.size);
+            Loot_objects.push_back(std::unique_ptr<Loot>(new Heart(this->get_collision().circle.pos)));
+
         } else {
             ddp += player.get_dir() * enemy_state.ddp_speed * 1.5;
             paralyzed_cooldown_accum = 0;
