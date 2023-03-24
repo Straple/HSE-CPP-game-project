@@ -15,8 +15,8 @@ BUTTON_F = fps mode
 UP, DOWN = render_scale
 */
 
- #define GAME_MODE
-//#define LEVEL_MAKER_MODE
+//#define GAME_MODE
+#define LEVEL_MAKER_MODE
 
 #include <windows.h>
 
@@ -46,8 +46,6 @@ Render_state render_state;
 Dot arena_half_size;
 
 #include "Render\render.cpp"
-
-efloat mouse_wheel = 0;
 
 void relax_scaling_after_change_window_scaling(Dot &mouse_pos) {
     scale_factor = render_state.height() * render_scale;
@@ -82,6 +80,12 @@ void decrease_window_scaling(Dot &mouse_pos) {
 
     relax_scaling_after_change_window_scaling(mouse_pos);
 }
+
+#include "Game\UI Objects\ui_objects.cpp"
+
+Mouse mouse(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
+
+efloat mouse_wheel = 0;
 
 #ifdef GAME_MODE
 #include "Game\game.cpp"

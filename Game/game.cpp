@@ -2,8 +2,6 @@
 
 #include "game_utils.cpp"
 // don't shuffle
-#include "UI Objects\ui_objects.cpp"
-// don't shuffle
 #include "Game objects\game_objects.cpp"
 
 // game objects
@@ -149,10 +147,6 @@ void build_world() {
     build_array_of_objects(Slimes, random_size_enemies(rnd));
     build_array_of_objects(Bats, random_size_enemies(rnd));
 }
-
-// UI objects
-
-Mouse mouse(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
 
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения
