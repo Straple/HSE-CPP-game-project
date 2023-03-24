@@ -59,11 +59,9 @@ void read_level() {
 
         int count;
         file >> count;
-        std::cout << count << std::endl;
         Collision_boxes.assign(count, {});
         for (auto &[p0, p1] : Collision_boxes) {
             file >> p0 >> p1;
-            std::cout << p0 << ' ' << p1 << std::endl;
         }
     }
 }
@@ -295,7 +293,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
         cast_to_top_left_and_bottom_right(p0, p1);
 
-        Collision_boxes.push_back({p0, p1});
+        Collision_boxes.emplace_back(p0, p1);
     }
 
     if (pressed(BUTTON_V)) {
