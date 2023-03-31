@@ -1,5 +1,5 @@
-#ifndef ABSTRACT_GAME_OBJECT
-#define ABSTRACT_GAME_OBJECT
+#ifndef ABSTRACT_GAME_OBJECT_HPP
+#define ABSTRACT_GAME_OBJECT_HPP
 
 #include "..\..\Objects\objects.h"
 #include "..\..\utils.h"
@@ -21,4 +21,4 @@ struct abstract_game_object {
     virtual ~abstract_game_object() = default;
 };
 
-#endif  // ABSTRACT_GAME_OBJECT
+#endif  // ABSTRACT_GAME_OBJECT_HPP

@@ -46,7 +46,7 @@ struct button {  // кнопка
             draw_text(text, pos, size, (is_focus ? focus_color : color));
         }
 
-        if (debug_mode) {
+        if (global_variables::debug_mode) {
             draw_rect(coll.p0, Dot(0.5, 0.5), 0xff00ff00);
             draw_rect(coll.p1, Dot(0.5, 0.5), 0xff00ff00);
         }

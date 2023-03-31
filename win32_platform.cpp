@@ -15,68 +15,63 @@ BUTTON_F = fps mode
 UP, DOWN = render_scale
 */
 
-//#define GAME_MODE
-#define LEVEL_MAKER_MODE
+#define GAME_MODE
+//#define LEVEL_MAKER_MODE
 
 #include <windows.h>
 
 #undef max
 #undef min
 
-bool camera_is_static = false;
-bool debug_mode = false;
-bool show_locator = false;
-bool running = true;
-
-bool show_console = true;
-bool show_cursor = false;
-bool show_fps = true;
-
-bool fullscreen_mode = true;
+//#include "Game\Game objects\bullet.hpp"
+//#include "Game\Game objects\bush.hpp"
+//#include "Game\Game objects\effect.hpp"
+//#include "Game\Game objects\tree.hpp"
+//#include "Game\Game objects\weapon.hpp"
+//#include "Game\Game objects\log.hpp"
+//#include "Game\Game objects\log.hpp"
+//#include "Game\Game objects\fireplace.hpp"
 
 #include "Objects\objects.h"
 #include "utils.h"
+//
+#include "global_variables.hpp"
+
 // don't delete this
-#include "Sprites\sprite.cpp"
-
-Camera camera;
-
-Render_state render_state;
-
-Dot arena_half_size;
-
-#include "Render\render.cpp"
+#include "Sprites\sprite.hpp"
+//
+#include "render.hpp"
 
 void relax_scaling_after_change_window_scaling(Dot &mouse_pos) {
-    scale_factor = render_state.height() * render_scale;
+    global_variables::scale_factor = global_variables::render_state.height() * global_variables::render_scale;
 #ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
     clear_sprites_cache();
 #endif
 
     // relax arena
-    arena_half_size =
-        Dot(static_cast<efloat>(render_state.width()) / scale_factor,
-            static_cast<efloat>(1) / render_scale) *
+    global_variables::arena_half_size =
+        Dot(static_cast<efloat>(global_variables::render_state.width()) / global_variables::scale_factor,
+            static_cast<efloat>(1) / global_variables::render_scale) *
         0.5;
 
-    mouse_pos /= scale_factor;
-    mouse_pos -= arena_half_size;
+    mouse_pos /= global_variables::scale_factor;
+    mouse_pos -= global_variables::arena_half_size;
 }
 
 void increase_window_scaling(Dot &mouse_pos) {
-    mouse_pos += arena_half_size;
-    mouse_pos *= scale_factor;
+    mouse_pos += global_variables::arena_half_size;
+    mouse_pos *= global_variables::scale_factor;
 
-    render_scale *= 0.99;
+    global_variables::render_scale *= 0.99;
 
     relax_scaling_after_change_window_scaling(mouse_pos);
 }
 
 void decrease_window_scaling(Dot &mouse_pos) {
-    mouse_pos += arena_half_size;
-    mouse_pos *= scale_factor;
+    mouse_pos += global_variables::arena_half_size;
+    mouse_pos *= global_variables::scale_factor;
 
-    render_scale /= 0.99;
+    global_variables::render_scale /= 0.99;
 
     relax_scaling_after_change_window_scaling(mouse_pos);
 }
@@ -150,9 +145,9 @@ public:
         update_controls();
 
         simulate_game(input, delta_time, [&]() -> void {
-            fullscreen_mode = !fullscreen_mode;
+            global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
 
-            if (fullscreen_mode) {
+            if (global_variables::fullscreen_mode) {
                 set_fullscreen_mode();
             } else {
                 set_window_mode();
@@ -181,34 +176,34 @@ public:
                 frame_accum = 0;
             }
 
-            if (show_fps) {
+            if (global_variables::show_fps) {
                 draw_object(
                     static_cast<int>(summary_fps / global_time_accum),
-                    Dot(5, 12) - arena_half_size, 0.5, WHITE
+                    Dot(5, 12) - global_variables::arena_half_size, 0.5, WHITE
                 );
 
                 draw_object(
-                    global_time_accum, Dot(20, 12) - arena_half_size, 0.5, WHITE
+                    global_time_accum, Dot(20, 12) - global_variables::arena_half_size, 0.5, WHITE
                 );
 
                 draw_object(
-                    visible_fps, Dot(5, 5) - arena_half_size, 0.5, WHITE
+                    visible_fps, Dot(5, 5) - global_variables::arena_half_size, 0.5, WHITE
                 );
 
                 draw_object(
                     static_cast<int>(delta_time * 1000),
-                    Dot(20, 5) - arena_half_size, 0.5, WHITE
+                    Dot(20, 5) - global_variables::arena_half_size, 0.5, WHITE
                 );
 
                 draw_object(
-                    to_string(render_state.height()) + "x" +
-                        to_string(render_state.width()),
-                    Dot(30, 5) - arena_half_size, 0.5, WHITE
+                    to_string(global_variables::render_state.height()) + "x" +
+                        to_string(global_variables::render_state.width()),
+                    Dot(30, 5) - global_variables::arena_half_size, 0.5, WHITE
                 );
 
                 // draw_object(
                 //     static_cast<int>(game_engine_time_for_calc * 1000),
-                //     Dot(60, 5) - arena_half_size, 0.5, RED
+                //     Dot(60, 5) - global_variables::arena_half_size, 0.5, RED
                 //);
                 game_engine_time_for_calc = 0;
             }
@@ -266,12 +261,12 @@ private:
     // передает кадр ОС, чтобы та вывела его на монитор
     void release_frame() {
         StretchDIBits(
-            hdc, 0, 0, static_cast<int>(render_state.width()),
-            static_cast<int>(render_state.height()), 0, 0,
-            static_cast<int>(render_state.width()),
-            static_cast<int>(render_state.height()),
-            reinterpret_cast<void *>(render_state.render_memory()),
-            &render_state.bitmap_info(), DIB_RGB_COLORS, SRCCOPY
+            hdc, 0, 0, static_cast<int>(global_variables::render_state.width()),
+            static_cast<int>(global_variables::render_state.height()), 0, 0,
+            static_cast<int>(global_variables::render_state.width()),
+            static_cast<int>(global_variables::render_state.height()),
+            reinterpret_cast<void *>(global_variables::render_state.render_memory()),
+            &global_variables::render_state.bitmap_info(), DIB_RGB_COLORS, SRCCOPY
         );
     }
 
@@ -283,26 +278,26 @@ private:
         switch (uMsg) {
             case WM_CLOSE:
             case WM_DESTROY: {
-                running = false;
+                global_variables::running = false;
             } break;
             case WM_SIZE: {
                 // get rect window
                 {
                     RECT rect;
                     GetClientRect(hwnd, &rect);
-                    render_state.resize(rect.right, rect.bottom);
+                    global_variables::render_state.resize(rect.right, rect.bottom);
                 }
 
                 // relax scaling
-                scale_factor = render_state.height() * render_scale;
+                global_variables::scale_factor = global_variables::render_state.height() * global_variables::render_scale;
 #ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
                 clear_sprites_cache();
 #endif
 
                 // relax arena
-                arena_half_size = Dot(static_cast<efloat>(render_state.width()
-                                      ) / scale_factor,
-                                      static_cast<efloat>(1) / render_scale) *
+                global_variables::arena_half_size = Dot(static_cast<efloat>(global_variables::render_state.width()
+                                      ) / global_variables::scale_factor,
+                                      static_cast<efloat>(1) / global_variables::render_scale) *
                                   0.5;
 
             } break;
@@ -419,8 +414,8 @@ private:
             mouse.pos = Dot(static_cast<double>(message.pt.x) -
                                 std::max<int>(0, rect.left) + 0.2,
                             static_cast<double>(rect.bottom) - message.pt.y) /
-                            scale_factor -
-                        arena_half_size;
+                            global_variables::scale_factor -
+                        global_variables::arena_half_size;
         }
     }
 };
@@ -431,8 +426,8 @@ int main() {
         std::cout << "performance_frequency: " << performance_frequency
                   << std::endl;
 
-        ShowWindow(GetConsoleWindow(), show_console ? SW_SHOW : SW_HIDE);
-        ShowCursor(show_cursor);
+        ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
+        ShowCursor(global_variables::show_cursor);
 
         read_sprites();
         read_spritesheets();
@@ -445,12 +440,12 @@ int main() {
         read_level();
 #endif
 
-        init_render_threads();
+        //init_render_threads();
     }
 
     engine_app eng;
     {
-        if (fullscreen_mode) {
+        if (global_variables::fullscreen_mode) {
             eng.set_fullscreen_mode();
         } else {
             eng.set_window_mode();
@@ -462,7 +457,7 @@ int main() {
 
     efloat delta_time = 0;
 
-    while (running) {
+    while (global_variables::running) {
         eng.simulate_frame(delta_time);
 
         // update time
@@ -474,6 +469,6 @@ int main() {
         }
     }
 
-    join_all_render_threads();
+    //join_all_render_threads();
     return 0;
 }

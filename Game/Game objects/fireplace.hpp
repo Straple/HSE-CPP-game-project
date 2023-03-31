@@ -1,4 +1,9 @@
-﻿#include "abstract_game_object.h"
+﻿#ifndef GAME_FIREPLACE_HPP
+#define GAME_FIREPLACE_HPP
+
+#include "abstract_game_object.hpp"
+#include "log.hpp"
+#include "render.hpp"
 
 struct Fireplace : abstract_game_object {
     Fire_machine fire;
@@ -6,7 +11,7 @@ struct Fireplace : abstract_game_object {
     efloat time = 5 * 60;
     efloat cooldown_add_time_accum = 0;
 
-    const int eate_radius = 20;
+    const int eating_radius = 20;
     const efloat add_time = 1.5 * 60;
 
     Fireplace() = default;
@@ -38,12 +43,12 @@ struct Fireplace : abstract_game_object {
         static_pos_update(p);
         draw_object(int(time), p, 0.5, 0xff000000);
 
-        draw_collision_obj(*this);
+        // draw_collision_obj(*this);
 
-        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+        draw_rect(pos - global_variables::camera.pos, Dot(1, 1) * 0.3, RED);
     }
 
-    void simulate(efloat delta_time) {
+    void simulate(efloat delta_time, std::vector<Log> &Logs) {
         time -= delta_time;
 
         cooldown_add_time_accum += delta_time;
@@ -56,7 +61,7 @@ struct Fireplace : abstract_game_object {
         fire.simulate(delta_time);
 
         for (int i = 0; i < Logs.size(); i++) {
-            if ((pos - Logs[i].pos).get_len() <= eate_radius) {
+            if ((pos - Logs[i].pos).get_len() <= eating_radius) {
                 Logs.erase(Logs.begin() + i);
                 i--;
 
@@ -66,3 +71,5 @@ struct Fireplace : abstract_game_object {
         }
     }
 };
+
+#endif  // GAME_FIREPLACE_HPP

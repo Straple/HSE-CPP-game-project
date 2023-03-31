@@ -1,5 +1,9 @@
-﻿
-#include "abstract_game_object.h"
+﻿#ifndef GAME_TREE_HPP
+#define GAME_TREE_HPP
+
+#include "abstract_game_object.hpp"
+#include "effect.hpp"
+#include "render.hpp"
 
 struct Tree : abstract_game_object {
     int hp = 200;
@@ -21,18 +25,19 @@ struct Tree : abstract_game_object {
         draw_sprite(pos + Dot(-16, 6) * size, size, SP_LARGE_SHADOW);
         draw_sprite(pos + delta_draw_pos, size, SP_TREE);
 
-        draw_collision_obj(*this);
-        draw_hp(*this);
+        // draw_collision_obj(*this);
+        // draw_hp(*this);
     }
 
-    void simulate_hit(const Player &player) {
+    void simulate_hit(int player_damage) {
         add_hit_effect(pos + Dot(-8, 8) * size);
 
-        hp -= player.damage;
+        hp -= player_damage;
 
         if (hp <= 0) {
             add_death_effect(pos + Dot(-12, 12) * size);
-            Logs.emplace_back(pos);
         }
     }
 };
+
+#endif  // GAME_TREE_HPP

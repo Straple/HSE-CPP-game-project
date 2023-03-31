@@ -32,13 +32,13 @@ void draw_pixels(
     }
 
     ASSERT(
-        x0 <= render_state.width() && x1 <= render_state.width() &&
-            y0 <= render_state.height() && y1 <= render_state.height(),
+        x0 <= global_variables::render_state.width() && x1 <= global_variables::render_state.width() &&
+            y0 <= global_variables::render_state.height() && y1 <= global_variables::render_state.height(),
         "out of render pixels"
     );
 
-    Color *row = render_state[y0] + x0;
-    const unsigned int screen_width = render_state.width();
+    Color *row = global_variables::render_state[y0] + x0;
+    const unsigned int screen_width = global_variables::render_state.width();
     unsigned int len = x1 - x0;
 
     if (color.a == 0xff) {
@@ -71,16 +71,16 @@ void draw_pixels(
 
 // рисует прямоугольник в пикселях с обработкой границ
 void draw_rect_in_pixels(s64 x0, s64 y0, s64 x1, s64 y1, const Color &color) {
-    x0 = clamp<s64>(0, x0, static_cast<s64>(render_state.width()));
-    x1 = clamp<s64>(0, x1, static_cast<s64>(render_state.width()));
+    x0 = clamp<s64>(0, x0, static_cast<s64>(global_variables::render_state.width()));
+    x1 = clamp<s64>(0, x1, static_cast<s64>(global_variables::render_state.width()));
 
-    y0 = clamp<s64>(0, y0, static_cast<s64>(render_state.height()));
-    y1 = clamp<s64>(0, y1, static_cast<s64>(render_state.height()));
+    y0 = clamp<s64>(0, y0, static_cast<s64>(global_variables::render_state.height()));
+    y1 = clamp<s64>(0, y1, static_cast<s64>(global_variables::render_state.height()));
 
     draw_pixels(x0, y0, x1, y1, color);
 }
 
 // зарисовывает весь экран цветом
 void clear_screen(const Color &color) {
-    draw_pixels(0, 0, render_state.width(), render_state.height(), color);
+    draw_pixels(0, 0, global_variables::render_state.width(), global_variables::render_state.height(), color);
 }

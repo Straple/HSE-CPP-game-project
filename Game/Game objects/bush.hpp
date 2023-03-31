@@ -1,4 +1,8 @@
-﻿#include "abstract_game_object.h"
+﻿#ifndef GAME_BUSH_HPP
+#define GAME_BUSH_HPP
+
+#include "abstract_game_object.hpp"
+#include "render.hpp"
 
 struct Bush : abstract_game_object {
     Bush() = default;
@@ -20,8 +24,10 @@ struct Bush : abstract_game_object {
         );
         draw_sprite(pos + delta_draw_pos, size, SP_BUSH);
 
-        draw_collision_obj(*this);
+        // draw_collision_obj(*this);
 
-        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+        draw_rect(pos - global_variables::camera.pos, Dot(1, 1) * 0.3, RED);
     }
 };
+
+#endif  // GAME_BUSH_HPP

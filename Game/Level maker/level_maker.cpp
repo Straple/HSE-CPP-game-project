@@ -123,13 +123,13 @@ void render_game(const Input &input) {
         } else {
             for (auto [p0, p1] : Collision_boxes) {
                 draw_rect2(
-                    p0 - camera.pos, p1 - camera.pos, Color(0x00fff0, 30)
+                    p0 - global_variables::camera.pos, p1 - global_variables::camera.pos, Color(0x00fff0, 30)
                 );
             }
 
             if (is_down(BUTTON_MOUSE_L)) {
-                Dot p0 = downed_pos - camera.pos;
-                Dot p1 = current_pos - camera.pos;
+                Dot p0 = downed_pos - global_variables::camera.pos;
+                Dot p1 = current_pos - global_variables::camera.pos;
 
                 cast_to_top_left_and_bottom_right(p0, p1);
                 draw_rect2(p0, p1, Color(0xff0000, 30));
@@ -137,7 +137,7 @@ void render_game(const Input &input) {
         }
     }
 
-    draw_rect(mouse.pos, Dot(1, 1) / render_scale / 300, RED);
+    draw_rect(mouse.pos, Dot(1, 1) / global_variables::render_scale / 300, RED);
     // draw_rect(mouse.pos, Dot(1, 1) * 0.1, RED);
 }
 
@@ -146,7 +146,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     // standart buttons
     {
         if (pressed(BUTTON_ESC)) {
-            running = false;
+            global_variables::running = false;
             return;
         }
 
@@ -155,15 +155,15 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
         }
 
         if (pressed(BUTTON_TAB)) {
-            debug_mode = !debug_mode;
+            global_variables::debug_mode = !global_variables::debug_mode;
         }
 
         /*if (pressed(BUTTON_K)) {
-            show_locator = !show_locator;
+            global_variables::show_locator = !global_variables::show_locator;
         }*/
 
         if (pressed(BUTTON_F)) {
-            show_fps = !show_fps;
+            global_variables::show_fps = !global_variables::show_fps;
         }
 
         if (is_down(BUTTON_UP)) {
@@ -215,7 +215,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
 
             for (int i = 0; i < pixels.height(); i++) {
                 for (int j = 0; j < pixels.width(); j++) {
-                    if (debug_mode || is_draw(pixels[i][j])) {
+                    if (global_variables::debug_mode || is_draw(pixels[i][j])) {
                         for (int x = 0; x <= 1; x++) {
                             for (int y = 0; y <= 1; y++) {
                                 Dot draw_pos = pos + Dot(j + x, -i - y) * size;
@@ -307,10 +307,10 @@ void simulate_game(
     efloat delta_time,
     func_t &&window_mode_callback
 ) {
-    current_pos = camera.pos + mouse.pos;
+    current_pos = global_variables::camera.pos + mouse.pos;
 
     simulate_input(input, window_mode_callback);
-    if (!running) {
+    if (!global_variables::running) {
         return;
     }
 
@@ -328,7 +328,7 @@ void simulate_game(
 
         static Dot dp;
         simulate_move2d(
-            camera.pos, dp,
+            global_variables::camera.pos, dp,
             accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S) * 500, delta_time
         );
     }
@@ -337,7 +337,7 @@ void simulate_game(
 
     render_game(input);
 
-    draw_object(current_size, arena_half_size + Dot(-20, -20), 0.5, BLUE);
+    draw_object(current_size, global_variables::arena_half_size + Dot(-20, -20), 0.5, BLUE);
 
-    draw_object(current_mode, Dot(0, -arena_half_size.y + 5), 0.5, RED);
+    draw_object(current_mode, Dot(0, -global_variables::arena_half_size.y + 5), 0.5, RED);
 }

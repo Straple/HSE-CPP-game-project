@@ -22,7 +22,7 @@ struct ui_state {
             top_left.x + (efloat(value) / max) * (bottom_right.x - top_left.x);
         draw_rect2(top_left, Dot(x, bottom_right.y), fill_color);
 
-        if (debug_mode) {
+        if (global_variables::debug_mode) {
             draw_rect(top_left, Dot(0.5, 0.5), BLUE);
             draw_rect(bottom_right, Dot(0.5, 0.5), GREEN);
         }

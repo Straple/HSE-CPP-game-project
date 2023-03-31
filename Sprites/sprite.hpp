@@ -1,4 +1,7 @@
-﻿enum sprite_t {
+﻿#ifndef GAME_ENGINE_SPRITE_HPP
+#define GAME_ENGINE_SPRITE_HPP
+
+enum sprite_t {
 
     // world
 
@@ -68,6 +71,7 @@ std::string sprite_type_to_string(sprite_t sp) {
     case x: {      \
         return #x; \
     }
+
     switch (sp) {
         foo(SP_BUSH);
         foo(SP_TREE);
@@ -127,6 +131,7 @@ std::string sprite_type_to_string(sprite_t sp) {
 
         foo(SP_KEK);
     }
+#undef foo
     ASSERT(false, "undefined sprite to string");
 }
 
@@ -300,3 +305,5 @@ void read_spritesheets() {
 
     std::cout << "total_time: " << finish_time << std::endl << std::endl;
 }
+
+#endif  // GAME_ENGINE_SPRITE_HPP

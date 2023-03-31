@@ -1,13 +1,15 @@
-﻿
+﻿#ifndef GAME_EFFECT_HPP
+#define GAME_EFFECT_HPP
+
+#include "render.hpp"
+
 struct effect {
     Dot pos;
     animation anim;
 
     effect() = default;
 
-    effect(const Dot &pos, const animation &anim) {
-        this->pos = pos;
-        this->anim = anim;
+    effect(const Dot &pos, const animation &anim) : pos(pos), anim(anim) {
     }
 
     // вернет правду, если его анимация закончилась и нужно удалить объект
@@ -20,7 +22,7 @@ struct effect {
     }
 };
 
-std::vector<effect> Effects;
+static std::vector<effect> Effects;
 
 void add_hit_effect(const Dot &pos) {
     Effects.emplace_back(pos, animation(SS_HIT_EFFECT, 0, 2, 0.1));
@@ -29,3 +31,5 @@ void add_hit_effect(const Dot &pos) {
 void add_death_effect(const Dot &pos) {
     Effects.emplace_back(pos, animation(SS_DEATH_EFFECT, 0, 10, 0.1));
 }
+
+#endif  // GAME_EFFECT_HPP

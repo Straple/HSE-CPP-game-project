@@ -1,15 +1,14 @@
-#define BULLET_COLLISION_RADIUS 2
-#define BULLET_DELTA_DRAW_DOT Dot(-10, 10)
-struct Shape;
+#ifndef GAME_BULLET_HPP
+#define GAME_BULLET_HPP
 
-struct Bullet {
+#include "abstract_game_object.hpp"
+#include "render.hpp"
+
+struct Bullet : abstract_game_object {
     // Shape form;
     // Добавим позже поле формы пули, чтобы можно было
     // стрелять как кругами, так и прямоугольниками и ромбами.
     // возможно, добавим лучевое оружие
-
-    Dot pos;
-    Dot dp;
 
     int speed;
     Dot dir;  // направление полета пули
@@ -19,14 +18,14 @@ struct Bullet {
     // bool ricochet;  // TODO
 
     Bullet(Dot from, Dot to, int damage, int speed)
-        : pos(from),
-          dir((to - from).normalize()),
-          damage(damage),
-          speed(speed) {
+        : dir((to - from).normalize()), damage(damage), speed(speed) {
+        pos = from;
+        collision_radius = 2;
+        delta_draw_pos = Dot(-10, 10);
     }
 
     [[nodiscard]] collision_circle get_collision() const {
-        return collision_circle(Circle(pos, BULLET_COLLISION_RADIUS));
+        return collision_circle(Circle(pos, collision_radius));
     }
 
     // не пон че делает
@@ -136,11 +135,13 @@ struct Bullet {
     }
 
     void draw() const {
-        draw_sprite(pos + BULLET_DELTA_DRAW_DOT, 1, SP_COIN);
+        draw_sprite(pos + delta_draw_pos, 1, SP_COIN);
 
-        draw_collision_obj(*this);
-        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+        //draw_collision_obj(*this);
+        draw_rect(pos - global_variables::camera.pos, Dot(1, 1) * 0.3, RED);
 
         // draw_circle(get_collision().circle, Color(0xff0000, 100));
     }
 };
+
+#endif  // GAME_BULLET_HPP

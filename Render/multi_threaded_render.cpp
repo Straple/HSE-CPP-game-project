@@ -39,7 +39,7 @@ struct render_thread_values {
 };
 
 void simulate_render_thread(render_thread_values &thr) {
-    while (running) {
+    while (global_variables::running) {
         if (thr.spin) {
             // появилось новое задание
 
@@ -47,7 +47,7 @@ void simulate_render_thread(render_thread_values &thr) {
             {
                 auto &pixels = Sprites[thr.sprite];
 
-                efloat rect_sz = thr.size * scale_factor;
+                efloat rect_sz = thr.size * global_variables::scale_factor;
 
                 efloat y = thr.pos.y;
 
@@ -69,7 +69,7 @@ void simulate_render_thread(render_thread_values &thr) {
 
                         if (is_draw(pixels[i][j])) {
                             draw_rect_in_pixels(x0, y0, x1, y1, pixels[i][j]);
-                        } else if (debug_mode) {
+                        } else if (global_variables::debug_mode) {
                             draw_rect_in_pixels(
                                 x0, y0, x1, y1, Color(0xffffff, 60)
                             );

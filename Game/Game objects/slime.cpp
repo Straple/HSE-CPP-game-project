@@ -185,7 +185,9 @@ struct Slime {
                     return paralyzed_cooldown_accum <
                                    enemy_state.paralyzed_cooldown
                                ? WHITE
-                               : Color(color.operator unsigned int(), SLIME_ALPHA);
+                               : Color(
+                                     color.operator unsigned int(), SLIME_ALPHA
+                                 );
                 }
             );
         }
@@ -194,7 +196,7 @@ struct Slime {
 
         draw_hp(*this);
 
-        if (show_locator) {
+        if (global_variables::show_locator) {
             Dot p = pos;
             static_pos_update(p);
 

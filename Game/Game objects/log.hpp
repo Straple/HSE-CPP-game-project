@@ -1,5 +1,8 @@
-﻿
-#include "abstract_game_object.h"
+﻿#ifndef GAME_LOG_HPP
+#define GAME_LOG_HPP
+
+#include "abstract_game_object.hpp"
+#include "render.hpp"
 
 struct Log : abstract_game_object {
     Log() = default;
@@ -18,16 +21,17 @@ struct Log : abstract_game_object {
     void draw() const override {
         draw_sprite(pos + delta_draw_pos, size, SP_LOG);
 
-        draw_collision_obj(*this);
+        // draw_collision_obj(*this);
 
-        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+        draw_rect(pos - global_variables::camera.pos, Dot(1, 1) * 0.3, RED);
     }
 
-    void simulate_hit(const Player &player) {
+    // это можно и вырезать: бесполезно
+    /*void simulate_hit(const Player &player) {
         add_hit_effect(pos + Dot(-10, 8) * size);
 
         dp += player.get_dir() * 200;
-    }
+    }*/
 
     void simulate(efloat delta_time) {
         Dot ddp;
@@ -35,4 +39,4 @@ struct Log : abstract_game_object {
     }
 };
 
-std::vector<Log> Logs;
+#endif  // GAME_LOG_HPP

@@ -18,6 +18,8 @@ std::vector<Fireplace> Fireplaces = {
     Fireplace(Dot(30, -30)),
 };
 
+std::vector<Log> Logs;
+
 // Players
 //
 // Slimes
@@ -267,7 +269,7 @@ void simulate_physics(efloat delta_time) {
     // simulate fireplaces
     {
         for (auto &fireplace : Fireplaces) {
-            fireplace.simulate(delta_time);
+            fireplace.simulate(delta_time, Logs);
         }
     }
 
@@ -452,26 +454,26 @@ void render_game() {
 
     // hp
     ui_state(
-        Dot(5 - arena_half_size.x, arena_half_size.y - 5),
-        Dot(25 - arena_half_size.x, arena_half_size.y - 7.5)
+        Dot(5 - global_variables::arena_half_size.x, global_variables::arena_half_size.y - 5),
+        Dot(25 - global_variables::arena_half_size.x, global_variables::arena_half_size.y - 7.5)
     )
         .draw(player.hp, player.max_hp, GREY, RED);
 
     // exp
     ui_state(
-        Dot(5 - arena_half_size.x, arena_half_size.y - 10),
-        Dot(25 - arena_half_size.x, arena_half_size.y - 12.5)
+        Dot(5 - global_variables::arena_half_size.x, global_variables::arena_half_size.y - 10),
+        Dot(25 - global_variables::arena_half_size.x, global_variables::arena_half_size.y - 12.5)
     )
         .draw(player.exp, int(10), GREY, YELLOW);
 
     // damage
     draw_object(
-        player.damage, Dot(5 - arena_half_size.x, arena_half_size.y - 15), 0.6,
+        player.damage, Dot(5 - global_variables::arena_half_size.x, global_variables::arena_half_size.y - 15), 0.6,
         BLUE
     );
 
     draw_object(
-        player.lvl, Dot(5 - arena_half_size.x, arena_half_size.y - 20), 0.6,
+        player.lvl, Dot(5 - global_variables::arena_half_size.x, global_variables::arena_half_size.y - 20), 0.6,
         PURPLE
     );
 
@@ -481,7 +483,7 @@ void render_game() {
 template <typename func_t>
 void simulate_input(const Input &input, func_t &&window_mode_callback) {
     if (pressed(BUTTON_ESC)) {
-        running = false;
+        global_variables::running = false;
         return;
     }
 
@@ -490,15 +492,15 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     }
 
     if (pressed(BUTTON_TAB)) {
-        debug_mode = !debug_mode;
+        global_variables::debug_mode = !global_variables::debug_mode;
     }
 
     if (pressed(BUTTON_K)) {
-        show_locator = !show_locator;
+        global_variables::show_locator = !global_variables::show_locator;
     }
 
     if (pressed(BUTTON_F)) {
-        show_fps = !show_fps;
+        global_variables::show_fps = !global_variables::show_fps;
     }
 
     // update render_scale
@@ -522,11 +524,11 @@ void simulate_game(
     func_t &&window_mode_callback
 ) {
     simulate_input(input, window_mode_callback);
-    if (!running) {
+    if (!global_variables::running) {
         return;
     }
 
-    camera.simulate(player.pos, delta_time);
+    global_variables::camera.simulate(player.pos, delta_time);
 
     // simulate players
     {
@@ -554,8 +556,8 @@ void simulate_game(
     {
         static std::vector<Bullet> Bullets;
 
-        draw_sprite(player.pos, 0.1, SP_TREE);
-        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
+        //draw_sprite(player.pos, 0.1, SP_TREE);
+        //draw_sprite(mouse.pos + global_variables::camera.pos, 0.1, SP_TREE);
 
         if (pressed(BUTTON_MOUSE_L)) {
             // new bullet!
@@ -563,7 +565,7 @@ void simulate_game(
                 // player.pos,
                 player.get_collision()
                     .circle.pos,  // центрированная позиция относительно спрайта
-                mouse.pos + camera.pos, 1000000000, 1000
+                mouse.pos + global_variables::camera.pos, 1000000000, 1000
             );
         }
 
@@ -580,7 +582,7 @@ void simulate_game(
     player.pos = Dot();
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            draw_sprite_static(Dot(j, i) * 10 - arena_half_size, 0.5, SP_TREE);
+            draw_sprite_static(Dot(j, i) * 10 - global_variables::arena_half_size, 0.5, SP_TREE);
         }
     }*/
 
@@ -618,7 +620,7 @@ void simulate_game(
     // draw_sprite(Dot(), 1, SP_TREE);
     // draw_sprite_static(Dot(), 1, SP_TREE);
 
-    // draw_text("hello world", Dot() - camera.pos, 1, WHITE);
+    // draw_text("hello world", Dot() - global_variables::camera.pos, 1, WHITE);
 
     // draw_rect_in_pixels(0, 0, 100, 100, 0xffffffff);
 
