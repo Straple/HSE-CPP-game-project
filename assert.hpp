@@ -7,10 +7,17 @@
 
 #ifdef GAME_ENGINE_DEBUG_MODE
 
+#define FAILED_ASSERT(message)                                                        \
+    {                                                                         \
+        std::cerr << "assert failed at " __FILE__ << ":" << __LINE__ << '\n'; \
+        std::cerr << "message: \"" << (message) << "\"\n";                    \
+        std::exit(0);                                                         \
+    }
+
 #define ASSERT(condition, message)                                            \
     if (!(condition)) {                                                       \
         std::cerr << "assert failed at " __FILE__ << ":" << __LINE__ << '\n'; \
-        std::cerr << "message: \"" << message << "\"\n";                      \
+        std::cerr << "message: \"" << (message) << "\"\n";                    \
         std::exit(0);                                                         \
     }
 

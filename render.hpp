@@ -3,7 +3,7 @@
 
 #include "Objects\objects.hpp"
 //
-#include "Sprites\sprite.hpp"
+#include "Sprites\sprites.hpp"
 //
 #include "global_variables.hpp"
 //

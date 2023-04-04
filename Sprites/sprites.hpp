@@ -1,5 +1,5 @@
-﻿#ifndef GAME_ENGINE_SPRITE_HPP
-#define GAME_ENGINE_SPRITE_HPP
+﻿#ifndef GAME_ENGINE_SPRITES_HPP
+#define GAME_ENGINE_SPRITES_HPP
 
 enum sprite_t {
 
@@ -64,6 +64,8 @@ enum sprite_t {
     SP_KEK,
 
     SP_COUNT,
+    // НИЖЕ SP_COUNT ничего не должно быть, потому что SP_COUNT является
+    // количеством элементов в sprite_t
 };
 
 std::string sprite_type_to_string(sprite_t sp) {
@@ -132,7 +134,8 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_KEK);
     }
 #undef foo
-    ASSERT(false, "undefined sprite to string");
+
+    FAILED_ASSERT("undefined sprite to string");
 }
 
 sprite_t string_to_sprite_type(const std::string &str) {
@@ -141,7 +144,7 @@ sprite_t string_to_sprite_type(const std::string &str) {
             return static_cast<sprite_t>(i);
         }
     }
-    ASSERT(false, "undefined string to sprite");
+    FAILED_ASSERT("undefined string to sprite");
 }
 
 std::vector<Sprite> Sprites(sprite_t::SP_COUNT);
@@ -162,16 +165,11 @@ enum spritesheet_t {
     SS_DEATH_EFFECT,
 
     SS_COUNT,
+    // НИЖЕ SS_COUNT ничего не должно быть, потому что SS_COUNT является
+    // количеством элементов в spritesheet_t
 };
 
 std::vector<Spritesheet> Spritesheets(spritesheet_t::SS_COUNT);
-
-void read_sprite(sprite_t type, const std::string &path) {
-    Timer time;
-    Sprites[type] = read_sprite_from_png(std::string("Sprites\\") + path);
-    std::cout << type << " " << time << " " << Sprites[type].height() << 'x'
-              << Sprites[type].width() << std::endl;
-}
 
 void read_sprites() {
     Timer finish_time;
@@ -306,4 +304,4 @@ void read_spritesheets() {
     std::cout << "total_time: " << finish_time << std::endl << std::endl;
 }
 
-#endif  // GAME_ENGINE_SPRITE_HPP
+#endif  // GAME_ENGINE_SPRITES_HPP
