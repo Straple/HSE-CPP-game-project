@@ -1,7 +1,7 @@
 #ifndef GLOBAL_VARIABLES_HPP
 #define GLOBAL_VARIABLES_HPP
 
-#include "Objects\objects.h"
+#include "Objects\objects.hpp"
 
 struct global_variables {
     static inline bool camera_is_static = false;

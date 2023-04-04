@@ -1,8 +1,8 @@
 #ifndef ABSTRACT_GAME_OBJECT_HPP
 #define ABSTRACT_GAME_OBJECT_HPP
 
-#include "..\..\Objects\objects.h"
-#include "..\..\utils.h"
+#include "..\..\Objects\objects.hpp"
+#include "..\..\utils.hpp"
 
 struct abstract_game_object {
     // physics

@@ -1,13 +1,13 @@
 ﻿#ifndef GAME_ENGINE_RENDER_HPP
 #define GAME_ENGINE_RENDER_HPP
 
-#include "Objects\objects.h"
+#include "Objects\objects.hpp"
 //
 #include "Sprites\sprite.hpp"
 //
 #include "global_variables.hpp"
 //
-#include "utils.h"
+#include "utils.hpp"
 //
 #include "Render\basic_render.cpp"
 //

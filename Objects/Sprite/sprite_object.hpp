@@ -1,8 +1,8 @@
-﻿#ifndef GAME_ENGINE_SPRITE
-#define GAME_ENGINE_SPRITE
+﻿#ifndef GAME_ENGINE_SPRITE_OBJECT_HPP
+#define GAME_ENGINE_SPRITE_OBJECT_HPP
 
-#include "..\matrix.h"
-#include "color.h"
+#include "..\matrix.hpp"
+#include "color.hpp"
 #include "png.h"
 
 using Sprite = Matrix<Color>;
@@ -56,4 +56,4 @@ public:
     }
 };
 
-#endif  // GAME_ENGINE_SPRITE
+#endif  // GAME_ENGINE_SPRITE_OBJECT_HPP

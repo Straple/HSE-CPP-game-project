@@ -32,8 +32,8 @@ UP, DOWN = render_scale
 //#include "Game\Game objects\log.hpp"
 //#include "Game\Game objects\fireplace.hpp"
 
-#include "Objects\objects.h"
-#include "utils.h"
+#include "Objects\objects.hpp"
+#include "utils.hpp"
 //
 #include "global_variables.hpp"
 

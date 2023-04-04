@@ -1,7 +1,7 @@
-﻿#ifndef GAME_ENGINE_COLOR
-#define GAME_ENGINE_COLOR
+﻿#ifndef GAME_ENGINE_COLOR_HPP
+#define GAME_ENGINE_COLOR_HPP
 
-#include "..\..\utils.h"
+#include "..\..\utils.hpp"
 
 // 0xAARRGGBB
 // [a, r, g, b]
@@ -85,4 +85,4 @@ inline bool is_draw(const Color &color) {
 #define YELLOW Color(0xffffff00)
 #define PURPLE Color(0xffff00ff)
 
-#endif  // GAME_ENGINE_COLOR
+#endif  // GAME_ENGINE_COLOR_HPP

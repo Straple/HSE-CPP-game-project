@@ -22,7 +22,7 @@ struct effect {
     }
 };
 
-static std::vector<effect> Effects;
+std::vector<effect> Effects;
 
 void add_hit_effect(const Dot &pos) {
     Effects.emplace_back(pos, animation(SS_HIT_EFFECT, 0, 2, 0.1));
