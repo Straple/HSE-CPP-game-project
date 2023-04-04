@@ -1,7 +1,0 @@
-﻿#include "Geometry\geometry.hpp"
-#include "Sprite\sprite_object.hpp"
-#include "camera.hpp"
-#include "collision.hpp"
-#include "platform_common.hpp"
-#include "render_state.hpp"
-#include "time.hpp"

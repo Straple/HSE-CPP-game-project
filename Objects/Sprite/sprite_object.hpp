@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_ENGINE_SPRITE_OBJECT_HPP
 #define GAME_ENGINE_SPRITE_OBJECT_HPP
 
-#include "..\matrix.hpp"
+#include "../matrix.hpp"
 #include "color.hpp"
 #include "png.h"
 

@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_ENGINE_MATRIX_HPP
 #define GAME_ENGINE_MATRIX_HPP
 
-#include "..\utils.hpp"
+#include "../utils.hpp"
 
 /*
  *     width

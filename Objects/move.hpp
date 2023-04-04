@@ -1,8 +1,8 @@
 ﻿#ifndef GAME_ENGINE_MOVE_HPP
 #define GAME_ENGINE_MOVE_HPP
 
-#include "..\utils.hpp"
-#include "Geometry\dot.hpp"
+#include "../utils.hpp"
+#include "Geometry/dot.hpp"
 
 void simulate_move(efloat &p, efloat &dp, efloat ddp, efloat dt) {
     ddp -= dp * 15;

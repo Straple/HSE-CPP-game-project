@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_ENGINE_COLOR_HPP
 #define GAME_ENGINE_COLOR_HPP
 
-#include "..\..\utils.hpp"
+#include "../../utils.hpp"
 
 // 0xAARRGGBB
 // [a, r, g, b]

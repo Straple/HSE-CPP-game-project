@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_ENGINE_TIME_HPP
 #define GAME_ENGINE_TIME_HPP
 
-#include "..\utils.hpp"
+#include "../utils.hpp"
 
 // тики ведутся с 1-го января 1970 г. 00:00:00 Всемирного времени
 

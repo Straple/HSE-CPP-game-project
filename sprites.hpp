@@ -1,6 +1,8 @@
 ﻿#ifndef GAME_ENGINE_SPRITES_HPP
 #define GAME_ENGINE_SPRITES_HPP
 
+#include "time.hpp"
+
 enum sprite_t {
 
     // world
@@ -17,7 +19,7 @@ enum sprite_t {
     SP_BROKEN_PILLAR,
 
     SP_CHESTER,
-    SP_OPEN_CHESTER,
+    //SP_OPEN_CHESTER,
 
     SP_NUN_STATUE,
 
@@ -87,7 +89,7 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_BROKEN_PILLAR);
 
         foo(SP_CHESTER);
-        foo(SP_OPEN_CHESTER);
+        //foo(SP_OPEN_CHESTER);
 
         foo(SP_NUN_STATUE);
 
@@ -202,7 +204,7 @@ void read_sprites() {
         read(SP_PILLAR, "World\\pillar.png");
         read(SP_BROKEN_PILLAR, "World\\broken_pillar.png");
         read(SP_CHESTER, "World\\chester.png");
-        read(SP_OPEN_CHESTER, "World\\open_chester.png");
+        //read(SP_OPEN_CHESTER, "World\\open_chester.png");
         read(SP_NUN_STATUE, "World\\nun_statue.png");
         read(SP_TELEPORT, "World\\teleport.png");
 

@@ -2,8 +2,8 @@
 #define GAME_ENGINE_RENDER_STATE_HPP
 
 #include <windows.h>
-#include "..\utils.hpp"
-#include "Sprite\color.hpp"
+#include "../utils.hpp"
+#include "Sprite/color.hpp"
 
 class Render_state {
     unsigned int m_height = 0, m_width = 0;

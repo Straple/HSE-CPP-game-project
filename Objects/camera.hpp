@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_ENGINE_CAMERA_HPP
 #define GAME_ENGINE_CAMERA_HPP
 
-#include "..\utils.hpp"
+#include "../utils.hpp"
 #include "move.hpp"
 
 struct Camera {

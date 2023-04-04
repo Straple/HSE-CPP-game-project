@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_ENGINE_COLLISION_HPP
 #define GAME_ENGINE_COLLISION_HPP
 
-#include "Geometry\geometry.hpp"
+#include "Geometry/geometry.hpp"
 
 struct collision_circle {
     Circle circle;

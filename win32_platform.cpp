@@ -32,13 +32,13 @@ UP, DOWN = render_scale
 // #include "Game\Game objects\log.hpp"
 // #include "Game\Game objects\fireplace.hpp"
 
-#include "Objects\objects.hpp"
+#include "objects.hpp"
 #include "utils.hpp"
 //
 #include "global_variables.hpp"
 
 // don't delete this
-#include "Sprites\sprites.hpp"
+#include "sprites.hpp"
 //
 #include "render.hpp"
 
@@ -78,11 +78,7 @@ void decrease_window_scaling(Dot &mouse_pos) {
     relax_scaling_after_change_window_scaling(mouse_pos);
 }
 
-#include "Game\UI Objects\ui_objects.cpp"
-
-Mouse mouse(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
-
-efloat mouse_wheel = 0;
+//#include "Game\UI Objects\ui_objects.cpp"
 
 #ifdef GAME_MODE
 
@@ -319,7 +315,7 @@ private:
 
             } break;
             case WM_MOUSEWHEEL: {
-                mouse_wheel += GET_WHEEL_DELTA_WPARAM(wParam);
+                global_variables::mouse_wheel += GET_WHEEL_DELTA_WPARAM(wParam);
             } break;
             default: {
                 result = DefWindowProc(hwnd, uMsg, wParam, lParam);
@@ -428,7 +424,7 @@ private:
             RECT rect;
             GetWindowRect(window, &rect);
 
-            mouse.pos = Dot(static_cast<double>(message.pt.x) -
+            global_variables::cursor.pos = Dot(static_cast<double>(message.pt.x) -
                                 std::max<int>(0, rect.left) + 0.2,
                             static_cast<double>(rect.bottom) - message.pt.y) /
                             global_variables::scale_factor -
