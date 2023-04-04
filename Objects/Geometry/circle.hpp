@@ -2,7 +2,6 @@
 #define GAME_ENGINE_GEOMETRY_CIRCLE_HPP
 
 #include "dot.hpp"
-#include "geometry_utils.hpp"
 
 // (pos, radius)
 struct Circle {

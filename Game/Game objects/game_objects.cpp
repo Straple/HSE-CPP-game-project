@@ -86,6 +86,9 @@ struct enemy_state {
 // draw - рисовать объект
 // get_collision - выдать коллизию объекта (если есть)
 
+#include "button.hpp"
+#include "cursor.hpp"
+
 #include "bullet.hpp"
 #include "bush.hpp"
 #include "effect.hpp"

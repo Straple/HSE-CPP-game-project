@@ -53,7 +53,7 @@ void draw_text_align(
     efloat size,
     const Color &color
 ) {
-    pos.x -= text_len(text) * size / 2;
+    pos.x -= text_len_in_pixels(text) * size / 2;
     draw_text(text, pos, size, color);
 }
 

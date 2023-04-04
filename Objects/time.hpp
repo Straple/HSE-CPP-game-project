@@ -8,6 +8,10 @@
 #if defined(_WIN32)
 
 #include <windows.h>
+// windows.h defined min and max macros
+// this is bad
+#undef min
+#undef max
 
 // вернет частоту обновления устройства
 u64 get_performance_frequency() {

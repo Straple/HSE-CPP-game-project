@@ -481,7 +481,7 @@ void render_game() {
     global_variables::arena_half_size.y - 20), 0.6, PURPLE
     );*/
 
-    global_variables::cursor.draw();
+    cursor.draw();
 }
 
 template <typename func_t>
@@ -510,15 +510,15 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     // update render_scale
     {
         if (is_down(BUTTON_UP)) {
-            increase_window_scaling(global_variables::cursor.pos);
+            increase_window_scaling(cursor.pos);
         }
 
         if (is_down(BUTTON_DOWN)) {
-            decrease_window_scaling(global_variables::cursor.pos);
+            decrease_window_scaling(cursor.pos);
         }
     }
 
-    global_variables::cursor.simulate(input);
+    cursor.simulate(input);
 }
 
 template <typename func_t>
@@ -543,7 +543,7 @@ void simulate_game(
 
     simulate_physics(delta_time);
 
-    global_variables::cursor.simulate(input);
+    cursor.simulate(input);
 
     // clear_screen(BLACK);
     // draw_sprite(Dot(), 0.1, SP_KEK);
@@ -569,7 +569,7 @@ void simulate_game(
                 // player.pos,
                 player.get_collision()
                     .circle.pos,  // центрированная позиция относительно спрайта
-                global_variables::cursor.pos + global_variables::camera.pos, 1000000000, 1000
+                cursor.pos + global_variables::camera.pos, 1000000000, 1000
             );
         }
 
@@ -584,7 +584,7 @@ void simulate_game(
 
     static button my_button("hello", Dot(), 0.4, WHITE, RED);
 
-    my_button.simulate(global_variables::cursor.pos);
+    my_button.simulate(cursor);
 
     my_button.draw();
 

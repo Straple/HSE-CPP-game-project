@@ -19,9 +19,10 @@ UP, DOWN = render_scale
 // #define LEVEL_MAKER_MODE
 
 #include <windows.h>
-
-#undef max
+// windows.h defined min and max macros
+// this is bad
 #undef min
+#undef max
 
 // #include "Game\Game objects\bullet.hpp"
 // #include "Game\Game objects\bush.hpp"
@@ -41,6 +42,10 @@ UP, DOWN = render_scale
 #include "sprites.hpp"
 //
 #include "render.hpp"
+
+#include "Game/Game objects/cursor.hpp"
+
+Cursor cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
 
 void relax_scaling_after_change_window_scaling(Dot &mouse_pos) {
     global_variables::scale_factor = global_variables::render_state.height() *
@@ -77,8 +82,6 @@ void decrease_window_scaling(Dot &mouse_pos) {
 
     relax_scaling_after_change_window_scaling(mouse_pos);
 }
-
-//#include "Game\UI Objects\ui_objects.cpp"
 
 #ifdef GAME_MODE
 
@@ -424,7 +427,7 @@ private:
             RECT rect;
             GetWindowRect(window, &rect);
 
-            global_variables::cursor.pos = Dot(static_cast<double>(message.pt.x) -
+            cursor.pos = Dot(static_cast<double>(message.pt.x) -
                                 std::max<int>(0, rect.left) + 0.2,
                             static_cast<double>(rect.bottom) - message.pt.y) /
                             global_variables::scale_factor -

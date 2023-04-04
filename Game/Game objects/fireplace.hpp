@@ -6,7 +6,7 @@
 #include "render.hpp"
 
 struct Fireplace : abstract_game_object {
-    Fire_machine fire;
+    //Fire_machine fire;
 
     efloat time = 5 * 60;
     efloat cooldown_add_time_accum = 0;
@@ -22,7 +22,7 @@ struct Fireplace : abstract_game_object {
         collision_radius = 10;
         pos = new_pos - delta_draw_pos;
 
-        fire = Fire_machine(pos, 5, 0.5, 0.5, 4, 0.15);
+        //fire = Fire_machine(pos, 5, 0.5, 0.5, 4, 0.15);
     }
 
     [[nodiscard]] collision_circle get_collision() const override {
@@ -37,7 +37,7 @@ struct Fireplace : abstract_game_object {
         );
         draw_sprite(pos + delta_draw_pos, size, SP_FIREPLACE);
 
-        fire.draw();
+        //fire.draw();
 
         Dot p = pos + Dot(-10, -30) * size;
         static_pos_update(p);
@@ -54,11 +54,11 @@ struct Fireplace : abstract_game_object {
         cooldown_add_time_accum += delta_time;
 
         if (cooldown_add_time_accum > 1) {
-            fire.cooldown_add += 0.0005;
+            //fire.cooldown_add += 0.0005;
             cooldown_add_time_accum = 0;
         }
 
-        fire.simulate(delta_time);
+        //fire.simulate(delta_time);
 
         for (int i = 0; i < Logs.size(); i++) {
             if ((pos - Logs[i].pos).get_len() <= eating_radius) {
@@ -66,7 +66,7 @@ struct Fireplace : abstract_game_object {
                 i--;
 
                 time += add_time;
-                fire.cooldown_add = std::max(0.3, fire.cooldown_add - 0.3);
+                //fire.cooldown_add = std::max(0.3, fire.cooldown_add - 0.3);
             }
         }
     }

@@ -2,6 +2,11 @@
 #define GAME_ENGINE_RENDER_STATE_HPP
 
 #include <windows.h>
+// windows.h defined min and max macros
+// this is bad
+#undef min
+#undef max
+
 #include "../utils.hpp"
 #include "Sprite/color.hpp"
 

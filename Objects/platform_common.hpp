@@ -1,6 +1,8 @@
 ﻿#ifndef GAME_ENGINE_PLATFORM_COMMON_HPP
 #define GAME_ENGINE_PLATFORM_COMMON_HPP
 
+#include "../utils.hpp"
+
 // КНОПКИ
 enum button_t : u8 {
     BUTTON_UP,

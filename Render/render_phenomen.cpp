@@ -53,7 +53,7 @@ struct Fire_machine {
 
     std::vector<rhombus> Rhombus;
 
-    [[nodiscard]] efloat get_size(const rhombus &item) const {
+    efloat get_size(const rhombus &item) const {
         efloat res = size - item.time * mult_size_dec;
         if (item.is_smoke) {
             res *= 1.5;
@@ -61,11 +61,11 @@ struct Fire_machine {
         return res;
     }
 
-    [[nodiscard]] int get_u8(const rhombus &item) const {
+    int get_u8(const rhombus &item) const {
         return 0xff - item.time / time_color_dec * mult_color_dec;
     }
 
-    [[nodiscard]] Color get_color(const rhombus &item) const {
+    Color get_color(const rhombus &item) const {
         if (item.is_smoke) {
             return Color(
                 0xff - get_u8(item), 0xff - get_u8(item), 0xff - get_u8(item),

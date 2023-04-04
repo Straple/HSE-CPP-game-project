@@ -14,12 +14,9 @@
         std::exit(0);                                                         \
     }
 
-#define ASSERT(condition, message)                                            \
-    if (!(condition)) {                                                       \
-        std::cerr << "assert failed at " __FILE__ << ":" << __LINE__ << '\n'; \
-        std::cerr << "message: \"" << (message) << "\"\n";                    \
-        std::exit(0);                                                         \
-    }
+#define ASSERT(condition, message) \
+    if (!(condition))              \
+    FAILED_ASSERT(message)
 
 //_STL_VERIFY(condition, message) // don't work on CLion
 

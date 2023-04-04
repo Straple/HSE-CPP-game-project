@@ -1,9 +1,9 @@
-#ifndef GAME_ENGINE_CURSOR_HPP
-#define GAME_ENGINE_CURSOR_HPP
+#ifndef GAME_CURSOR_HPP
+#define GAME_CURSOR_HPP
 
-#include "platform_common.hpp"
-#include "render.hpp"
-#include "sprites.hpp"
+#include "../../Objects/platform_common.hpp"
+#include "../../render.hpp"
+#include "../../sprites.hpp"
 
 struct Cursor {
     sprite_t sprite;
@@ -32,7 +32,7 @@ struct Cursor {
     }
 
     void draw() const {
-        /*if (is_down) {
+        if (is_down) {
             Dot pos0(
                 std::min(focus_pos.x, pos.x), std::max(focus_pos.y, pos.y)
             );
@@ -46,8 +46,8 @@ struct Cursor {
             draw_sprite_static(pos - Dot(16, 0) * size, size, focus_sprite);
         } else {
             draw_sprite_static(pos, size, sprite);
-        }*/
+        }
     }
 };
 
-#endif  // GAME_ENGINE_CURSOR_HPP
+#endif  // GAME_CURSOR_HPP

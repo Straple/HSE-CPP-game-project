@@ -2,7 +2,6 @@
 #define GAME_ENGINE_GEOMETRY_LINE_HPP
 
 #include "dot.hpp"
-#include "geometry_utils.hpp"
 
 // (a, b, c)
 // ax * by + c = 0

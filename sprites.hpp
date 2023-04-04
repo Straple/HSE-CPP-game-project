@@ -1,7 +1,8 @@
 ﻿#ifndef GAME_ENGINE_SPRITES_HPP
 #define GAME_ENGINE_SPRITES_HPP
 
-#include "time.hpp"
+// for print time of reading sprites
+#include "Objects/time.hpp"
 
 enum sprite_t {
 
@@ -19,7 +20,7 @@ enum sprite_t {
     SP_BROKEN_PILLAR,
 
     SP_CHESTER,
-    //SP_OPEN_CHESTER,
+    // SP_OPEN_CHESTER,
 
     SP_NUN_STATUE,
 
@@ -70,6 +71,26 @@ enum sprite_t {
     // количеством элементов в sprite_t
 };
 
+enum spritesheet_t {
+    SS_PLAYER,
+
+    // enemies
+
+    SS_BAT,
+    SS_BAT_INVERSE,
+
+    SS_SLIME,
+
+    // effects
+
+    SS_HIT_EFFECT,
+    SS_DEATH_EFFECT,
+
+    SS_COUNT,
+    // НИЖЕ SS_COUNT ничего не должно быть, потому что SS_COUNT является
+    // количеством элементов в spritesheet_t
+};
+
 std::string sprite_type_to_string(sprite_t sp) {
 #define foo(x)     \
     case x: {      \
@@ -89,7 +110,7 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_BROKEN_PILLAR);
 
         foo(SP_CHESTER);
-        //foo(SP_OPEN_CHESTER);
+        // foo(SP_OPEN_CHESTER);
 
         foo(SP_NUN_STATUE);
 
@@ -151,26 +172,6 @@ sprite_t string_to_sprite_type(const std::string &str) {
 
 std::vector<Sprite> Sprites(sprite_t::SP_COUNT);
 
-enum spritesheet_t {
-    SS_PLAYER,
-
-    // enemies
-
-    SS_BAT,
-    SS_BAT_INVERSE,
-
-    SS_SLIME,
-
-    // effects
-
-    SS_HIT_EFFECT,
-    SS_DEATH_EFFECT,
-
-    SS_COUNT,
-    // НИЖЕ SS_COUNT ничего не должно быть, потому что SS_COUNT является
-    // количеством элементов в spritesheet_t
-};
-
 std::vector<Spritesheet> Spritesheets(spritesheet_t::SS_COUNT);
 
 void read_sprites() {
@@ -204,7 +205,7 @@ void read_sprites() {
         read(SP_PILLAR, "World\\pillar.png");
         read(SP_BROKEN_PILLAR, "World\\broken_pillar.png");
         read(SP_CHESTER, "World\\chester.png");
-        //read(SP_OPEN_CHESTER, "World\\open_chester.png");
+        // read(SP_OPEN_CHESTER, "World\\open_chester.png");
         read(SP_NUN_STATUE, "World\\nun_statue.png");
         read(SP_TELEPORT, "World\\teleport.png");
 

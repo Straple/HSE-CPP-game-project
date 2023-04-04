@@ -1,8 +1,8 @@
 #ifndef GLOBAL_VARIABLES_HPP
 #define GLOBAL_VARIABLES_HPP
 
-#include "objects.hpp"
-#include "sprites.hpp"
+#include "Objects/camera.hpp"
+#include "Objects/render_state.hpp"
 
 struct global_variables {
     static inline bool camera_is_static = false;
@@ -28,8 +28,6 @@ struct global_variables {
     // множитель масштабирования = global_variables::render_state.height *
     // global_variables::render_scale
     static inline efloat scale_factor = 0;
-
-    static inline Cursor cursor = Cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
 
     static inline efloat mouse_wheel = 0;
 };

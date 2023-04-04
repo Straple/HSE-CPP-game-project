@@ -24,7 +24,7 @@ struct Bullet : abstract_game_object {
         delta_draw_pos = Dot(-10, 10);
     }
 
-    [[nodiscard]] collision_circle get_collision() const {
+    [[nodiscard]] collision_circle get_collision() const override {
         return collision_circle(Circle(pos, collision_radius));
     }
 
@@ -134,7 +134,7 @@ struct Bullet : abstract_game_object {
         //);
     }
 
-    void draw() const {
+    void draw() const override {
         draw_sprite(pos + delta_draw_pos, 1, SP_COIN);
 
         //draw_collision_obj(*this);

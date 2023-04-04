@@ -1,4 +1,3 @@
-﻿#include "circle.hpp"
-#include "dot.hpp"
-#include "geometry_utils.hpp"
+﻿#include "dot.hpp"
+#include "circle.hpp"
 #include "line.hpp"

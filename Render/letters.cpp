@@ -648,7 +648,7 @@ int symbol_len(char symbol) {
     }
 }
 
-int text_len(const char *text) {
+int text_len_in_pixels(const char *text) {
     int max_len = 0;
     int len = 0;
     for (; *text; text++) {
