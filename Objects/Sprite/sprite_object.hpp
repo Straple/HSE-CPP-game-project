@@ -10,7 +10,13 @@ using Sprite = Matrix<Color>;
 Sprite read_sprite_from_png(const std::string &path) {
     std::vector<unsigned char> img;
     unsigned int width, height;
-    lodepng::decode(img, width, height, path, LCT_RGBA);
+    unsigned int return_code =
+        lodepng::decode(img, width, height, path, LCT_RGBA);
+
+    ASSERT(
+        return_code == 0, "failed read_sprite_from_png\npath: " + path +
+                              "\nerror_code: " + lodepng_error_text(return_code)
+    );
 
     Sprite pixels(height, width);
 
