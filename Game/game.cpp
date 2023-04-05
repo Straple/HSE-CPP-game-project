@@ -594,8 +594,8 @@ void simulate_game(
     {
         static std::vector<Bullet> Bullets;
 
-        draw_sprite(player.pos, 0.1, SP_TREE);
-        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
+//        draw_sprite(player.pos, 0.1, SP_TREE);
+//        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
         static efloat last_hit_time = 3;
         if (pressed(BUTTON_MOUSE_L) && last_hit_time >= PLAYER_ATTACK_COOLDOWN ) {
             // new bullet!
@@ -603,7 +603,7 @@ void simulate_game(
             Bullets.emplace_back(
                 // player.pos,
                 player.get_collision()
-                    .circle.pos,  // центрированная позиция относительно спрайта
+                    .circle.pos + Dot(6,2),  // центрированная позиция относительно спрайта
                 mouse.pos + camera.pos, 1000000000, 1000
             );
         }
@@ -628,14 +628,17 @@ void simulate_game(
             }
         }
     }
+    for (auto& loot: Loot_objects) {
+        loot->draw();
+    }
 
-    for (auto& object: Loot_objects) {
+    for (int i = 0; i < Loot_objects.size(); i++) {
+        auto& object = Loot_objects[i];
         object->simulate(delta_time);
         if (object->simulate_collection()) {
-            std::swap(object, Loot_objects.back());
-            Loot_objects.pop_back();
+            Loot_objects.erase(Loot_objects.begin()+i);
+            i--;
         }
-        object->draw();
     }
     /*player.hp = 300;
     player.pos = Dot();

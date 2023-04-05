@@ -80,6 +80,7 @@ struct Player_anim_tree {
 
 // |dp.x/y| <= 33.(3)
 
+
 struct Player {
     inline static const game_object_state gobj_state =
         game_object_state(200, 10, 0.5);
@@ -142,7 +143,9 @@ struct Player {
             name, p + Dot(0, 29) * gobj_state.size, gobj_state.size * 0.75,
             WHITE
         );
-
+        if (!is_jumped) {
+            draw_sprite(pos + Dot(1.5, 4), 0.3, SP_M18);
+        }
         draw_collision_obj(*this);
     }
 
