@@ -12,6 +12,11 @@ struct drawing_objects {
     Dot pos;
     efloat size;
     sprite_t sprite;
+    int level;
+
+    bool operator<(const drawing_objects& right) {
+    return level < right.level;
+}
 };
 
 std::vector<drawing_objects> Draw_objects;
@@ -24,8 +29,8 @@ void write_level() {
 
     file << "SPRITES\n";
     file << Draw_objects.size() << '\n';
-    for (auto [pos, size, sprite] : Draw_objects) {
-        file << sprite_type_to_string(sprite) << ' ' << pos << ' ' << size
+    for (auto [pos, size, sprite, level] : Draw_objects) {
+        file << sprite_type_to_string(sprite) << ' ' << pos << ' ' << size<<' '<<level
              << '\n';
     }
 
@@ -46,9 +51,9 @@ void read_level() {
         int count;
         file >> count;
         Draw_objects.assign(count, {});
-        for (auto &[pos, size, sprite] : Draw_objects) {
+        for (auto &[pos, size, sprite,level ] : Draw_objects) {
             std::string sprite_name;
-            file >> sprite_name >> pos >> size;
+            file >> sprite_name >> pos >> size>>level;
             sprite = string_to_sprite_type(sprite_name);
         }
     }
@@ -69,7 +74,7 @@ void read_level() {
 sprite_t current_type_of_sprite = static_cast<sprite_t>(0);
 efloat current_size = 1;
 Dot current_pos;
-
+int sprite_level = 0;
 // "sprite" or "collision_box"
 std::string current_mode = "sprite";
 
@@ -83,7 +88,7 @@ void render_game(const Input &input) {
         int need_highlight = -1;
 
         for (int i = static_cast<int>(Draw_objects.size()) - 1; i >= 0; i--) {
-            auto [pos, size, sprite] = Draw_objects[i];
+            auto [pos, size, sprite,level] = Draw_objects[i];
             if (collision_in_draw_sprite(pos, size, sprite, mouse.pos)) {
                 need_highlight = i;
                 break;
@@ -91,13 +96,15 @@ void render_game(const Input &input) {
         }
 
         for (int i = 0; i < Draw_objects.size(); i++) {
-            auto [pos, size, sprite] = Draw_objects[i];
+            auto [pos, size, sprite,level ] = Draw_objects[i];
             if (need_highlight == i) {
                 draw_sprite(pos, size, sprite, [&](const Color &color) {
                     return color.combine(Color(0xffffff, 60));
                 });
+                draw_object(level, pos - camera.pos, 0.5, RED);
             } else {
                 draw_sprite(pos, size, sprite);
+                draw_object(level, pos - camera.pos, 0.5, RED);
             }
         }
     }
@@ -138,6 +145,7 @@ void render_game(const Input &input) {
     }
 
     draw_rect(mouse.pos, Dot(1, 1) / render_scale / 300, RED);
+    draw_object(sprite_level, mouse.pos+Dot(3,0), 0.7, RED);
     // draw_rect(mouse.pos, Dot(1, 1) * 0.1, RED);
 }
 
@@ -210,7 +218,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     if (is_down(BUTTON_SHIFT)) {
         Dot better = Dot(1e9, 1e9);
         //  найти близжайший рисуемый прямоугольник
-        for (auto [pos, size, sprite] : Draw_objects) {
+        for (auto [pos, size, sprite,level] : Draw_objects) {
             const auto &pixels = Sprites[sprite];
 
             for (int i = 0; i < pixels.height(); i++) {
@@ -245,7 +253,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
             pos.y += Sprites[current_type_of_sprite].height() * current_size;
         }
 
-        Draw_objects.push_back({pos, current_size, current_type_of_sprite});
+        Draw_objects.push_back({pos, current_size, current_type_of_sprite, sprite_level});
     }
 
     // pop object
@@ -266,7 +274,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
         if (current_mode == "sprite") {
             for (int i = static_cast<int>(Draw_objects.size()) - 1; i >= 0;
                  i--) {
-                auto [pos, size, sprite] = Draw_objects[i];
+                auto [pos, size, sprite,level] = Draw_objects[i];
                 if (collision_in_draw_sprite(pos, size, sprite, mouse.pos)) {
                     Draw_objects.erase(Draw_objects.begin() + i);
                     break;
@@ -297,7 +305,21 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     }
 
     if (pressed(BUTTON_V)) {
+        std::sort(Draw_objects.begin(), Draw_objects.end());
         write_level();
+    }
+
+
+
+    if (pressed(BUTTON_P)) {
+        ++sprite_level;
+    }
+
+    if (pressed(BUTTON_O)) {
+        --sprite_level;
+    }
+    if (pressed(BUTTON_Y)) {
+        std::sort(Draw_objects.begin(), Draw_objects.end());
     }
 }
 

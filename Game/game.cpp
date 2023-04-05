@@ -2,8 +2,6 @@
 
 #include "game_utils.cpp"
 // don't shuffle
-#include "UI Objects\ui_objects.cpp"
-// don't shuffle
 #include "Game objects\game_objects.cpp"
 
 // game objects
@@ -19,9 +17,8 @@ std::vector<Bat> Bats;
 std::vector<Fireplace> Fireplaces = {
     Fireplace(Dot(30, -30)),
 };
-
+#include "Game objects\room.cpp"
 // Players
-//
 // Slimes
 // Bats
 //
@@ -150,9 +147,7 @@ void build_world() {
     build_array_of_objects(Bats, random_size_enemies(rnd));
 }
 
-// UI objects
 
-Mouse mouse(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
 
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения
@@ -552,17 +547,26 @@ void simulate_game(
         bush.pos = player.get_collision().bubble(bush.get_collision());
         // player.pos = bush.get_collision().bubble(player.get_collision());
     }
-
-    render_game();
-
+    //
+    // 
+    // 
+    // 
+    //render_game();
+    //
+    // 
+    // 
+    Room test_room;
+    test_room.read_room("level.txt");
+    test_room.render_room();
     // bullet!
     // TODO: нужно это все потом перенести в simulate_player, render и т.п.
     {
         static std::vector<Bullet> Bullets;
 
-        draw_sprite(player.pos, 0.1, SP_TREE);
-        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
-
+       // draw_sprite(player.pos, 0.1, SP_TREE);
+        //draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
+        int a = -123;
+        draw_object(a ,mouse.pos + Dot(3, 0), 0.5, RED);
         if (pressed(BUTTON_MOUSE_L)) {
             // new bullet!
             Bullets.emplace_back(

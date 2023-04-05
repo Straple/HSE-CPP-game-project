@@ -1,5 +1,5 @@
 ﻿// use LPCSTR or LPCWSTR
-#define GAME_ENGINE_MY_LPCSTR LPCSTR
+#define GAME_ENGINE_MY_LPCSTR LPCWSTR
 
 /*
 WARNINGS:
@@ -15,7 +15,7 @@ BUTTON_F = fps mode
 UP, DOWN = render_scale
 */
 
- #define GAME_MODE
+#define GAME_MODE
 //#define LEVEL_MAKER_MODE
 
 #include <windows.h>
@@ -47,7 +47,6 @@ Dot arena_half_size;
 
 #include "Render\render.cpp"
 
-efloat mouse_wheel = 0;
 
 void relax_scaling_after_change_window_scaling(Dot &mouse_pos) {
     scale_factor = render_state.height() * render_scale;
@@ -82,6 +81,12 @@ void decrease_window_scaling(Dot &mouse_pos) {
 
     relax_scaling_after_change_window_scaling(mouse_pos);
 }
+#include "Game\UI Objects\ui_objects.cpp"
+
+Mouse mouse(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
+
+efloat mouse_wheel = 0;
+
 
 #ifdef GAME_MODE
 #include "Game\game.cpp"
@@ -368,13 +373,24 @@ private:
                         update_button(BUTTON_C, 'C');
                         update_button(BUTTON_E, 'E');
                         update_button(BUTTON_F, 'F');
+                        update_button(BUTTON_G, 'G');
+                        update_button(BUTTON_H, 'H');
+                        update_button(BUTTON_I, 'I');
                         update_button(BUTTON_J, 'J');
                         update_button(BUTTON_K, 'K');
+                        update_button(BUTTON_L, 'L');
+                        update_button(BUTTON_M, 'M');
+                        update_button(BUTTON_N, 'N');
+                        update_button(BUTTON_O, 'O');
+                        update_button(BUTTON_P, 'P');
                         update_button(BUTTON_Q, 'Q');
-                        update_button(BUTTON_Z, 'Z');
-                        update_button(BUTTON_V, 'V');
                         update_button(BUTTON_R, 'R');
                         update_button(BUTTON_T, 'T');
+                        update_button(BUTTON_U, 'U');
+                        update_button(BUTTON_V, 'V');
+                        update_button(BUTTON_X, 'X');
+                        update_button(BUTTON_Y, 'Y');
+                        update_button(BUTTON_Z, 'Z');
                         update_button(BUTTON_DEL, VK_DELETE);
                         update_button(BUTTON_LEFT, VK_LEFT);
                         update_button(BUTTON_RIGHT, VK_RIGHT);
