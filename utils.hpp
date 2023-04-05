@@ -61,6 +61,7 @@ std::string to_string(const T &val) {
     return s;
 }
 
+// efloat -> string
 std::string to_string(efloat val) {
     std::ostringstream oss;
     oss << std::fixed << std::setprecision(4) << val;
@@ -72,7 +73,7 @@ std::string to_string(efloat val) {
 }
 
 bool randomness(unsigned int percent) {
-    ASSERT(0 <= percent && percent <= 100, "wrong percent");
+    ASSERT(percent <= 100, "wrong percent");
 
     std::uniform_int_distribution<unsigned int> rnd_range(0, 100);
 

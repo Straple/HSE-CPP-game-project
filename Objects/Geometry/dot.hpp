@@ -9,7 +9,7 @@ struct Dot {
 
     Dot() = default;
 
-    Dot(efloat new_x, efloat new_y) : x(new_x), y(new_y) {
+    Dot(efloat x, efloat y) : x(x), y(y) {
     }
 
     [[nodiscard]] Dot operator-() const {
@@ -108,13 +108,27 @@ std::ostream &operator<<(std::ostream &output, const Dot &p) {
 std::istream &operator>>(std::istream &input, Dot &p) {
     char c;
     input >> c;  // D
+    ASSERT(c == 'D', "failed read Dot");
+
     input >> c;  // o
+    ASSERT(c == 'o', "failed read Dot");
+
     input >> c;  // t
+    ASSERT(c == 't', "failed read Dot");
+
     input >> c;  // (
+    ASSERT(c == '(', "failed read Dot");
+
     input >> p.x;
+
     input >> c;  // ,
+    ASSERT(c == ',', "failed read Dot");
+
     input >> p.y;
+
     input >> c;  // )
+    ASSERT(c == ')', "failed read Dot");
+
     return input;
 }
 
