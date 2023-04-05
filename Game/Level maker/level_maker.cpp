@@ -84,7 +84,7 @@ void render_game(const Input &input) {
 
         for (int i = static_cast<int>(Draw_objects.size()) - 1; i >= 0; i--) {
             auto [pos, size, sprite] = Draw_objects[i];
-            if (collision_in_draw_sprite(pos, size, sprite, mouse.pos)) {
+            if (collision_in_draw_sprite(pos, size, sprite, cursor.pos)) {
                 need_highlight = i;
                 break;
             }
@@ -123,7 +123,8 @@ void render_game(const Input &input) {
         } else {
             for (auto [p0, p1] : Collision_boxes) {
                 draw_rect2(
-                    p0 - global_variables::camera.pos, p1 - global_variables::camera.pos, Color(0x00fff0, 30)
+                    p0 - global_variables::camera.pos,
+                    p1 - global_variables::camera.pos, Color(0x00fff0, 30)
                 );
             }
 
@@ -137,8 +138,10 @@ void render_game(const Input &input) {
         }
     }
 
-    draw_rect(mouse.pos, Dot(1, 1) / global_variables::render_scale / 300, RED);
-    // draw_rect(mouse.pos, Dot(1, 1) * 0.1, RED);
+    draw_rect(
+        cursor.pos, Dot(1, 1) / global_variables::render_scale / 300, RED
+    );
+    // draw_rect(cursor.pos, Dot(1, 1) * 0.1, RED);
 }
 
 template <typename func_t>
@@ -167,11 +170,11 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
         }
 
         if (is_down(BUTTON_UP)) {
-            increase_window_scaling(mouse.pos);
+            increase_window_scaling(cursor.pos);
         }
 
         if (is_down(BUTTON_DOWN)) {
-            decrease_window_scaling(mouse.pos);
+            decrease_window_scaling(cursor.pos);
         }
     }
 
@@ -230,7 +233,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
             }
         }
 
-        mouse.pos -= current_pos - better;
+        cursor.pos -= current_pos - better;
         current_pos = better;
     }
 
@@ -267,7 +270,7 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
             for (int i = static_cast<int>(Draw_objects.size()) - 1; i >= 0;
                  i--) {
                 auto [pos, size, sprite] = Draw_objects[i];
-                if (collision_in_draw_sprite(pos, size, sprite, mouse.pos)) {
+                if (collision_in_draw_sprite(pos, size, sprite, cursor.pos)) {
                     Draw_objects.erase(Draw_objects.begin() + i);
                     break;
                 }
@@ -307,7 +310,7 @@ void simulate_game(
     efloat delta_time,
     func_t &&window_mode_callback
 ) {
-    current_pos = global_variables::camera.pos + mouse.pos;
+    current_pos = global_variables::camera.pos + cursor.pos;
 
     simulate_input(input, window_mode_callback);
     if (!global_variables::running) {
@@ -333,11 +336,16 @@ void simulate_game(
         );
     }
 
-    current_size = mouse_wheel / 10'000 + 1;
+    current_size = global_variables::mouse_wheel / 10'000 + 1;
 
     render_game(input);
 
-    draw_object(current_size, global_variables::arena_half_size + Dot(-20, -20), 0.5, BLUE);
+    draw_object(
+        current_size, global_variables::arena_half_size + Dot(-20, -20), 0.5,
+        BLUE
+    );
 
-    draw_object(current_mode, Dot(0, -global_variables::arena_half_size.y + 5), 0.5, RED);
+    draw_object(
+        current_mode, Dot(0, -global_variables::arena_half_size.y + 5), 0.5, RED
+    );
 }
