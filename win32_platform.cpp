@@ -1,6 +1,9 @@
 ﻿// use LPCSTR or LPCWSTR
 #define GAME_ENGINE_MY_LPCSTR LPCSTR
 
+#define GAME_MODE
+// #define LEVEL_MAKER_MODE
+
 /*
 WARNINGS:
 Dot::get_len() uses hypot which is very slow
@@ -14,9 +17,6 @@ K = locator visibility
 BUTTON_F = fps mode
 UP, DOWN = render_scale
 */
-
-#define GAME_MODE
-// #define LEVEL_MAKER_MODE
 
 #include <windows.h>
 // windows.h defined min and max macros
@@ -33,21 +33,9 @@ UP, DOWN = render_scale
 // #include "Game\Game objects\log.hpp"
 // #include "Game\Game objects\fireplace.hpp"
 
-#include "objects.hpp"
-#include "utils.hpp"
-//
-#include "global_variables.hpp"
-
-// don't delete this
-#include "sprites.hpp"
-//
 #include "render.hpp"
 
-#include "Game/Game objects/cursor.hpp"
-
-Cursor cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
-
-void relax_scaling_after_change_window_scaling(Dot &mouse_pos) {
+void relax_scaling_after_change_window_scaling(Dot &cursor_pos) {
     global_variables::scale_factor = global_variables::render_state.height() *
                                      global_variables::render_scale;
 #ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
@@ -61,27 +49,31 @@ void relax_scaling_after_change_window_scaling(Dot &mouse_pos) {
             static_cast<efloat>(1) / global_variables::render_scale) *
         0.5;
 
-    mouse_pos /= global_variables::scale_factor;
-    mouse_pos -= global_variables::arena_half_size;
+    cursor_pos /= global_variables::scale_factor;
+    cursor_pos -= global_variables::arena_half_size;
 }
 
-void increase_window_scaling(Dot &mouse_pos) {
-    mouse_pos += global_variables::arena_half_size;
-    mouse_pos *= global_variables::scale_factor;
+void increase_window_scaling(Dot &cursor_pos) {
+    cursor_pos += global_variables::arena_half_size;
+    cursor_pos *= global_variables::scale_factor;
 
     global_variables::render_scale *= 0.99;
 
-    relax_scaling_after_change_window_scaling(mouse_pos);
+    relax_scaling_after_change_window_scaling(cursor_pos);
 }
 
-void decrease_window_scaling(Dot &mouse_pos) {
-    mouse_pos += global_variables::arena_half_size;
-    mouse_pos *= global_variables::scale_factor;
+void decrease_window_scaling(Dot &cursor_pos) {
+    cursor_pos += global_variables::arena_half_size;
+    cursor_pos *= global_variables::scale_factor;
 
     global_variables::render_scale /= 0.99;
 
-    relax_scaling_after_change_window_scaling(mouse_pos);
+    relax_scaling_after_change_window_scaling(cursor_pos);
 }
+
+#include "Game/Game objects/cursor.hpp"
+
+Cursor cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
 
 #ifdef GAME_MODE
 

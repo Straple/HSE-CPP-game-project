@@ -582,12 +582,6 @@ void simulate_game(
         }
     }
 
-    static button my_button("hello", Dot(), 0.4, WHITE, RED);
-
-    my_button.simulate(cursor);
-
-    my_button.draw();
-
     /*player.hp = 300;
     player.pos = Dot();
     for (int i = 0; i < 10; i++) {

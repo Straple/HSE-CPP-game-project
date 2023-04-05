@@ -4,6 +4,9 @@
 // for print time of reading sprites
 #include "Objects/time.hpp"
 
+// for Sprite and Spritesheet
+#include "Objects/Sprite/sprite_object.hpp"
+
 enum sprite_t {
 
     // world
