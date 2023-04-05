@@ -136,12 +136,16 @@ struct Bullet {
     }
 
     void draw() const {
-        draw_sprite(pos + BULLET_DELTA_DRAW_DOT*0.25, 0.3, SP_COIN);
-
+//        draw_sprite(pos + BULLET_DELTA_DRAW_DOT*0.25, 0.3, SP_COIN);
         draw_collision_obj(*this);
 //        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+        auto circ = get_collision().circle;
+        static_pos_update(circ.pos, camera_is_static);
+        circ.radius=1.5;
+        draw_circle(circ, Color(0xbd9919, 255));
+        circ.radius=1;
+        draw_circle(circ, Color(0xfcca12, 255));
 
-        // draw_circle(get_collision().circle, Color(0xff0000, 100));
     }
 
 
