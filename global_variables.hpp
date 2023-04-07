@@ -30,6 +30,8 @@ struct global_variables {
     static inline efloat scale_factor = 0;
 
     static inline efloat mouse_wheel = 0;
+
+    static inline int count_of_render_rects = 0;
 };
 
 #endif  // GLOBAL_VARIABLES_HPP
