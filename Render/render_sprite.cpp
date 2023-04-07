@@ -26,8 +26,10 @@ void static_pos_update(Dot &pos) {
 // проверяет пересечение экрана и этого прямоугольника
 bool arena_query(efloat left, efloat right, efloat top, efloat bottom) {
     return !(
-        right < -global_variables::arena_half_size.x || global_variables::arena_half_size.x < left ||  // x
-        top < -global_variables::arena_half_size.y || global_variables::arena_half_size.y < bottom     // y
+        right < -global_variables::arena_half_size.x ||
+        global_variables::arena_half_size.x < left ||  // x
+        top < -global_variables::arena_half_size.y ||
+        global_variables::arena_half_size.y < bottom  // y
     );
 }
 
@@ -45,7 +47,9 @@ Color alpha_pixel_func(const Color &color) {
 #ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
 Sprite build_sprite_scaling(const Sprite &sprite, efloat size) {
     Sprite result(
-        static_cast<int>(sprite.height() * size * global_variables::scale_factor),
+        static_cast<int>(
+            sprite.height() * size * global_variables::scale_factor
+        ),
         static_cast<int>(sprite.width() * size * global_variables::scale_factor)
     );
     efloat y = 0;
@@ -136,46 +140,58 @@ void draw_sprite_matrix(
     pos.x = int(pos.x);
     pos.x /= global_variables::scale_factor;*/
 
-    int posx = (pos.x - size / 2 + global_variables::arena_half_size.x) * global_variables::scale_factor;
-    int posy = (pos.y - size / 2 + global_variables::arena_half_size.y) * global_variables::scale_factor;
+    int posx = (pos.x - size / 2 + global_variables::arena_half_size.x) *
+               global_variables::scale_factor;
+    int posy = (pos.y - size / 2 + global_variables::arena_half_size.y) *
+               global_variables::scale_factor;
     posy -= pixels.height();
 
     int i0 = std::max(-posy, 0);
-    int i1 = std::min(int(global_variables::render_state.height()) - posy, int(pixels.height()));
+    int i1 = std::min(
+        int(global_variables::render_state.height()) - posy,
+        int(pixels.height())
+    );
 
     int j0 = std::max(-posx, 0);
-    int j1 = std::min(int(global_variables::render_state.width()) - posx, (int)pixels.width());
+    int j1 = std::min(
+        int(global_variables::render_state.width()) - posx, (int)pixels.width()
+    );
 
     for (int i = i0; i < i1; i++) {
         for (int j = j0; j < j1; j++) {
             /*ASSERT(
-                0 <= posx + j && posx + j < global_variables::render_state.width(),
-                "something went wrong"
+                0 <= posx + j && posx + j <
+            global_variables::render_state.width(), "something went wrong"
             );
             ASSERT(
-                0 <= posy + i && posy + i < global_variables::render_state.height(),
-                "something went wrong"
+                0 <= posy + i && posy + i <
+            global_variables::render_state.height(), "something went wrong"
             );*/
 
             if (is_draw(pixels[i][j])) {
                 // more faster
-                // global_variables::render_state[posy + i][posx + j] = pixels[i][j];
+                // global_variables::render_state[posy + i][posx + j] =
+                // pixels[i][j];
                 global_variables::render_state[posy + i][posx + j] =
-                    global_variables::render_state[posy + i][posx + j].combine(func(pixels[i][j])
+                    global_variables::render_state[posy + i][posx + j].combine(
+                        func(pixels[i][j])
                     );
             } else if (global_variables::debug_mode) {
                 global_variables::render_state[posy + i][posx + j] =
-                    global_variables::render_state[posy + i][posx + j].combine(Color(0xffffff, 60)
+                    global_variables::render_state[posy + i][posx + j].combine(
+                        Color(0xffffff, 60)
                     );
             }
         }
     }
 #endif
 
-    // efloat y = (pos.y + global_variables::arena_half_size.y - size / 2) * global_variables::scale_factor;
+    // efloat y = (pos.y + global_variables::arena_half_size.y - size / 2) *
+    // global_variables::scale_factor;
 
     /*{
-        efloat x = (pos.x + global_variables::arena_half_size.x - size / 2) * global_variables::scale_factor;
+        efloat x = (pos.x + global_variables::arena_half_size.x - size / 2) *
+    global_variables::scale_factor;
 
         for (int id = 0; id < count_of_render_threads; id++) {
             Threads_vals[id].give_task(
@@ -196,7 +212,8 @@ void draw_sprite_matrix(
     // wait_all_render_threads();
 
     /*for (int i = sprite_y0; i < sprite_y1; i++) {
-        efloat x = (pos.x + global_variables::arena_half_size.x - size / 2) * global_variables::scale_factor;
+        efloat x = (pos.x + global_variables::arena_half_size.x - size / 2) *
+    global_variables::scale_factor;
 
         if (!Threads_vals[0].is_busy()) {
             Threads_vals[0].give_task(
@@ -270,20 +287,22 @@ void draw_sprite_matrix(
     }*/
 
     // не переливает пиксели, но трясет сам спрайт
-    /*efloat y = (global_variables::arena_half_size.y - size / 2) * global_variables::scale_factor;
+    /*efloat y = (global_variables::arena_half_size.y - size / 2) *
+    global_variables::scale_factor;
 
     int posx = pos.x * global_variables::scale_factor;
     int posy = pos.y * global_variables::scale_factor;
 
     for (int i = 0; i < pixels.height(); i++) {
-        efloat x = (global_variables::arena_half_size.x - size / 2) * global_variables::scale_factor;
-        for (int j = 0; j < pixels.width(); j++) {
+        efloat x = (global_variables::arena_half_size.x - size / 2) *
+    global_variables::scale_factor; for (int j = 0; j < pixels.width(); j++) {
             // change to pixels
             int x0 = static_cast<int>(x) + posx;
             int y0 = static_cast<int>(y) + posy;
 
-            int x1 = static_cast<int>(x + size * global_variables::scale_factor) + posx;
-            int y1 = static_cast<int>(y + size * global_variables::scale_factor) + posy;
+            int x1 = static_cast<int>(x + size * global_variables::scale_factor)
+    + posx; int y1 = static_cast<int>(y + size * global_variables::scale_factor)
+    + posy;
 
             if (is_draw(pixels[i][j])) {
                 draw_rect_in_pixels(x0, y0, x1, y1, func(pixels[i][j]));
@@ -365,14 +384,18 @@ bool collision_in_draw_sprite(
 
     const auto &pixels = Sprites[sprite];
 
+    static const efloat epsilon = 1e-3;
+
     for (int i = 0; i < pixels.height(); i++) {
         for (int j = 0; j < pixels.width(); j++) {
             if (is_draw(pixels[i][j]) &&
                 is_between(
-                    pos.x + size * j, collision_pos.x, pos.x + size * (j + 1)
+                    pos.x + size * j - epsilon, collision_pos.x,
+                    pos.x + size * (j + 1) + epsilon
                 ) &&
                 is_between(
-                    pos.y - size * (i + 1), collision_pos.y, pos.y - size * i
+                    pos.y - size * (i + 1) - epsilon, collision_pos.y,
+                    pos.y - size * i + epsilon
                 )) {
                 return true;
             }

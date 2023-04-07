@@ -4,17 +4,21 @@ void draw_rect(Dot pos, Dot half_size, const Color &color) {
 
     // change to pixels
     int x0 = static_cast<int>(
-        ((pos.x - half_size.x) + global_variables::arena_half_size.x) * global_variables::scale_factor
+        ((pos.x - half_size.x) + global_variables::arena_half_size.x) *
+        global_variables::scale_factor
     );
     int y0 = static_cast<int>(
-        ((pos.y - half_size.y) + global_variables::arena_half_size.y) * global_variables::scale_factor
+        ((pos.y - half_size.y) + global_variables::arena_half_size.y) *
+        global_variables::scale_factor
     );
 
     int x1 = static_cast<int>(
-        ((pos.x + half_size.x) + global_variables::arena_half_size.x) * global_variables::scale_factor
+        ((pos.x + half_size.x) + global_variables::arena_half_size.x) *
+        global_variables::scale_factor
     );
     int y1 = static_cast<int>(
-        ((pos.y + half_size.y) + global_variables::arena_half_size.y) * global_variables::scale_factor
+        ((pos.y + half_size.y) + global_variables::arena_half_size.y) *
+        global_variables::scale_factor
     );
 
     draw_rect_in_pixels(x0, y0, x1, y1, color);
@@ -42,14 +46,18 @@ void draw_circle(const Circle &circle, const Color &color) {
     int top_y = clamp<int>(
         0,
         static_cast<int>(
-            (circle.pos.y + global_variables::arena_half_size.y - circle.radius) * global_variables::scale_factor
+            (circle.pos.y + global_variables::arena_half_size.y - circle.radius
+            ) *
+            global_variables::scale_factor
         ),
         static_cast<int>(global_variables::render_state.height())
     );
     int bottom_y = clamp<int>(
         0,
         static_cast<int>(
-            (circle.pos.y + global_variables::arena_half_size.y + circle.radius) * global_variables::scale_factor
+            (circle.pos.y + global_variables::arena_half_size.y + circle.radius
+            ) *
+            global_variables::scale_factor
         ),
         static_cast<int>(global_variables::render_state.height()) - 1
     );
@@ -57,7 +65,10 @@ void draw_circle(const Circle &circle, const Color &color) {
     for (int y = top_y; y <= bottom_y; y++) {
         efloat h = std::min(
             circle.radius,
-            std::abs(y / global_variables::scale_factor - global_variables::arena_half_size.y - circle.pos.y)
+            std::abs(
+                y / global_variables::scale_factor -
+                global_variables::arena_half_size.y - circle.pos.y
+            )
         );
 
         efloat delta = sqrt(quare(circle.radius) - quare(h));
@@ -65,14 +76,16 @@ void draw_circle(const Circle &circle, const Color &color) {
         int left_x = clamp<int>(
             0,
             static_cast<int>(
-                (circle.pos.x + global_variables::arena_half_size.x - delta) * global_variables::scale_factor
+                (circle.pos.x + global_variables::arena_half_size.x - delta) *
+                global_variables::scale_factor
             ),
             static_cast<int>(global_variables::render_state.width())
         );
         int right_x = clamp<int>(
             -1,
             static_cast<int>(
-                (circle.pos.x + global_variables::arena_half_size.x + delta) * global_variables::scale_factor
+                (circle.pos.x + global_variables::arena_half_size.x + delta) *
+                global_variables::scale_factor
             ),
             static_cast<int>(global_variables::render_state.width()) - 1
         );
@@ -85,8 +98,10 @@ void draw_line(const Line &line, efloat half_size, const Color &color) {
     Dot half_size_pt(half_size, half_size);
 
     if (std::abs(line.get_b()) >= 0.5) {
-        for (unsigned int x = 0; x < global_variables::render_state.width(); x++) {
-            efloat pos_x = x / global_variables::scale_factor - global_variables::arena_half_size.x;
+        for (unsigned int x = 0; x < global_variables::render_state.width();
+             x++) {
+            efloat pos_x = x / global_variables::scale_factor -
+                           global_variables::arena_half_size.x;
             // a*x + b*y + c = 0
             // b*y = -(c + a*x)
             // y = -(c + a*x)/b
@@ -95,8 +110,10 @@ void draw_line(const Line &line, efloat half_size, const Color &color) {
             draw_rect(Dot(pos_x, pos_y), half_size_pt, color);
         }
     } else {
-        for (unsigned int y = 0; y < global_variables::render_state.height(); y++) {
-            efloat pos_y = y / global_variables::scale_factor - global_variables::arena_half_size.y;
+        for (unsigned int y = 0; y < global_variables::render_state.height();
+             y++) {
+            efloat pos_y = y / global_variables::scale_factor -
+                           global_variables::arena_half_size.y;
             // a*x + b*y + c = 0
             // a*x = -(c + b*y)
             // x = -(c + b*y)/a
@@ -111,33 +128,40 @@ void draw_rhombus(Dot pos, Dot half_size, const Color &color) {
     int top_y = clamp<int>(
         0,
         static_cast<int>(
-            (pos.y + global_variables::arena_half_size.y - half_size.y) * global_variables::scale_factor
+            (pos.y + global_variables::arena_half_size.y - half_size.y) *
+            global_variables::scale_factor
         ),
         static_cast<int>(global_variables::render_state.height())
     );
     int bottom_y = clamp<int>(
         0,
         static_cast<int>(
-            (pos.y + global_variables::arena_half_size.y + half_size.y) * global_variables::scale_factor
+            (pos.y + global_variables::arena_half_size.y + half_size.y) *
+            global_variables::scale_factor
         ),
         static_cast<int>(global_variables::render_state.height()) - 1
     );
 
     for (int y = top_y; y <= bottom_y; y++) {
-        efloat cur_h = std::abs(y / global_variables::scale_factor - global_variables::arena_half_size.y - pos.y);
+        efloat cur_h = std::abs(
+            y / global_variables::scale_factor -
+            global_variables::arena_half_size.y - pos.y
+        );
         efloat delta = (half_size.y - cur_h) * half_size.x / half_size.y;
 
         int left_x = clamp<int>(
             0,
             static_cast<int>(
-                (pos.x + global_variables::arena_half_size.x - delta) * global_variables::scale_factor
+                (pos.x + global_variables::arena_half_size.x - delta) *
+                global_variables::scale_factor
             ),
             static_cast<int>(global_variables::render_state.width())
         );
         int right_x = clamp<int>(
             -1,
             static_cast<int>(
-                (pos.x + global_variables::arena_half_size.x + delta) * global_variables::scale_factor
+                (pos.x + global_variables::arena_half_size.x + delta) *
+                global_variables::scale_factor
             ),
             static_cast<int>(global_variables::render_state.width()) - 1
         );

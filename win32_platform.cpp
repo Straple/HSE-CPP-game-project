@@ -1,8 +1,8 @@
 ﻿// use LPCSTR or LPCWSTR
 #define GAME_ENGINE_MY_LPCSTR LPCSTR
 
-//#define GAME_MODE
-#define LEVEL_MAKER_MODE
+#define GAME_MODE
+// #define LEVEL_MAKER_MODE
 
 /*
 WARNINGS:
@@ -137,6 +137,7 @@ public:
     // симулирует один игровой кадр
     // delta_time = время между кадрами
     void simulate_frame(efloat delta_time) {
+        global_variables::count_of_render_rects = 0;
         update_controls();
 
         simulate_game(input, delta_time, [&]() -> void {
@@ -172,7 +173,28 @@ public:
                 frame_accum = 0;
             }
 
+            static std::vector<efloat> vec_delta_times;
+            {
+                vec_delta_times.push_back(delta_time);
+                if (vec_delta_times.size() > 1500) {
+                    vec_delta_times.erase(vec_delta_times.begin());
+                }
+            }
+
             if (global_variables::show_fps) {
+                {
+                    Dot pos(60, -global_variables::arena_half_size.y + 5);
+                    for (int i = static_cast<int>(vec_delta_times.size()) - 1;
+                         i >= 0; i--) {
+                        draw_rect(
+                            pos + Dot(0, vec_delta_times[i] * 1000),
+                            Dot(0.1, 0.1), RED
+                        );
+                        draw_rect(pos, Dot(0.1, 0.1), WHITE);
+                        pos.x -= 0.05;
+                    }
+                }
+
                 draw_object(
                     static_cast<int>(summary_fps / global_time_accum),
                     Dot(5, 12) - global_variables::arena_half_size, 0.5, WHITE
@@ -197,6 +219,11 @@ public:
                     to_string(global_variables::render_state.height()) + "x" +
                         to_string(global_variables::render_state.width()),
                     Dot(30, 5) - global_variables::arena_half_size, 0.5, WHITE
+                );
+
+                draw_object(
+                    to_string(global_variables::count_of_render_rects),
+                    Dot(5, 20) - global_variables::arena_half_size, 0.5, WHITE
                 );
 
                 // draw_object(
@@ -420,10 +447,10 @@ private:
             GetWindowRect(window, &rect);
 
             cursor.pos = Dot(static_cast<double>(message.pt.x) -
-                                std::max<int>(0, rect.left) + 0.2,
-                            static_cast<double>(rect.bottom) - message.pt.y) /
-                            global_variables::scale_factor -
-                        global_variables::arena_half_size;
+                                 std::max<int>(0, rect.left) + 0.2,
+                             static_cast<double>(rect.bottom) - message.pt.y) /
+                             global_variables::scale_factor -
+                         global_variables::arena_half_size;
         }
     }
 };
