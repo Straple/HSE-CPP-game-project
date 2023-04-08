@@ -144,4 +144,7 @@ struct Bullet : abstract_game_object {
     }
 };
 
+
+std::vector<Bullet> Bullets;
+
 #endif  // GAME_BULLET_HPP

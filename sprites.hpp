@@ -69,6 +69,8 @@ enum sprite_t {
 
     SP_KEK,
 
+    SP_M18,
+
     SP_COUNT,
     // НИЖЕ SP_COUNT ничего не должно быть, потому что SP_COUNT является
     // количеством элементов в sprite_t
@@ -156,7 +158,7 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_FOCUS_CURSOR);
         foo(SP_HEART);
         foo(SP_COIN);
-
+        foo(SP_M18);
         foo(SP_KEK);
     }
 #undef foo
@@ -246,6 +248,9 @@ void read_sprites() {
                 SP_WALL_TOP_RIGHT_INSIDE,
                 "World\\Wall\\wall_top_right_inside.png"
             );
+        }
+        {
+            read(SP_M18, "Weapons\\M18.png")
         }
     }
 

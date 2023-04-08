@@ -39,4 +39,7 @@ struct Log : abstract_game_object {
     }
 };
 
+
+std::vector<Log> Logs;
+
 #endif  // GAME_LOG_HPP

@@ -442,7 +442,7 @@ private:
         }
 
         if (isPeekMessage) {
-            // mouse update
+            // cursor update
 
             RECT rect;
             GetWindowRect(window, &rect);

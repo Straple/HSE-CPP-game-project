@@ -2,7 +2,7 @@
 
 #include "game_utils.cpp"
 // don't shuffle
-#include "UI Objects\ui_objects.cpp"
+//#include "UI Objects\ui_objects.cpp"
 // don't shuffle
 #include "Game objects\game_objects.cpp"
 
@@ -152,7 +152,7 @@ void build_world() {
 
 // UI objects
 
-Mouse mouse(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
+
 
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения
@@ -272,9 +272,9 @@ void simulate_physics(efloat delta_time) {
 
     // simulate fireplaces
     {
-        for (auto &fireplace : Fireplaces) {
-            fireplace.simulate(delta_time);
-        }
+//        for (auto &fireplace : Fireplaces) {
+//            fireplace.simulate(delta_time);
+//        }
     }
 
     // simulate effects
@@ -574,7 +574,7 @@ void simulate_game(
                 // player.pos,
                 player.get_collision()
                     .circle.pos + Dot(6,2),  // центрированная позиция относительно спрайта
-                mouse.pos + camera.pos, 1000000000, 1000
+                cursor.pos + global_variables::camera.pos, 1000000000, 1000
             );
         }
         last_hit_time += delta_time;
