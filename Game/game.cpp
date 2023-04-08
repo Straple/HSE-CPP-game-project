@@ -497,9 +497,17 @@ void simulate_game(
         bush.pos = Players[0].get_collision().bubble(bush.get_collision());
         // player.pos = bush.get_collision().bubble(player.get_collision());
     }
-
-    render_game();
-
+    //
+    //
+    //
+    //
+    //render_game();
+    //
+    //
+    //
+    Room test_room;
+    test_room.read_room("level.txt");
+    test_room.render_room();
     // bullet!
     // TODO: нужно это все потом перенести в simulate_player, render и т.п.
     {
