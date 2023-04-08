@@ -285,6 +285,8 @@ public:
 private:
     // передает кадр ОС, чтобы та вывела его на монитор
     void release_frame() {
+        global_variables::render_state.flush();
+
         StretchDIBits(
             hdc, 0, 0, static_cast<int>(global_variables::render_state.width()),
             static_cast<int>(global_variables::render_state.height()), 0, 0,

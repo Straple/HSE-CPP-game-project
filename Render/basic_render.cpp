@@ -1,7 +1,9 @@
 ﻿
 // заполняет значения dest[0], dest[1], ..., dest[len-1] значением val32
-void fill(unsigned int *dest, unsigned int val32, unsigned int len) {
+void fill(uint32_t *dest, uint32_t val32, unsigned int len) {
     // global_variables::count_of_render_rects += len;
+
+    // global_variables::count_of_render_rects++;
 
     // можно использовать и это, но реализация ниже оказывается быстрее
     // std::fill_n(dest, len, val32);
@@ -21,13 +23,20 @@ void fill(unsigned int *dest, unsigned int val32, unsigned int len) {
     // len = 11: ~100
     // len = 12: ~100
     // len = 13: ~100
+    //
     // len <= 13: ~65'000
     // len > 13: ~50'000
     // len > 20: ~22'000
     // len > 30: ~11'000
     // len > 40: ~7'000
 
-    u64 val64 = (static_cast<u64>(val32) << 32) | val32;
+    // std::fill_n(dest, len, val24);
+
+    // for (int i = 0; i < len; i++) {
+    //     dest[i] = val32;
+    // }
+
+    /*u64 val64 = (static_cast<u64>(val32) << 32) | val32;
 
     len--;
     for (unsigned int i = 0; i < len; i += 2) {
@@ -37,6 +46,48 @@ void fill(unsigned int *dest, unsigned int val32, unsigned int len) {
 
     if (len & 1) {
         dest[len - 1] = val32;
+    }*/
+}
+
+void fill2(render_chunk *dest, Color color, unsigned int l, unsigned int r) {
+    unsigned int lc = l >> 5;
+    unsigned int rc = r >> 5;
+
+    if (lc == rc) {
+        dest[lc].flush();
+        while (l <= r) {
+            dest[lc].data[l & 0b11111] = color;
+            l++;
+            // global_variables::count_of_render_rects++;
+        }
+        return;
+    }
+
+    if (l & 0b11111) {
+        dest[lc].flush();
+        while (l & 0b11111) {
+            dest[lc].data[l & 0b11111] = color;
+            l++;
+            //global_variables::count_of_render_rects++;
+        }
+        lc++;
+    }
+
+    if ((r & 0b11111) != 0b11111) {
+        dest[rc].flush();
+        while (r & 0b11111) {
+            dest[rc].data[r & 0b11111] = color;
+            r--;
+            //global_variables::count_of_render_rects++;
+        }
+        dest[rc].data[0] = color;
+        rc--;
+    }
+
+    while (lc <= rc) {
+        dest[lc].state = true;
+        dest[lc].data[0] = color;
+        lc++;
     }
 }
 
@@ -64,18 +115,34 @@ void draw_pixels(
         "out of render pixels"
     );
 
-    Color *row = global_variables::render_state[y0] + x0;
     const unsigned int screen_width = global_variables::render_state.width();
-    unsigned int len = x1 - x0;
+    const unsigned int len = x1 - x0;
 
-    if (color.a == 0xff) {
-        for (unsigned int y = y0; y < y1; y++, row += screen_width) {
-            fill(
-                reinterpret_cast<unsigned int *>(row),
-                static_cast<unsigned int>(color), len
-            );
+    if (true) {  //(color.a == 0xff) {
+        for (unsigned int y = y0; y < y1; y++) {
+            fill2(global_variables::render_state.data()[y], color, x0, x1 - 1);
+
+            /*int l = x0 / chunk_len;
+            int r = (x1 - 1) / chunk_len;
+            if (x0 % chunk_len != 0) {
+                row[l].flush();
+                while(x0 % chunk_len != 0){
+                    row[l].data[x0 % chunk_len] = color;
+                    x0++;
+                }
+                l++;
+            }
+
+            while (l <= r) {
+                row[l].state = true;
+                row[l].data[0] = color;
+                l++;
+            }*/
+
+            // fill(reinterpret_cast<uint32_t*>(row),
+            // static_cast<uint32_t>(color), len);
         }
-    } else {
+    } /*else {
         for (unsigned int y = y0; y < y1; y++, row += screen_width) {
             unsigned int x = 0;
 
@@ -93,7 +160,7 @@ void draw_pixels(
                 x = k;
             }
         }
-    }
+    }*/
 }
 
 // рисует прямоугольник в пикселях с обработкой границ
