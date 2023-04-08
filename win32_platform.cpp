@@ -85,13 +85,95 @@ Cursor cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
 #include "Game\Level maker\level_maker.cpp"
 #endif
 
+// draw fps and others useful info
+void simulate_end_frame(efloat delta_time) {
+    static efloat global_time_accum = 0;
+    global_time_accum += delta_time;
+
+    static int summary_fps = 0;
+    summary_fps++;
+
+    static int visible_fps = 0;
+
+    static int frame_accum = 0;
+    frame_accum++;
+
+    static efloat frame_time_accum = 0;
+    frame_time_accum += delta_time;
+
+    if (frame_time_accum > 0.5) {
+        visible_fps = frame_accum * 2;
+        frame_time_accum = 0;
+        frame_accum = 0;
+    }
+
+    static std::vector<efloat> vec_delta_times;
+    {
+        vec_delta_times.push_back(delta_time);
+        if (vec_delta_times.size() > 1500) {
+            vec_delta_times.erase(vec_delta_times.begin());
+        }
+    }
+
+    if (global_variables::show_fps) {
+        {
+            Dot pos(60, -global_variables::arena_half_size.y + 5);
+            for (int i = static_cast<int>(vec_delta_times.size()) - 1; i >= 0;
+                 i--) {
+                draw_rect(
+                    pos + Dot(0, vec_delta_times[i] * 1000), Dot(0.1, 0.1), RED
+                );
+                draw_rect(pos, Dot(0.1, 0.1), WHITE);
+                pos.x -= 0.05;
+            }
+        }
+
+        draw_object(
+            static_cast<int>(summary_fps / global_time_accum),
+            Dot(5, 12) - global_variables::arena_half_size, 0.5, WHITE
+        );
+
+        draw_object(
+            global_time_accum, Dot(20, 12) - global_variables::arena_half_size,
+            0.5, WHITE
+        );
+
+        draw_object(
+            visible_fps, Dot(5, 5) - global_variables::arena_half_size, 0.5,
+            WHITE
+        );
+
+        draw_object(
+            static_cast<int>(delta_time * 1000),
+            Dot(20, 5) - global_variables::arena_half_size, 0.5, WHITE
+        );
+
+        draw_object(
+            to_string(global_variables::render_state.height()) + "x" +
+                to_string(global_variables::render_state.width()),
+            Dot(30, 5) - global_variables::arena_half_size, 0.5, WHITE
+        );
+
+        draw_object(
+            to_string(global_variables::count_of_render_rects),
+            Dot(5, 20) - global_variables::arena_half_size, 0.5, WHITE
+        );
+
+        // draw_object(
+        //     static_cast<int>(game_engine_time_for_calc * 1000),
+        //     Dot(60, 5) - global_variables::arena_half_size, 0.5, RED
+        //);
+        game_engine_time_for_calc = 0;
+    }
+}
+
 class engine_app {
     HINSTANCE hInstance;  // дескриптор указанного модуля
     WNDCLASS window_class{sizeof(WNDCLASS)};
     HWND window;
 
-    // дескриптор устройства (DC) для клиентской области указанного окна или для
-    // всего экрана Используется в последующих функциях GDI для рисования в DС
+    // Дескриптор устройства (DC) для клиентской области указанного окна или для
+    // всего экрана. Используется в последующих функциях GDI для рисования в DС
     HDC hdc;
 
     Input input;
@@ -151,88 +233,7 @@ public:
             }
         });
 
-        // update fps
-        {
-            static efloat global_time_accum = 0;
-            global_time_accum += delta_time;
-
-            static int summary_fps = 0;
-            summary_fps++;
-
-            static int visible_fps = 0;
-
-            static int frame_accum = 0;
-            frame_accum++;
-
-            static efloat frame_time_accum = 0;
-            frame_time_accum += delta_time;
-
-            if (frame_time_accum > 0.5) {
-                visible_fps = frame_accum * 2;
-                frame_time_accum = 0;
-                frame_accum = 0;
-            }
-
-            static std::vector<efloat> vec_delta_times;
-            {
-                vec_delta_times.push_back(delta_time);
-                if (vec_delta_times.size() > 1500) {
-                    vec_delta_times.erase(vec_delta_times.begin());
-                }
-            }
-
-            if (global_variables::show_fps) {
-                {
-                    Dot pos(60, -global_variables::arena_half_size.y + 5);
-                    for (int i = static_cast<int>(vec_delta_times.size()) - 1;
-                         i >= 0; i--) {
-                        draw_rect(
-                            pos + Dot(0, vec_delta_times[i] * 1000),
-                            Dot(0.1, 0.1), RED
-                        );
-                        draw_rect(pos, Dot(0.1, 0.1), WHITE);
-                        pos.x -= 0.05;
-                    }
-                }
-
-                draw_object(
-                    static_cast<int>(summary_fps / global_time_accum),
-                    Dot(5, 12) - global_variables::arena_half_size, 0.5, WHITE
-                );
-
-                draw_object(
-                    global_time_accum,
-                    Dot(20, 12) - global_variables::arena_half_size, 0.5, WHITE
-                );
-
-                draw_object(
-                    visible_fps, Dot(5, 5) - global_variables::arena_half_size,
-                    0.5, WHITE
-                );
-
-                draw_object(
-                    static_cast<int>(delta_time * 1000),
-                    Dot(20, 5) - global_variables::arena_half_size, 0.5, WHITE
-                );
-
-                draw_object(
-                    to_string(global_variables::render_state.height()) + "x" +
-                        to_string(global_variables::render_state.width()),
-                    Dot(30, 5) - global_variables::arena_half_size, 0.5, WHITE
-                );
-
-                draw_object(
-                    to_string(global_variables::count_of_render_rects),
-                    Dot(5, 20) - global_variables::arena_half_size, 0.5, WHITE
-                );
-
-                // draw_object(
-                //     static_cast<int>(game_engine_time_for_calc * 1000),
-                //     Dot(60, 5) - global_variables::arena_half_size, 0.5, RED
-                //);
-                game_engine_time_for_calc = 0;
-            }
-        }
+        simulate_end_frame(delta_time);
 
         release_frame();
     }

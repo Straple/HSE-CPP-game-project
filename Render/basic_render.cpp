@@ -21,6 +21,7 @@ void fill(uint32_t *dest, uint32_t val32, unsigned int len) {
     // len = 11: ~100
     // len = 12: ~100
     // len = 13: ~100
+
     // len <= 13: ~65'000
     // len > 13: ~50'000
     // len > 20: ~22'000
