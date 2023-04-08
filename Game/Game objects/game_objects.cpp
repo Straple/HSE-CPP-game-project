@@ -107,3 +107,5 @@ struct enemy_state {
 
 #include "bat.hpp"
 #include "slime.cpp"
+
+#include "room.hpp"

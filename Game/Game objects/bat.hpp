@@ -39,7 +39,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         walk_to = position;
     }
 
-    [[nodiscard]] collision_circle get_collision() const {
+    [[nodiscard]] collision_circle get_collision() const override {
         return collision_circle(Circle(pos, collision_radius));
     }
 
@@ -89,7 +89,8 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
                     Players[0].hp -= damage;
                     add_hit_effect(
-                        Players[0].pos + Dot(-8, 16) * Players[0].gobj_state.size
+                        Players[0].pos +
+                        Dot(-8, 16) * Players[0].gobj_state.size
                     );
                 }
             } else {
@@ -116,7 +117,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         }
     }
 
-    void draw() const {
+    void draw() const override {
         draw_sprite(pos + Dot(-5, 0) * size, size, SP_SMALL_SHADOW);
 
         anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {

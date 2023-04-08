@@ -8,7 +8,7 @@ struct Bush : abstract_game_object {
     Bush() = default;
 
     explicit Bush(const Dot &new_pos) {
-        size = 0.5;
+        size = 1;
         delta_draw_pos = Dot(-15, 20) * size;
         collision_radius = 5;
         pos = new_pos - delta_draw_pos;

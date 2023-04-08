@@ -5,10 +5,9 @@
 #include "render.hpp"
 
 struct Bullet : abstract_game_object {
-    // Shape form;
     // Добавим позже поле формы пули, чтобы можно было
     // стрелять как кругами, так и прямоугольниками и ромбами.
-    // возможно, добавим лучевое оружие
+    // Возможно, добавим лучевое оружие
 
     Dot pos;
     Dot dp;
@@ -105,14 +104,15 @@ struct Bullet : abstract_game_object {
         for (int i = 0; i < Enemies.size(); i++) {
             if (attack_trigger(Enemies[i].pos) &&
                 reinterpret_cast<char *>(&Enemies[i]) !=
-                reinterpret_cast<char *>(this)) {
+                    reinterpret_cast<char *>(this)) {
                 is_attack = true;
 
                 Enemies[i].simulate_hit(player);
 
                 if (Enemies[i].hp <= 0 &&
                     typeid(Enemies[i]) != typeid(Player)) {
-//                    player.exp += Enemies[i].gobj_state.exp_cnt;
+                    //                    player.exp +=
+                    //                    Enemies[i].gobj_state.exp_cnt;
                     Enemies.erase(Enemies.begin() + i);
                     i--;
                     if (player.exp >= 10) {
@@ -138,22 +138,16 @@ struct Bullet : abstract_game_object {
     }
 
     void draw() const {
-//        draw_sprite(pos + BULLET_DELTA_DRAW_DOT*0.25, 0.3, SP_COIN);
+        //        draw_sprite(pos + BULLET_DELTA_DRAW_DOT*0.25, 0.3, SP_COIN);
         draw_collision_obj(*this);
-//        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+        //        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
         auto circ = get_collision().circle;
         static_pos_update(circ.pos, global_variables::camera_is_static);
-        circ.radius=1.5;
+        circ.radius = 1.5;
         draw_circle(circ, Color(0xbd9919, 255));
-        circ.radius=1;
+        circ.radius = 1;
         draw_circle(circ, Color(0xfcca12, 255));
-
     }
-
-
 };
-
-
-
 
 #endif

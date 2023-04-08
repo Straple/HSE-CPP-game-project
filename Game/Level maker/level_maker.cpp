@@ -1,4 +1,8 @@
 
+#include "../game_utils.cpp"
+//
+#include "../Game objects/game_objects.cpp"
+
 void cast_to_top_left_and_bottom_right(Dot &p0, Dot &p1) {
     if (p0.x > p1.x) {
         std::swap(p0.x, p1.x);
@@ -7,17 +11,6 @@ void cast_to_top_left_and_bottom_right(Dot &p0, Dot &p1) {
         std::swap(p0.y, p1.y);
     }
 }
-
-struct drawing_objects {
-    Dot pos;
-    efloat size;
-    sprite_t sprite;
-    int level;
-
-    bool operator<(const drawing_objects &right) {
-        return level < right.level;
-    }
-};
 
 std::vector<drawing_objects> Draw_objects;
 

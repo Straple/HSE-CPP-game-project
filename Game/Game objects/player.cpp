@@ -4,7 +4,7 @@
 // physics
 #define PLAYER_DDP_SPEED 500
 #define PLAYER_STATICPOS_COOLDOWN 5
-#define PLAYER_COLLISION_RADIUS 3
+#define PLAYER_COLLISION_RADIUS 6
 
 #define PLAYER_MAX_COMBO 3
 #define PLAYER_ATTACK_COOLDOWN 0.1
@@ -80,10 +80,9 @@ struct Player_anim_tree {
 
 // |dp.x/y| <= 33.(3)
 
-
 struct Player {
     inline static const game_object_state gobj_state =
-        game_object_state(200, 10, 0.5);
+        game_object_state(200, 10, 1);
 
     // move and pos
     Dot pos;
@@ -341,23 +340,21 @@ struct Player {
     void restart() {
         add_death_effect(pos + Dot(-16, 22) * gobj_state.size);
 
-        std::uniform_int_distribution<int> random_x(
+        /*std::uniform_int_distribution<int> random_x(
             -world_half_size.x, world_half_size.x
         );
         std::uniform_int_distribution<int> random_y(
             -world_half_size.y, world_half_size.y
-        );
+        );*/
 
-        auto random_dot = [&]() -> Dot {
-            return Dot(random_x(rnd), random_y(rnd));
-        };
+        /*auto random_dot = [&]() -> Dot { return Dot(0, 0); };
 
         Player nplayer(random_dot());
         nplayer.id = id;
         for (int i = 0; i < sizeof(name); i++) {
             nplayer.name[i] = name[i];
         }
-        *this = std::move(nplayer);
+        *this = std::move(nplayer);*/
 
         /*pos = random_dot();
         dp = Dot();

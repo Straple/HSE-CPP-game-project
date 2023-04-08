@@ -482,10 +482,6 @@ int main() {
         read_sprites();
         read_spritesheets();
 
-#ifdef GAME_MODE
-        build_world();
-#endif
-
 #ifdef LEVEL_MAKER_MODE
         read_level();
 #endif

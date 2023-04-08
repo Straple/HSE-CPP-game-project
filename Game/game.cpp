@@ -6,106 +6,6 @@
 // don't shuffle
 #include "game_collision.cpp"
 
-#define GAME_OBJECT_MAX 200
-#define GAME_OBJECT_MIN 170
-#define GAME_ENEMIES_MAX 40
-#define GAME_ENEMIES_MIN 30
-
-template <typename T>
-void build_array_of_objects(std::vector<T> &Objects, unsigned int size) {
-    Objects.resize(size);
-
-    std::uniform_int_distribution<int> random_x(
-        -world_half_size.x, world_half_size.x
-    );
-    std::uniform_int_distribution<int> random_y(
-        -world_half_size.y, world_half_size.y
-    );
-
-    for (auto &obj : Objects) {
-        obj = T(Dot(random_x(rnd), random_y(rnd)));
-    }
-}
-
-void build_world() {
-    std::uniform_int_distribution<int> random_size(
-        GAME_OBJECT_MIN, GAME_OBJECT_MAX
-    );
-    std::uniform_int_distribution<int> random_size_enemies(
-        GAME_ENEMIES_MIN, GAME_ENEMIES_MAX
-    );
-
-    // build bushes and trees
-    {
-        build_array_of_objects(Bushes, random_size(rnd));
-        build_array_of_objects(Trees, random_size(rnd));
-
-        auto get_coll = [&](auto obj) -> collision_circle {
-            auto res = collision_circle(obj.get_collision());
-            res.circle.radius += 5;
-            return res;
-        };
-
-        for (auto &tree1 : Trees) {
-            for (auto &tree2 : Trees) {
-                if (verify_others_obj(tree1, tree2)) {
-                    update_collision(tree1, get_coll(tree2));
-                }
-            }
-        }
-
-        for (auto &bush1 : Bushes) {
-            for (auto &bush2 : Bushes) {
-                if (verify_others_obj(bush1, bush2)) {
-                    update_collision(bush1, get_coll(bush2));
-                }
-            }
-        }
-
-        for (auto &tree : Trees) {
-            for (auto &bush : Bushes) {
-                if (verify_others_obj(tree, bush)) {
-                    update_collision(tree, get_coll(bush));
-                }
-            }
-        }
-        for (auto &bush : Bushes) {
-            for (auto &tree : Trees) {
-                if (verify_others_obj(bush, tree)) {
-                    update_collision(bush, get_coll(tree));
-                }
-            }
-        }
-
-        for (int i = 0; i < Bushes.size(); i++) {
-            for (int j = i + 1; j < Bushes.size(); j++) {
-                if (Bushes[i].get_collision().trigger(get_coll(Bushes[j]))) {
-                    Bushes.erase(Bushes.begin() + i);
-                    i--;
-                    break;
-                }
-            }
-        }
-
-        for (int i = 0; i < Trees.size(); i++) {
-            for (int j = i + 1; j < Trees.size(); j++) {
-                if (Trees[i].get_collision().trigger(get_coll(Trees[j]))) {
-                    Trees.erase(Trees.begin() + i);
-                    i--;
-                    break;
-                }
-            }
-        }
-    }
-
-    build_array_of_objects(Slimes, random_size_enemies(rnd));
-    build_array_of_objects(Bats, random_size_enemies(rnd));
-}
-
-// UI objects
-
-
-
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения
     auto accum_ddp = [&input](
@@ -145,55 +45,6 @@ void simulate_physics(efloat delta_time) {
         auto random_dot = [&]() -> Dot {
             return Dot(random_x(rnd), random_y(rnd));
         };
-
-        if (Slimes.size() < GAME_ENEMIES_MIN) {
-            int cnt = range(rnd);
-
-            while (cnt--) {
-                Slimes.push_back(random_dot());
-                // std::cout << "new slime: " << Slimes.back().pos << "\n";
-            }
-        }
-
-        if (Bats.size() < GAME_ENEMIES_MIN) {
-            int cnt = range(rnd);
-
-            while (cnt--) {
-                Bats.push_back(random_dot());
-                // std::cout << "new bat: " << Bats.back().pos << "\n";
-            }
-        }
-
-        if (Trees.size() < GAME_OBJECT_MIN) {
-            int cnt = range(rnd);
-
-            while (cnt--) {
-                Trees.emplace_back(random_dot());
-                // std::cout << "new tree: " << Trees.back().pos << "\n";
-            }
-
-            auto get_coll = [&](auto obj) -> collision_circle {
-                auto res = collision_circle(obj.get_collision());
-                res.circle.radius += 5;
-                return res;
-            };
-
-            for (auto &tree1 : Trees) {
-                for (auto &tree2 : Trees) {
-                    if (verify_others_obj(tree1, tree2)) {
-                        update_collision(tree1, get_coll(tree2));
-                    }
-                }
-            }
-
-            for (auto &tree : Trees) {
-                for (auto &bush : Bushes) {
-                    if (verify_others_obj(tree, bush)) {
-                        update_collision(tree, get_coll(bush));
-                    }
-                }
-            }
-        }
     }
 
     // simulate logs
@@ -473,6 +324,7 @@ void simulate_game(
     func_t &&window_mode_callback
 ) {
     simulate_input(input, window_mode_callback);
+
     if (!global_variables::running) {
         return;
     }
@@ -493,10 +345,10 @@ void simulate_game(
     // clear_screen(BLACK);
     // draw_sprite(Dot(), 0.1, SP_KEK);
 
-    for (auto &bush : Bushes) {
-        bush.pos = Players[0].get_collision().bubble(bush.get_collision());
+    //for (auto &bush : Bushes) {
+    //    bush.pos = Players[0].get_collision().bubble(bush.get_collision());
         // player.pos = bush.get_collision().bubble(player.get_collision());
-    }
+    //}
     //
     //
     //
@@ -507,7 +359,10 @@ void simulate_game(
     //
     Room test_room;
     test_room.read_room("level.txt");
-    test_room.render_room();
+    test_room.draw();
+
+    test_room.simulate();
+
     // bullet!
     // TODO: нужно это все потом перенести в simulate_player, render и т.п.
     {
@@ -559,6 +414,9 @@ void simulate_game(
             i--;
         }
     }
+
+    cursor.draw();
+
     /*player.hp = 300;
     player.pos = Dot();
     for (int i = 0; i < 10; i++) {
