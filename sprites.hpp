@@ -250,7 +250,7 @@ void read_sprites() {
             );
         }
         {
-            read(SP_M18, "Weapons\\M18.png")
+            read(SP_M18, "World\\bush.png")
         }
     }
 
