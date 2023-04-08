@@ -2,7 +2,9 @@
 
 #include "game_utils.cpp"
 // don't shuffle
-#include "Game objects/game_objects.cpp"
+#include "UI Objects\ui_objects.cpp"
+// don't shuffle
+#include "Game objects\game_objects.cpp"
 
 // game objects
 
@@ -17,8 +19,6 @@ std::vector<Bat> Bats;
 std::vector<Fireplace> Fireplaces = {
     Fireplace(Dot(30, -30)),
 };
-
-std::vector<Log> Logs;
 
 // Players
 //
@@ -150,6 +150,10 @@ void build_world() {
     build_array_of_objects(Bats, random_size_enemies(rnd));
 }
 
+// UI objects
+
+Mouse mouse(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
+
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения
     auto accum_ddp = [&input](
@@ -269,7 +273,7 @@ void simulate_physics(efloat delta_time) {
     // simulate fireplaces
     {
         for (auto &fireplace : Fireplaces) {
-            fireplace.simulate(delta_time, Logs);
+            fireplace.simulate(delta_time);
         }
     }
 
@@ -560,18 +564,21 @@ void simulate_game(
     {
         static std::vector<Bullet> Bullets;
 
-        // draw_sprite(player.pos, 0.1, SP_TREE);
-        // draw_sprite(mouse.pos + global_variables::camera.pos, 0.1, SP_TREE);
-
-        if (pressed(BUTTON_MOUSE_L)) {
+//        draw_sprite(player.pos, 0.1, SP_TREE);
+//        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
+        static efloat last_hit_time = 3;
+        if (pressed(BUTTON_MOUSE_L) && last_hit_time >= PLAYER_ATTACK_COOLDOWN ) {
             // new bullet!
+            last_hit_time = 0;
             Bullets.emplace_back(
                 // player.pos,
                 player.get_collision()
-                    .circle.pos,  // центрированная позиция относительно спрайта
-                cursor.pos + global_variables::camera.pos, 1000000000, 1000
+                    .circle.pos + Dot(6,2),  // центрированная позиция относительно спрайта
+                mouse.pos + camera.pos, 1000000000, 1000
             );
         }
+        last_hit_time += delta_time;
+
 
         for (auto &bullet : Bullets) {
             bullet.simulate(delta_time);
@@ -580,8 +587,29 @@ void simulate_game(
         for (auto &bullet : Bullets) {
             bullet.draw();
         }
+
+    for (int i = 0; i < Bullets.size(); i++) {
+
+            bool attack1 = Bullets[i].simulate_attack(player, Bats);
+            bool attack2 = Bullets[i].simulate_attack(player, Slimes);
+            if (attack1 || attack2) {
+                Bullets.erase(Bullets.begin()+i);
+                i--;
+            }
+        }
+    }
+    for (auto& loot: Loot_objects) {
+        loot->draw();
     }
 
+    for (int i = 0; i < Loot_objects.size(); i++) {
+        auto& object = Loot_objects[i];
+        object->simulate(delta_time);
+        if (object->simulate_collection()) {
+            Loot_objects.erase(Loot_objects.begin()+i);
+            i--;
+        }
+    }
     /*player.hp = 300;
     player.pos = Dot();
     for (int i = 0; i < 10; i++) {
@@ -625,7 +653,7 @@ void simulate_game(
     // draw_sprite(Dot(), 1, SP_TREE);
     // draw_sprite_static(Dot(), 1, SP_TREE);
 
-    // draw_text("hello world", Dot() - global_variables::camera.pos, 1, WHITE);
+    // draw_text("hello world", Dot() - camera.pos, 1, WHITE);
 
     // draw_rect_in_pixels(0, 0, 100, 100, 0xffffffff);
 

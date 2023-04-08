@@ -92,8 +92,14 @@ struct enemy_state {
 #include "bullet.hpp"
 #include "bush.hpp"
 #include "effect.hpp"
+
 #include "player.cpp"
 #include "weapon.hpp"
+
+
+
+#include "loot.cpp"
+#include "heart.cpp"
 
 // don't shuffle
 #include "log.hpp"

@@ -232,6 +232,7 @@ struct Slime {
 
         if (hp <= 0) {
             add_death_effect(pos + Dot(-15, 15) * gobj_state.size);
+            Loot_objects.push_back(std::unique_ptr<Loot>(new Heart(this->get_collision().circle.pos)));
         } else {
             ddp += player.get_dir() * enemy_state.ddp_speed * 1.5;
             paralyzed_cooldown_accum = 0;
