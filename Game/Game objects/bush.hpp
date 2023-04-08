@@ -30,4 +30,6 @@ struct Bush : abstract_game_object {
     }
 };
 
+std::vector<Bush> Bushes;
+
 #endif  // GAME_BUSH_HPP

@@ -88,8 +88,6 @@ struct enemy_state {
 
 #include "button.hpp"
 #include "cursor.hpp"
-
-
 #include "bush.hpp"
 #include "effect.hpp"
 
@@ -97,17 +95,13 @@ struct enemy_state {
 #include "bullet.hpp"
 #include "weapon.hpp"
 
-
-
 #include "loot.cpp"
 #include "heart.cpp"
 
-// don't shuffle
 #include "log.hpp"
-// don't shuffle
 #include "tree.hpp"
 // don't shuffle
-#include "fireplace.hpp"
+// #include "fireplace_unused.hpp"
 
 // enemies
 

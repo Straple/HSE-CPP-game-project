@@ -17,17 +17,17 @@ struct Loot {
     }
 
     [[nodiscard]] bool collection_trigger() const {
-        return get_collision().trigger(player.pos);
+        return get_collision().trigger(Players[0].pos);
     }
     virtual bool simulate_collection() = 0;
 
     virtual void draw() const = 0;
 
     void simulate(efloat delta_time) {
-        if ((player.pos-pos).get_len() <= magnet_radius) {
+        if ((Players[0].pos-pos).get_len() <= magnet_radius) {
             initial_flight = false;
-            Dot ddp = (player.pos-pos).normalize() * 100;
-            move_to2d(pos, player.pos, dp, ddp, delta_time);
+            Dot ddp = (Players[0].pos-pos).normalize() * 100;
+            move_to2d(pos, Players[0].pos, dp, ddp, delta_time);
         }
         else if (initial_flight) {
             if (pos == initial_pos+Dot(2,2)) {

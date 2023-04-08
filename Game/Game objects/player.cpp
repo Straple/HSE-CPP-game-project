@@ -402,4 +402,4 @@ struct Player {
     }
 };
 
-Player player;
+std::vector<Player> Players(1);

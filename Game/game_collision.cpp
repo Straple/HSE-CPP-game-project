@@ -68,7 +68,7 @@ void simulate_game_collision(container_t &Objects) {
         if (typeid(Objects.back()) != typeid(Slime) &&
             typeid(Objects.back()) != typeid(Player)) {
             for (auto &obj : Objects) {
-                update_collision(player, obj.get_collision());
+                update_collision(Players[0], obj.get_collision());
             }
         }
 
@@ -95,16 +95,6 @@ void simulate_game_collision(container_t &Objects) {
             for (auto &bush : Bushes) {
                 if (verify_others_obj(bush, obj)) {
                     update_collision(obj, bush.get_collision());
-                }
-            }
-        }
-
-        // fireplaces
-        // trees
-        for (auto &obj : Objects) {
-            for (auto &fireplace : Fireplaces) {
-                if (verify_others_obj(fireplace, obj)) {
-                    update_collision(obj, fireplace.get_collision());
                 }
             }
         }

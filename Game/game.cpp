@@ -2,36 +2,8 @@
 
 #include "game_utils.cpp"
 // don't shuffle
-//#include "UI Objects\ui_objects.cpp"
-// don't shuffle
 #include "Game objects\game_objects.cpp"
-
-// game objects
-
-std::vector<Bush> Bushes;
-
-std::vector<Slime> Slimes;
-
-std::vector<Tree> Trees;
-
-std::vector<Bat> Bats;
-
-std::vector<Fireplace> Fireplaces = {
-    Fireplace(Dot(30, -30)),
-};
-
-// Players
-//
-// Slimes
-// Bats
-//
-// Trees
-// Bushes
-// Logs
-// Fireplaces
-//
-// Effects
-
+// don't shuffle
 #include "game_collision.cpp"
 
 #define GAME_OBJECT_MAX 200
@@ -105,26 +77,6 @@ void build_world() {
             }
         }
 
-        if (!Fireplaces.empty()) {
-            for (int i = 0; i < Bushes.size(); i++) {
-                if (Bushes[i].get_collision().trigger(
-                        Fireplaces[0].get_collision()
-                    )) {
-                    Bushes.erase(Bushes.begin() + i);
-                    i--;
-                }
-            }
-
-            for (int i = 0; i < Trees.size(); i++) {
-                if (Trees[i].get_collision().trigger(
-                        Fireplaces[0].get_collision()
-                    )) {
-                    Trees.erase(Trees.begin() + i);
-                    i--;
-                }
-            }
-        }
-
         for (int i = 0; i < Bushes.size(); i++) {
             for (int j = i + 1; j < Bushes.size(); j++) {
                 if (Bushes[i].get_collision().trigger(get_coll(Bushes[j]))) {
@@ -165,16 +117,16 @@ void simulate_player(const Input &input, efloat delta_time) {
         );
     };
 
-    player.simulate(
+    Players[0].simulate(
         delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S),
         is_down(BUTTON_J), pressed(BUTTON_SPACE)
     );
 
     // player attack
     {
-        if (/*player.simulate_attack(Logs) | */ player.simulate_attack(Slimes) |
-            player.simulate_attack(Bats) | player.simulate_attack(Trees)) {
-            player.now_is_attached = false;
+        if (/*player.simulate_attack(Logs) | */ Players[0].simulate_attack(Slimes) |
+            Players[0].simulate_attack(Bats) | Players[0].simulate_attack(Trees)) {
+            Players[0].now_is_attached = false;
         }
     }
 }
@@ -328,11 +280,6 @@ void render_game() {
                 ptr = reinterpret_cast<const void *>(&player);
             }
 
-            explicit top_sort_object(const Fireplace &fireplace) {
-                type = TO_FIREPLACE;
-                ptr = reinterpret_cast<const void *>(&fireplace);
-            }
-
             explicit top_sort_object(const Bat &player) {
                 type = TO_BAT;
                 ptr = reinterpret_cast<const void *>(&player);
@@ -378,9 +325,6 @@ void render_game() {
                     case TO_BAT: {
                         return reinterpret_cast<const Bat *>(ptr)->pos.y;
                     }
-                    case TO_FIREPLACE: {
-                        return reinterpret_cast<const Fireplace *>(ptr)->pos.y;
-                    }
                     default:
                         ASSERT(false, "undefind object type");
                 }
@@ -407,9 +351,6 @@ void render_game() {
                     case TO_BAT: {
                         reinterpret_cast<const Bat *>(ptr)->draw();
                     } break;
-                    case TO_FIREPLACE: {
-                        reinterpret_cast<const Fireplace *>(ptr)->draw();
-                    } break;
                     case TO_UNDEFIND: {
                         ASSERT(false, "undefind object type");
                     }
@@ -422,10 +363,10 @@ void render_game() {
         };
 
         std::vector<top_sort_object> Objects;
-        Objects.emplace_back(player);
-        for (auto &fireplace : Fireplaces) {
-            Objects.emplace_back(fireplace);
+        for(auto& player : Players){
+            Objects.emplace_back(player);
         }
+
         for (auto &slime : Slimes) {
             Objects.emplace_back(slime);
         }
@@ -536,7 +477,7 @@ void simulate_game(
         return;
     }
 
-    global_variables::camera.simulate(player.pos, delta_time);
+    global_variables::camera.simulate(Players[0].pos, delta_time);
 
     // simulate players
     {
@@ -553,7 +494,7 @@ void simulate_game(
     // draw_sprite(Dot(), 0.1, SP_KEK);
 
     for (auto &bush : Bushes) {
-        bush.pos = player.get_collision().bubble(bush.get_collision());
+        bush.pos = Players[0].get_collision().bubble(bush.get_collision());
         // player.pos = bush.get_collision().bubble(player.get_collision());
     }
 
@@ -572,7 +513,7 @@ void simulate_game(
             last_hit_time = 0;
             Bullets.emplace_back(
                 // player.pos,
-                player.get_collision()
+                Players[0].get_collision()
                     .circle.pos + Dot(6,2),  // центрированная позиция относительно спрайта
                 cursor.pos + global_variables::camera.pos, 1000000000, 1000
             );
@@ -590,8 +531,8 @@ void simulate_game(
 
     for (int i = 0; i < Bullets.size(); i++) {
 
-            bool attack1 = Bullets[i].simulate_attack(player, Bats);
-            bool attack2 = Bullets[i].simulate_attack(player, Slimes);
+            bool attack1 = Bullets[i].simulate_attack(Players[0], Bats);
+            bool attack2 = Bullets[i].simulate_attack(Players[0], Slimes);
             if (attack1 || attack2) {
                 Bullets.erase(Bullets.begin()+i);
                 i--;

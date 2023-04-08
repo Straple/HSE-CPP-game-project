@@ -61,35 +61,35 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
             }
 
             if (looking) {
-                if (!player.is_paralyzed &&
-                    (player.pos - pos).get_len() < locator_radius) {
+                if (!Players[0].is_paralyzed &&
+                    (Players[0].pos - pos).get_len() < locator_radius) {
                     looking = false;
                 }
             } else {
-                if (player.is_paralyzed ||
-                    (player.pos - pos).get_len() > pursuit_radius) {
+                if (Players[0].is_paralyzed ||
+                    (Players[0].pos - pos).get_len() > pursuit_radius) {
                     looking = true;
                 }
             }
 
             if (!looking) {
                 move_to2d(
-                    pos, player.pos, dp,
-                    (player.pos - pos).normalize() * ddp_speed, delta_time
+                    pos, Players[0].pos, dp,
+                    (Players[0].pos - pos).normalize() * ddp_speed, delta_time
                 );
 
                 // мы близко к игроку и
-                if ((player.pos - pos).get_len() <= jump_radius &&
+                if ((Players[0].pos - pos).get_len() <= jump_radius &&
                     attack_cooldown_accum >= attack_cooldown) {
                     // hit
 
                     attack_cooldown_accum = 0;
 
-                    pos = player.pos;  // прыгаем на игрока
+                    pos = Players[0].pos;  // прыгаем на игрока
 
-                    player.hp -= damage;
+                    Players[0].hp -= damage;
                     add_hit_effect(
-                        player.pos + Dot(-8, 16) * player.gobj_state.size
+                        Players[0].pos + Dot(-8, 16) * Players[0].gobj_state.size
                     );
                 }
             } else {
@@ -161,5 +161,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         }
     }
 };
+
+std::vector<Bat> Bats;
 
 #endif  // GAME_BAT_HPP

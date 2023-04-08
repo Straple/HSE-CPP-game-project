@@ -5,7 +5,7 @@ struct Heart: Loot {
 
     bool simulate_collection() override {
         if (collection_trigger()) {
-            player.hp+=50;
+            Players[0].hp+=50;
             return true;
         }
         return false;

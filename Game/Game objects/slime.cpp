@@ -64,7 +64,7 @@ struct Slime {
                 if (anim.frame_update(delta_time)) {
                     // idle animation beginner
 
-                    player.is_paralyzed = is_attack =
+                    Players[0].is_paralyzed = is_attack =
                         false;  // позиция игрока не статична и не анимация
                                 // атаки
 
@@ -75,32 +75,32 @@ struct Slime {
                 }
 
                 // шарик лопнул
-                if (anim.frame_count > 25 && player.is_paralyzed) {
+                if (anim.frame_count > 25 && Players[0].is_paralyzed) {
                     // push player
-                    player.dp = Circle(Dot(), SLIME_PUSH_DP).get_random_dot();
+                    Players[0].dp = Circle(Dot(), SLIME_PUSH_DP).get_random_dot();
 
-                    player.is_paralyzed =
+                    Players[0].is_paralyzed =
                         false;  // у игрока не статическая позиция
-                    player.paralyzed_cooldown_acc = 0;  // перезарядка
+                    Players[0].paralyzed_cooldown_acc = 0;  // перезарядка
 
-                    player.hp -= enemy_state.damage;
+                    Players[0].hp -= enemy_state.damage;
 
                     add_hit_effect(
-                        player.pos + Dot(-8, 16) * player.gobj_state.size
+                        Players[0].pos + Dot(-8, 16) * Players[0].gobj_state.size
                     );
                 }
             } else {
                 anim.frame_update(delta_time);
 
                 if (looking) {
-                    if (!player.is_paralyzed && !player.is_jumped &&
-                        (player.pos - pos).get_len() <
+                    if (!Players[0].is_paralyzed && !Players[0].is_jumped &&
+                        (Players[0].pos - pos).get_len() <
                             enemy_state.locator_radius) {
                         looking = false;
                     }
                 } else {
-                    if (player.is_paralyzed || player.is_jumped ||
-                        (player.pos - pos).get_len() >
+                    if (Players[0].is_paralyzed || Players[0].is_jumped ||
+                        (Players[0].pos - pos).get_len() >
                             enemy_state.persec_radius) {
                         looking = true;
                     }
@@ -108,27 +108,27 @@ struct Slime {
 
                 if (!looking) {
                     move_to2d(
-                        pos, player.pos, dp,
-                        (player.pos - pos).normalize() * enemy_state.ddp_speed,
+                        pos, Players[0].pos, dp,
+                        (Players[0].pos - pos).normalize() * enemy_state.ddp_speed,
                         delta_time
                     );
 
                     // игрока никто не ест и мы близко к игроку и
-                    if (!player.is_paralyzed &&
-                        (player.pos - pos).get_len() <=
+                    if (!Players[0].is_paralyzed &&
+                        (Players[0].pos - pos).get_len() <=
                             enemy_state.jump_radius &&
 
                         // и перезарядка атаки прошла и перезарядка игрока тоже
                         attack_cooldown_accum >= enemy_state.attack_cooldown &&
-                        player.paralyzed_cooldown_acc >=
+                        Players[0].paralyzed_cooldown_acc >=
                             PLAYER_STATICPOS_COOLDOWN) {
                         // attack animation beginner
 
-                        player.is_paralyzed = is_attack =
+                        Players[0].is_paralyzed = is_attack =
                             true;  // игрок не может двигаться и у нас анимация
                                    // атаки
 
-                        pos = player.pos;  // прыгаем на игрока
+                        pos = Players[0].pos;  // прыгаем на игрока
 
                         anim = SLIME_ANIM_ATTACK;
                     }
@@ -239,3 +239,5 @@ struct Slime {
         }
     }
 };
+
+std::vector<Slime> Slimes;

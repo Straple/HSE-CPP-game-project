@@ -40,4 +40,6 @@ struct Tree : abstract_game_object {
     }
 };
 
+std::vector<Tree> Trees;
+
 #endif  // GAME_TREE_HPP
