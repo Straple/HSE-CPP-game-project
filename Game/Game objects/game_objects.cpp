@@ -89,11 +89,12 @@ struct enemy_state {
 #include "button.hpp"
 #include "cursor.hpp"
 
-#include "bullet.hpp"
+
 #include "bush.hpp"
 #include "effect.hpp"
 
 #include "player.cpp"
+#include "bullet.hpp"
 #include "weapon.hpp"
 
 

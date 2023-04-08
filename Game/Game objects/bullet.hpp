@@ -10,6 +10,9 @@ struct Bullet : abstract_game_object {
     // стрелять как кругами, так и прямоугольниками и ромбами.
     // возможно, добавим лучевое оружие
 
+    Dot pos;
+    Dot dp;
+
     int speed;
     Dot dir;  // направление полета пули
 
@@ -93,7 +96,7 @@ struct Bullet : abstract_game_object {
             dp += player.get_dir() * 50;
         }
     }
-
+    */
     // вернет правду, если атака кого-то зацепила
     template <typename container_t>
     bool simulate_attack(Player &player, container_t &Enemies) {
@@ -102,14 +105,14 @@ struct Bullet : abstract_game_object {
         for (int i = 0; i < Enemies.size(); i++) {
             if (attack_trigger(Enemies[i].pos) &&
                 reinterpret_cast<char *>(&Enemies[i]) !=
-                    reinterpret_cast<char *>(this)) {
+                reinterpret_cast<char *>(this)) {
                 is_attack = true;
 
                 Enemies[i].simulate_hit(player);
 
                 if (Enemies[i].hp <= 0 &&
                     typeid(Enemies[i]) != typeid(Player)) {
-                    player.exp += Enemies[i].gobj_state.exp_cnt;
+//                    player.exp += Enemies[i].gobj_state.exp_cnt;
                     Enemies.erase(Enemies.begin() + i);
                     i--;
                     if (player.exp >= 10) {
@@ -123,7 +126,7 @@ struct Bullet : abstract_game_object {
         }
 
         return is_attack;
-    }*/
+    }
 
     void simulate(efloat delta_time) {
         Dot ddp = dir * speed;
@@ -134,17 +137,23 @@ struct Bullet : abstract_game_object {
         //);
     }
 
-    void draw() const override {
-        draw_sprite(pos + delta_draw_pos, 1, SP_COIN);
+    void draw() const {
+//        draw_sprite(pos + BULLET_DELTA_DRAW_DOT*0.25, 0.3, SP_COIN);
+        draw_collision_obj(*this);
+//        draw_rect(pos - camera.pos, Dot(1, 1) * 0.3, RED);
+        auto circ = get_collision().circle;
+        static_pos_update(circ.pos, global_variables::camera_is_static);
+        circ.radius=1.5;
+        draw_circle(circ, Color(0xbd9919, 255));
+        circ.radius=1;
+        draw_circle(circ, Color(0xfcca12, 255));
 
-        //draw_collision_obj(*this);
-        draw_rect(pos - global_variables::camera.pos, Dot(1, 1) * 0.3, RED);
-
-        // draw_circle(get_collision().circle, Color(0xff0000, 100));
     }
+
+
 };
 
 
-std::vector<Bullet> Bullets;
 
-#endif  // GAME_BULLET_HPP
+
+#endif
