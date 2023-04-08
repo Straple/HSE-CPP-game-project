@@ -16,13 +16,29 @@ struct game_object_state {
     }
 };
 
+struct enemy_state_for_trivial_enemy {
+    int damage;
+
+    efloat locator_radius; // радиус поиска цели
+    efloat pursuit_radius; // радиус преследования цели
+    efloat jump_radius; // радиус возможного прыжка до врага
+
+    efloat ddp_speed;
+
+    efloat paralyzed_cooldown;
+    efloat attack_cooldown;
+
+    efloat walk_time;
+    efloat walk_sum_time;
+};
+
 struct enemy_state {
     int damage;
 
     efloat collision_radius;
     efloat locator_radius;
     efloat persec_radius;
-    efloat jump_radius;  // dist jump
+    efloat jump_radius;
 
     efloat ddp_speed;
 
@@ -70,24 +86,30 @@ struct enemy_state {
 // draw - рисовать объект
 // get_collision - выдать коллизию объекта (если есть)
 
+#include "button.hpp"
+#include "cursor.hpp"
 
-#include "bush.cpp"
-#include "effect.cpp"
+
+#include "bush.hpp"
+#include "effect.hpp"
+
 #include "player.cpp"
+#include "bullet.hpp"
+#include "weapon.hpp"
 
 
-#include "bullet.cpp"
-#include "weapon.cpp"
-#include "rain.cpp"
+
+#include "loot.cpp"
+#include "heart.cpp"
 
 // don't shuffle
-#include "log.cpp"
+#include "log.hpp"
 // don't shuffle
-#include "tree.cpp"
+#include "tree.hpp"
 // don't shuffle
-#include "fireplace.cpp"
+#include "fireplace.hpp"
 
 // enemies
 
-#include "bat.cpp"
+#include "bat.hpp"
 #include "slime.cpp"

@@ -39,7 +39,7 @@ void draw_text(const char *text, Dot pos, efloat size, const Color &color) {
             pos.x = original_x;
         } else {
             draw_symbol(*text, pos, size, color);
-            pos.x += size * symbol_len(*text);
+            pos.x += size * symbol_len_in_pixels(*text);
         }
 
         text++;
@@ -53,7 +53,7 @@ void draw_text_align(
     efloat size,
     const Color &color
 ) {
-    pos.x -= text_len(text) * size / 2;
+    pos.x -= text_len_in_pixels(text) * size / 2;
     draw_text(text, pos, size, color);
 }
 

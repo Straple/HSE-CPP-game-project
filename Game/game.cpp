@@ -2,6 +2,8 @@
 
 #include "game_utils.cpp"
 // don't shuffle
+// #include "UI Objects\ui_objects.cpp"
+// don't shuffle
 #include "Game objects\game_objects.cpp"
 
 // game objects
@@ -19,6 +21,7 @@ std::vector<Fireplace> Fireplaces = {
 };
 #include "Game objects\room.cpp"
 // Players
+//
 // Slimes
 // Bats
 //
@@ -148,7 +151,6 @@ void build_world() {
 }
 
 
-
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения
     auto accum_ddp = [&input](
@@ -267,9 +269,9 @@ void simulate_physics(efloat delta_time) {
 
     // simulate fireplaces
     {
-        for (auto &fireplace : Fireplaces) {
-            fireplace.simulate(delta_time);
-        }
+//        for (auto &fireplace : Fireplaces) {
+//            fireplace.simulate(delta_time);
+//        }
     }
 
     // simulate effects
@@ -452,37 +454,41 @@ void render_game() {
     }
 
     // hp
-    ui_state(
-        Dot(5 - arena_half_size.x, arena_half_size.y - 5),
-        Dot(25 - arena_half_size.x, arena_half_size.y - 7.5)
+    /*ui_state(
+        Dot(5 - global_variables::arena_half_size.x,
+    global_variables::arena_half_size.y - 5), Dot(25 -
+    global_variables::arena_half_size.x, global_variables::arena_half_size.y
+    - 7.5)
     )
         .draw(player.hp, player.max_hp, GREY, RED);
 
     // exp
     ui_state(
-        Dot(5 - arena_half_size.x, arena_half_size.y - 10),
-        Dot(25 - arena_half_size.x, arena_half_size.y - 12.5)
+        Dot(5 - global_variables::arena_half_size.x,
+    global_variables::arena_half_size.y - 10), Dot(25 -
+    global_variables::arena_half_size.x, global_variables::arena_half_size.y
+    - 12.5)
     )
         .draw(player.exp, int(10), GREY, YELLOW);
 
     // damage
     draw_object(
-        player.damage, Dot(5 - arena_half_size.x, arena_half_size.y - 15), 0.6,
-        BLUE
+        player.damage, Dot(5 - global_variables::arena_half_size.x,
+    global_variables::arena_half_size.y - 15), 0.6, BLUE
     );
 
     draw_object(
-        player.lvl, Dot(5 - arena_half_size.x, arena_half_size.y - 20), 0.6,
-        PURPLE
-    );
+        player.lvl, Dot(5 - global_variables::arena_half_size.x,
+    global_variables::arena_half_size.y - 20), 0.6, PURPLE
+    );*/
 
-    mouse.draw();
+    cursor.draw();
 }
 
 template <typename func_t>
 void simulate_input(const Input &input, func_t &&window_mode_callback) {
     if (pressed(BUTTON_ESC)) {
-        running = false;
+        global_variables::running = false;
         return;
     }
 
@@ -491,29 +497,29 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     }
 
     if (pressed(BUTTON_TAB)) {
-        debug_mode = !debug_mode;
+        global_variables::debug_mode = !global_variables::debug_mode;
     }
 
     if (pressed(BUTTON_K)) {
-        show_locator = !show_locator;
+        global_variables::show_locator = !global_variables::show_locator;
     }
 
     if (pressed(BUTTON_F)) {
-        show_fps = !show_fps;
+        global_variables::show_fps = !global_variables::show_fps;
     }
 
     // update render_scale
     {
         if (is_down(BUTTON_UP)) {
-            increase_window_scaling(mouse.pos);
+            increase_window_scaling(cursor.pos);
         }
 
         if (is_down(BUTTON_DOWN)) {
-            decrease_window_scaling(mouse.pos);
+            decrease_window_scaling(cursor.pos);
         }
     }
 
-    mouse.simulate(input);
+    cursor.simulate(input);
 }
 
 template <typename func_t>
@@ -523,11 +529,11 @@ void simulate_game(
     func_t &&window_mode_callback
 ) {
     simulate_input(input, window_mode_callback);
-    if (!running) {
+    if (!global_variables::running) {
         return;
     }
 
-    camera.simulate(player.pos, delta_time);
+    global_variables::camera.simulate(player.pos, delta_time);
 
     // simulate players
     {
@@ -538,7 +544,7 @@ void simulate_game(
 
     simulate_physics(delta_time);
 
-    mouse.simulate(input);
+    cursor.simulate(input);
 
     // clear_screen(BLACK);
     // draw_sprite(Dot(), 0.1, SP_KEK);
@@ -548,13 +554,13 @@ void simulate_game(
         // player.pos = bush.get_collision().bubble(player.get_collision());
     }
     //
-    // 
-    // 
-    // 
+    //
+    //
+    //
     //render_game();
     //
-    // 
-    // 
+    //
+    //
     Room test_room;
     test_room.read_room("level.txt");
     test_room.render_room();
@@ -563,19 +569,21 @@ void simulate_game(
     {
         static std::vector<Bullet> Bullets;
 
-       // draw_sprite(player.pos, 0.1, SP_TREE);
-        //draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
-        int a = -123;
-        draw_object(a ,mouse.pos + Dot(3, 0), 0.5, RED);
+        draw_sprite(player.pos, 0.1, SP_TREE);
+        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
+
         if (pressed(BUTTON_MOUSE_L)) {
             // new bullet!
+            last_hit_time = 0;
             Bullets.emplace_back(
                 // player.pos,
                 player.get_collision()
-                    .circle.pos,  // центрированная позиция относительно спрайта
-                mouse.pos + camera.pos, 1000000000, 1000
+                    .circle.pos + Dot(6,2),  // центрированная позиция относительно спрайта
+                cursor.pos + global_variables::camera.pos, 1000000000, 1000
             );
         }
+        last_hit_time += delta_time;
+
 
         for (auto &bullet : Bullets) {
             bullet.simulate(delta_time);
@@ -584,13 +592,35 @@ void simulate_game(
         for (auto &bullet : Bullets) {
             bullet.draw();
         }
+
+    for (int i = 0; i < Bullets.size(); i++) {
+
+            bool attack1 = Bullets[i].simulate_attack(player, Bats);
+            bool attack2 = Bullets[i].simulate_attack(player, Slimes);
+            if (attack1 || attack2) {
+                Bullets.erase(Bullets.begin()+i);
+                i--;
+            }
+        }
+    }
+    for (auto& loot: Loot_objects) {
+        loot->draw();
     }
 
+    for (int i = 0; i < Loot_objects.size(); i++) {
+        auto& object = Loot_objects[i];
+        object->simulate(delta_time);
+        if (object->simulate_collection()) {
+            Loot_objects.erase(Loot_objects.begin()+i);
+            i--;
+        }
+    }
     /*player.hp = 300;
     player.pos = Dot();
     for (int i = 0; i < 10; i++) {
         for (int j = 0; j < 10; j++) {
-            draw_sprite_static(Dot(j, i) * 10 - arena_half_size, 0.5, SP_TREE);
+            draw_sprite_static(Dot(j, i) * 10 -
+    global_variables::arena_half_size, 0.5, SP_TREE);
         }
     }*/
 

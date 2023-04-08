@@ -633,7 +633,7 @@ const char **get_symbol(char symbol) {
     }
 }
 
-int symbol_len(char symbol) {
+int symbol_len_in_pixels(char symbol) {
     if (symbol == ' ') {
         return 4;
     } else {
@@ -648,7 +648,7 @@ int symbol_len(char symbol) {
     }
 }
 
-int text_len(const char *text) {
+int text_len_in_pixels(const char *text) {
     int max_len = 0;
     int len = 0;
     for (; *text; text++) {
@@ -656,7 +656,7 @@ int text_len(const char *text) {
             max_len = std::max(max_len, len);
             len = 0;
         } else {
-            len += symbol_len(*text);
+            len += symbol_len_in_pixels(*text);
         }
     }
     max_len = std::max(max_len, len);

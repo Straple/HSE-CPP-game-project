@@ -2,8 +2,8 @@
 void draw_rain(unsigned int count_water, u8 alpha) {
     clear_screen(Color(0, 0, 255, alpha));
 
-    std::uniform_int_distribution<int> random_range_x(0, render_state.width());
-    std::uniform_int_distribution<int> random_range_y(0, render_state.height());
+    std::uniform_int_distribution<int> random_range_x(0, global_variables::render_state.width());
+    std::uniform_int_distribution<int> random_range_y(0, global_variables::render_state.height());
 
     for (unsigned int i = 0; i < count_water; i++) {
         int x = random_range_x(rnd);
@@ -115,7 +115,7 @@ struct Fire_machine {
     void draw() const {
         for (auto &item : Rhombus) {
             Dot p = item.pos;
-            static_pos_update(p, camera_is_static);
+            static_pos_update(p, global_variables::camera_is_static);
             draw_rhombus(p, Dot(1, 1) * get_size(item), get_color(item));
         }
     }
