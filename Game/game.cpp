@@ -24,8 +24,11 @@ void simulate_player(const Input &input, efloat delta_time) {
 
     // player attack
     {
-        if (/*player.simulate_attack(Logs) | */ Players[0].simulate_attack(Slimes) |
-            Players[0].simulate_attack(Bats) | Players[0].simulate_attack(Trees)) {
+        if (/*player.simulate_attack(Logs) | */ Players[0].simulate_attack(
+                Slimes
+            ) |
+            Players[0].simulate_attack(Bats) |
+            Players[0].simulate_attack(Trees)) {
             Players[0].now_is_attached = false;
         }
     }
@@ -75,9 +78,9 @@ void simulate_physics(efloat delta_time) {
 
     // simulate fireplaces
     {
-//        for (auto &fireplace : Fireplaces) {
-//            fireplace.simulate(delta_time);
-//        }
+        //        for (auto &fireplace : Fireplaces) {
+        //            fireplace.simulate(delta_time);
+        //        }
     }
 
     // simulate effects
@@ -214,7 +217,7 @@ void render_game() {
         };
 
         std::vector<top_sort_object> Objects;
-        for(auto& player : Players){
+        for (auto &player : Players) {
             Objects.emplace_back(player);
         }
 
@@ -242,11 +245,7 @@ void render_game() {
     }
 
     // draw effects
-    {
-        for (auto &Effect : Effects) {
-            Effect.draw();
-        }
-    }
+    {}
 
     // hp
     /*ui_state(
@@ -317,6 +316,8 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     cursor.simulate(input);
 }
 
+Room test_room;
+
 template <typename func_t>
 void simulate_game(
     const Input &input,
@@ -345,72 +346,43 @@ void simulate_game(
     // clear_screen(BLACK);
     // draw_sprite(Dot(), 0.1, SP_KEK);
 
-    //for (auto &bush : Bushes) {
-    //    bush.pos = Players[0].get_collision().bubble(bush.get_collision());
-        // player.pos = bush.get_collision().bubble(player.get_collision());
+    // for (auto &bush : Bushes) {
+    //     bush.pos = Players[0].get_collision().bubble(bush.get_collision());
+    //  player.pos = bush.get_collision().bubble(player.get_collision());
     //}
     //
     //
     //
     //
-    //render_game();
+    // render_game();
     //
     //
     //
-    Room test_room;
-    test_room.read_room("level.txt");
     test_room.draw();
 
-    test_room.simulate();
+    test_room.simulate(delta_time, input);
 
     // bullet!
     // TODO: нужно это все потом перенести в simulate_player, render и т.п.
     {
-        static std::vector<Bullet> Bullets;
-
-//        draw_sprite(player.pos, 0.1, SP_TREE);
-//        draw_sprite(mouse.pos + camera.pos, 0.1, SP_TREE);
-        static efloat last_hit_time = 3;
-        if (pressed(BUTTON_MOUSE_L) && last_hit_time >= PLAYER_ATTACK_COOLDOWN ) {
-            // new bullet!
-            last_hit_time = 0;
-            Bullets.emplace_back(
-                // player.pos,
-                Players[0].get_collision()
-                    .circle.pos + Dot(6,2),  // центрированная позиция относительно спрайта
-                cursor.pos + global_variables::camera.pos, 1000000000, 1000
-            );
-        }
-        last_hit_time += delta_time;
-
-
-        for (auto &bullet : Bullets) {
-            bullet.simulate(delta_time);
-        }
-
-        for (auto &bullet : Bullets) {
-            bullet.draw();
-        }
-
-    for (int i = 0; i < Bullets.size(); i++) {
-
+        /*for (int i = 0; i < Bullets.size(); i++) {
             bool attack1 = Bullets[i].simulate_attack(Players[0], Bats);
             bool attack2 = Bullets[i].simulate_attack(Players[0], Slimes);
             if (attack1 || attack2) {
-                Bullets.erase(Bullets.begin()+i);
+                Bullets.erase(Bullets.begin() + i);
                 i--;
             }
-        }
+        }*/
     }
-    for (auto& loot: Loot_objects) {
+    for (auto &loot : Loot_objects) {
         loot->draw();
     }
 
     for (int i = 0; i < Loot_objects.size(); i++) {
-        auto& object = Loot_objects[i];
+        auto &object = Loot_objects[i];
         object->simulate(delta_time);
         if (object->simulate_collection()) {
-            Loot_objects.erase(Loot_objects.begin()+i);
+            Loot_objects.erase(Loot_objects.begin() + i);
             i--;
         }
     }

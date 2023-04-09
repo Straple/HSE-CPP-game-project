@@ -11,10 +11,10 @@
 
 struct Slime {
     inline static const game_object_state gobj_state =
-        game_object_state(150, 5, 0.4);
+        game_object_state(150, 5, 0.8);
 
     inline static const enemy_state enemy_state =
-        ::enemy_state(100, 3, 30, 40, 8, 250, 0.3, 3, 2, 3);
+        ::enemy_state(100, 6, 100, 100, 8, 250, 0.3, 3, 2, 3);
 
     // pos and move
     Dot pos;

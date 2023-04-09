@@ -24,9 +24,8 @@ struct effect {
 
 std::vector<effect> Effects;
 
-void
-add_hit_effect(const Dot &pos) {
-    Effects.emplace_back(pos, animation(SS_HIT_EFFECT, 0, 2, 0.1));
+void add_hit_effect(const Dot &pos) {
+    Effects.emplace_back(pos + Dot(-5, 5), animation(SS_HIT_EFFECT, 0, 2, 0.1));
 }
 
 void add_death_effect(const Dot &pos) {

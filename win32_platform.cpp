@@ -1,8 +1,8 @@
 ﻿// use LPCSTR or LPCWSTR
 #define GAME_ENGINE_MY_LPCSTR LPCSTR
 
-//#define GAME_MODE
-#define LEVEL_MAKER_MODE
+#define GAME_MODE
+//#define LEVEL_MAKER_MODE
 
 /*
 WARNINGS:
@@ -484,6 +484,10 @@ int main() {
 
 #ifdef LEVEL_MAKER_MODE
         current_room.read("level.txt");
+#endif
+
+#ifdef GAME_MODE
+        test_room.read("level.txt");
 #endif
 
         // init_render_threads();
