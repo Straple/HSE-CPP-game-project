@@ -123,32 +123,6 @@ struct Room {
             }
         }
 
-        // simulate slime
-        {
-            for (auto &slime : Slimes) {
-                slime.simulate(delta_time);
-            }
-
-            // room collision bubbling slime
-            for (auto &slime : Slimes) {
-                for (auto collision_box : Collision_boxes) {
-                    slime.pos = collision_box.bubble(slime.get_collision());
-                }
-            }
-
-            // slime bubbling slime
-            for (auto &slime1 : Slimes) {
-                for (auto &slime2 : Slimes) {
-                    if (&slime1 !=
-                        &slime2) {  // чтобы не выталкивать самих себя
-                        slime1.pos =
-                            slime2.get_collision().bubble(slime1.get_collision()
-                            );
-                    }
-                }
-            }
-        }
-
         // simulate bullets
         {
             for (auto &bullet : Bullets) {
@@ -175,6 +149,32 @@ struct Room {
                     add_hit_effect(Bullets[i].pos);
                     Bullets.erase(Bullets.begin() + i);
                     i--;
+                }
+            }
+        }
+
+        // simulate slimes
+        {
+            for (auto &slime : Slimes) {
+                slime.simulate(delta_time);
+            }
+
+            // room collision bubbling slime
+            for (auto &slime : Slimes) {
+                for (auto collision_box : Collision_boxes) {
+                    slime.pos = collision_box.bubble(slime.get_collision());
+                }
+            }
+
+            // slime bubbling slime
+            for (auto &slime1 : Slimes) {
+                for (auto &slime2 : Slimes) {
+                    if (&slime1 !=
+                        &slime2) {  // чтобы не выталкивать самих себя
+                        slime1.pos =
+                            slime2.get_collision().bubble(slime1.get_collision()
+                            );
+                    }
                 }
             }
         }

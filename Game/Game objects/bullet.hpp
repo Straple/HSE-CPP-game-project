@@ -96,31 +96,31 @@ struct Bullet : abstract_game_object {
         }
     }
     */
+
     // вернет правду, если атака кого-то зацепила
-    template <typename container_t>
-    bool simulate_attack(Player &player, container_t &Enemies) {
+    template <typename enemy_t>
+    bool simulate_attack(Player &player, std::vector<enemy_t> &Enemies) {
         bool is_attack = false;
 
         for (int i = 0; i < Enemies.size(); i++) {
-            if (attack_trigger(Enemies[i].pos) &&
+            if (get_collision().trigger(Enemies[i].get_collision()) &&
                 reinterpret_cast<char *>(&Enemies[i]) !=
                     reinterpret_cast<char *>(this)) {
+
                 is_attack = true;
 
-                Enemies[i].simulate_hit(player);
+                {
+                    // Enemies[i].simulate_hit(player);
+                    add_hit_effect(Enemies[i].pos);
+                    Enemies[i].hp -= 50;
 
-                if (Enemies[i].hp <= 0 &&
-                    typeid(Enemies[i]) != typeid(Player)) {
-                    //                    player.exp +=
-                    //                    Enemies[i].gobj_state.exp_cnt;
+                    Enemies[i].dp += dir * speed / 10;
+                }
+
+                if (Enemies[i].hp <= 0) {
+                    add_death_effect(Enemies[i].pos);
                     Enemies.erase(Enemies.begin() + i);
                     i--;
-                    if (player.exp >= 10) {
-                        player.max_hp += 15;
-                        player.damage += 2;
-                        player.exp -= 10;
-                        player.lvl++;
-                    }
                 }
             }
         }

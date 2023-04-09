@@ -221,7 +221,8 @@ struct Slime {
         }
     }
 
-    void simulate_hit(const Player &player) {
+    // for sword
+    /*void simulate_hit(const Player &player) {
         if (is_attack) {
             return;
         }
@@ -237,7 +238,7 @@ struct Slime {
             ddp += player.get_dir() * enemy_state.ddp_speed * 1.5;
             paralyzed_cooldown_accum = 0;
         }
-    }
+    }*/
 };
 
 std::vector<Slime> Slimes;
