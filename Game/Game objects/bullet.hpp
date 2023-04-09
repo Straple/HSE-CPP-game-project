@@ -115,6 +115,8 @@ struct Bullet : abstract_game_object {
                     Enemies[i].hp -= 50;
 
                     Enemies[i].dp += dir * speed / 10;
+
+                    Enemies[i].paralyzed_cooldown_accum = 0;
                 }
 
                 if (Enemies[i].hp <= 0) {

@@ -288,6 +288,11 @@ struct Room {
             bullet.draw();
         }
 
+        // draw effects
+        for (auto &Effect : Effects) {
+            Effect.draw();
+        }
+
         for (auto [pos, size, sprite, level] : Draw_objects) {
             if (level > 0) {
                 draw_sprite(pos, size, sprite);
@@ -298,11 +303,6 @@ struct Room {
             // } else if (level == 0 && Players[0].pos.y >= bottom_pos.y) {
             //     draw_sprite(pos, size, sprite);
             // }
-        }
-
-        // draw effects
-        for (auto &Effect : Effects) {
-            Effect.draw();
         }
     }
 };

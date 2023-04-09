@@ -1,7 +1,7 @@
 ﻿// use LPCSTR or LPCWSTR
 #define GAME_ENGINE_MY_LPCSTR LPCSTR
 
-#define GAME_MODE
+ #define GAME_MODE
 //#define LEVEL_MAKER_MODE
 
 /*
