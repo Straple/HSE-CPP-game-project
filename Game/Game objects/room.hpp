@@ -18,11 +18,17 @@ struct drawing_objects {
     }
 };
 
+struct interesting_dot {
+    Dot pos;
+    std::string name;
+};
+
 struct Room {
     std::vector<drawing_objects> Draw_objects;
     std::vector<collision_box> Collision_boxes;
+    std::vector<interesting_dot> Interesting_dots;
 
-    void read_room(const std::string &filename) {
+    void read(const std::string &filename) {
         std::ifstream file(filename);
         {
             std::string str;
@@ -39,7 +45,7 @@ struct Room {
         }
         {
             std::string str;
-            file >> str >> str;  // COLLISION BOXES
+            file >> str;  // COLLISION_BOXES
 
             int count;
             file >> count;
@@ -47,6 +53,42 @@ struct Room {
             for (auto &[p0, p1] : Collision_boxes) {
                 file >> p0 >> p1;
             }
+        }
+
+        {
+            std::string str;
+            file >> str;  // INTERESTING_DOTS
+
+            int count;
+            file >> count;
+            Interesting_dots.assign(count, {});
+            for (auto &[pos, name] : Interesting_dots) {
+                file >> pos >> name;
+            }
+        }
+    }
+
+    void write(const std::string &filename) {
+        std::ofstream file(filename);
+        file << std::fixed << std::setprecision(10);
+
+        file << "SPRITES\n";
+        file << Draw_objects.size() << '\n';
+        for (auto [pos, size, sprite, level] : Draw_objects) {
+            file << sprite_type_to_string(sprite) << ' ' << pos << ' ' << size
+                 << ' ' << level << '\n';
+        }
+
+        file << "COLLISION_BOXES\n";
+        file << Collision_boxes.size() << '\n';
+        for (auto [p0, p1] : Collision_boxes) {
+            file << p0 << ' ' << p1 << '\n';
+        }
+
+        file << "INTERESTING_DOTS\n";
+        file << Interesting_dots.size() << '\n';
+        for (auto [pos, name] : Interesting_dots) {
+            file << pos << ' ' << name << '\n';
         }
     }
 
@@ -60,8 +102,11 @@ struct Room {
 
     void draw() {
         clear_screen(GREY);
-        for(auto [pos, size, sprite, level] : Draw_objects){
-            if(level < 0){
+        for (auto [pos, size, sprite, level] : Draw_objects) {
+            Dot bottom_pos = pos - Dot(0, Sprites[sprite].height() * size);
+            if (level < 0) {
+                draw_sprite(pos, size, sprite);
+            } else if (level == 0 && Players[0].pos.y < bottom_pos.y) {
                 draw_sprite(pos, size, sprite);
             }
         }
@@ -70,8 +115,11 @@ struct Room {
             player.draw();
         }
 
-        for(auto [pos, size, sprite, level] : Draw_objects){
-            if(level >= 0){
+        for (auto [pos, size, sprite, level] : Draw_objects) {
+            Dot bottom_pos = pos - Dot(0, Sprites[sprite].height() * size);
+            if (level > 0) {
+                draw_sprite(pos, size, sprite);
+            } else if (level == 0 && Players[0].pos.y >= bottom_pos.y) {
                 draw_sprite(pos, size, sprite);
             }
         }

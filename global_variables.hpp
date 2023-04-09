@@ -12,7 +12,7 @@ struct global_variables {
 
     static inline bool show_console = true;
     static inline bool show_cursor = false;
-    static inline bool show_fps = true;
+    static inline bool show_fps = false;
 
     static inline bool fullscreen_mode = true;
 

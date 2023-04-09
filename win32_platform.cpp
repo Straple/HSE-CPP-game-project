@@ -483,7 +483,7 @@ int main() {
         read_spritesheets();
 
 #ifdef LEVEL_MAKER_MODE
-        read_level();
+        current_room.read("level.txt");
 #endif
 
         // init_render_threads();
