@@ -1,4 +1,7 @@
-п»ї
+#ifndef MINI_SLIME
+#define MINI_SLIME
+
+
 // visibility
 #define SLIME_ALPHA 210
 
@@ -13,8 +16,8 @@
 
 #define SLIME_PUSH_DP 400
 
-struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
-       int hp = 150;
+struct Mini_slime : abstract_game_object, enemy_state_for_trivial_enemy {
+    int hp = 50;
 
     // pos and move
     Dot pos;
@@ -29,7 +32,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
 
     // settings
- 
+
 
     animation anim = SLIME_ANIM_IDLE;
 
@@ -37,21 +40,21 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     bool is_attack = false;
     bool looking = true;
 
-    Slime() {
+    Mini_slime() {
     }
 
-    Slime(const Dot &p) {
+    Mini_slime(const Dot& p) {
         pos = p;
 
 
-        size = 0.8;
-        collision_radius = 6;
+        size = 0.4;
+        collision_radius = 3;
         delta_draw_pos = Dot(-8, 26) * size;
 
         // enemy_state_for_trivial_enemy
-        damage = 100;
-        jump_radius = 8;
-        ddp_speed = 250;
+        damage = 25;
+        jump_radius = 4;
+        ddp_speed = 350;
         paralyzed_cooldown_accum = paralyzed_cooldown = 0.3;
         attack_cooldown_accum = attack_cooldown = 3;
 
@@ -67,17 +70,18 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
         if (paralyzed_cooldown_accum < paralyzed_cooldown) {
             simulate_move2d(pos, dp, ddp, delta_time);
-        } else {
+        }
+        else {
             ddp = Dot();
 
             if (is_attack) {
-                // Р°РЅРёРјР°С†РёСЏ Р°С‚Р°РєРё Р·Р°РєРѕРЅС‡РёР»Р°СЃСЊ
+                // анимация атаки закончилась
                 if (anim.frame_update(delta_time)) {
                     // idle animation beginner
 
                     Players[0].is_paralyzed = is_attack =
-                        false;  // РїРѕР·РёС†РёСЏ РёРіСЂРѕРєР° РЅРµ СЃС‚Р°С‚РёС‡РЅР° Рё РЅРµ Р°РЅРёРјР°С†РёСЏ
-                                // Р°С‚Р°РєРё
+                        false;  // позиция игрока не статична и не анимация
+                    // атаки
 
                     attack_cooldown_accum = 0;  // cooldown reset
                     looking = true;
@@ -85,14 +89,14 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                     anim = SLIME_ANIM_IDLE;
                 }
 
-                // С€Р°СЂРёРє Р»РѕРїРЅСѓР»
+                // шарик лопнул
                 if (anim.frame_count > 25 && Players[0].is_paralyzed) {
                     // push player
                     Players[0].dp = Circle(Dot(), SLIME_PUSH_DP).get_random_dot();
 
                     Players[0].is_paralyzed =
-                        false;  // Сѓ РёРіСЂРѕРєР° РЅРµ СЃС‚Р°С‚РёС‡РµСЃРєР°СЏ РїРѕР·РёС†РёСЏ
-                    Players[0].paralyzed_cooldown_acc = 0;  // РїРµСЂРµР·Р°СЂСЏРґРєР°
+                        false;  // у игрока не статическая позиция
+                    Players[0].paralyzed_cooldown_acc = 0;  // перезарядка
 
                     Players[0].hp -= damage;
 
@@ -100,7 +104,8 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                         Players[0].pos + Dot(-8, 16) * Players[0].gobj_state.size
                     );
                 }
-            } else {
+            }
+            else {
                 anim.frame_update(delta_time);
 
 
@@ -108,26 +113,26 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 {
                     move_to2d(
                         pos, Players[0].pos, dp,
-                        (Players[0].pos - pos).normalize() *ddp_speed,
+                        (Players[0].pos - pos).normalize() * ddp_speed,
                         delta_time
                     );
 
-                    // РёРіСЂРѕРєР° РЅРёРєС‚Рѕ РЅРµ РµСЃС‚ Рё РјС‹ Р±Р»РёР·РєРѕ Рє РёРіСЂРѕРєСѓ Рё
+                    // игрока никто не ест и мы близко к игроку и
                     if (!Players[0].is_paralyzed &&
                         (Players[0].pos - pos).get_len() <=
-                            jump_radius &&
+                        jump_radius &&
 
-                        // Рё РїРµСЂРµР·Р°СЂСЏРґРєР° Р°С‚Р°РєРё РїСЂРѕС€Р»Р° Рё РїРµСЂРµР·Р°СЂСЏРґРєР° РёРіСЂРѕРєР° С‚РѕР¶Рµ
-                        attack_cooldown_accum >=attack_cooldown &&
+                        // и перезарядка атаки прошла и перезарядка игрока тоже
+                        attack_cooldown_accum >= attack_cooldown &&
                         Players[0].paralyzed_cooldown_acc >=
-                            PLAYER_STATICPOS_COOLDOWN) {
+                        PLAYER_STATICPOS_COOLDOWN) {
                         // attack animation beginner
 
                         Players[0].is_paralyzed = is_attack =
-                            true;  // РёРіСЂРѕРє РЅРµ РјРѕР¶РµС‚ РґРІРёРіР°С‚СЊСЃСЏ Рё Сѓ РЅР°СЃ Р°РЅРёРјР°С†РёСЏ
-                                   // Р°С‚Р°РєРё
+                            true;  // игрок не может двигаться и у нас анимация
+                        // атаки
 
-                        pos = Players[0].pos;  // РїСЂС‹РіР°РµРј РЅР° РёРіСЂРѕРєР°
+                        pos = Players[0].pos;  // прыгаем на игрока
 
                         anim = SLIME_ANIM_ATTACK;
                     }
@@ -143,28 +148,30 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                     pos + SLIME_DELTA_DRAW_POS, size,
                     SP_SLIME_LARGE_SHADOW, shadow_pixel_func
                 );
-            } else {
+            }
+            else {
                 draw_sprite(
                     pos + SLIME_DELTA_DRAW_POS, size,
                     SP_SLIME_MEDIUM_SHADOW, shadow_pixel_func
                 );
             }
             anim.draw(pos + SLIME_DELTA_DRAW_POS, size, alpha_pixel_func<SLIME_ALPHA>);
-        } else {
+        }
+        else {
             draw_sprite(
                 pos + SLIME_DELTA_DRAW_POS, size,
                 SP_SLIME_MEDIUM_SHADOW, shadow_pixel_func
             );
 
             anim.draw(
-                pos + SLIME_DELTA_DRAW_POS,size,
+                pos + SLIME_DELTA_DRAW_POS, size,
                 [&](Color color) {
                     return paralyzed_cooldown_accum <
-                                paralyzed_cooldown
-                               ? WHITE
-                               : Color(
-                                     color.operator unsigned int(), SLIME_ALPHA
-                                 );
+                    paralyzed_cooldown
+                ? WHITE
+                : Color(
+                    color.operator unsigned int(), SLIME_ALPHA
+                );
                 }
             );
         }
@@ -179,29 +186,14 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
 
             draw_circle(
-                Circle(p,jump_radius), Color(0xff0000, 16)
+                Circle(p, jump_radius), Color(0xff0000, 16)
             );
         }
     }
 
-    // for sword
-    /*void simulate_hit(const Player &player) {
-        if (is_attack) {
-            return;
-        }
-
-        add_hit_effect(pos + Dot(-8, 8) * gobj_state.size);
-
-        hp -= player.damage;
-
-        if (hp <= 0) {
-            add_death_effect(pos + Dot(-15, 15) * gobj_state.size);
-            Loot_objects.push_back(std::unique_ptr<Loot>(new Heart(this->get_collision().circle.pos)));
-        } else {
-            ddp += player.get_dir() * enemy_state.ddp_speed * 1.5;
-            paralyzed_cooldown_accum = 0;
-        }
-    }*/
 };
 
-std::vector<Slime> Slimes;
+
+
+
+#endif // MINI_SLIME

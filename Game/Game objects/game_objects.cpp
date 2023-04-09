@@ -18,26 +18,18 @@ struct game_object_state {
 
 struct enemy_state_for_trivial_enemy {
     int damage;
-
-    efloat locator_radius; // радиус поиска цели
-    efloat pursuit_radius; // радиус преследования цели
     efloat jump_radius; // радиус возможного прыжка до врага
 
     efloat ddp_speed;
 
     efloat paralyzed_cooldown;
     efloat attack_cooldown;
-
-    efloat walk_time;
-    efloat walk_sum_time;
 };
 
 struct enemy_state {
     int damage;
 
     efloat collision_radius;
-    efloat locator_radius;
-    efloat persec_radius;
     efloat jump_radius;
 
     efloat ddp_speed;
@@ -45,30 +37,23 @@ struct enemy_state {
     efloat paralyzed_cooldown;
     efloat attack_cooldown;
 
-    efloat walk_time;
-    efloat walk_sum_time;
 
     enemy_state(
         int damage,
 
         efloat collision_radius,
-        efloat locator_radius,
-        efloat persec_radius,
+        
         efloat jump_radius,  // dist jump
 
         efloat ddp_speed,
 
         efloat paralyzed_cooldown,
-        efloat attack_cooldown,
+        efloat attack_cooldown
 
-        efloat walk_time,
-        efloat walk_sum_time
     ) {
         this->damage = damage;
 
         this->collision_radius = collision_radius;
-        this->locator_radius = locator_radius;
-        this->persec_radius = persec_radius;
         this->jump_radius = jump_radius;
 
         this->ddp_speed = ddp_speed;
@@ -76,8 +61,6 @@ struct enemy_state {
         this->paralyzed_cooldown = paralyzed_cooldown;
         this->attack_cooldown = attack_cooldown;
 
-        this->walk_time = walk_time;
-        this->walk_sum_time = walk_sum_time;
     }
 };
 
@@ -105,6 +88,7 @@ struct enemy_state {
 
 // enemies
 
+#include "mini_slime.hpp"
 #include "bat.hpp"
 #include "slime.cpp"
 
