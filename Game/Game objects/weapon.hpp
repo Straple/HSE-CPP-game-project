@@ -1,9 +1,5 @@
-//
-// Created by greaf on 3/12/2023.
-//
-
-/// TODO ну это все как бы потом
-/*#include <utility>
+#ifndef GAME_WEAPON_HPP
+#define GAME_WEAPON_HPP
 
 struct Weapon {
     Sprite image;
@@ -15,7 +11,7 @@ struct Weapon {
     }
 };
 
-struct Melee_weapon : Weapon {
+/*struct Melee_weapon : Weapon {
     Spritesheet anim;
 
     Melee_weapon(Sprite img, efloat cooldown, int dmg, Spritesheet an)
@@ -47,3 +43,5 @@ struct Range_weapon : Weapon {
         }
     }
 };*/
+
+#endif  // GAME_WEAPON_HPP

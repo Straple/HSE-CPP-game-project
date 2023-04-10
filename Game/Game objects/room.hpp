@@ -115,10 +115,9 @@ struct Room {
             // new wave
             for (auto [pos, name] : Interesting_dots) {
                 if (name == "enemy") {
-                    if(randomness(50)){
+                    if (randomness(50)) {
                         Bats.emplace_back(pos);
-                    }
-                    else{
+                    } else {
                         Slimes.emplace_back(pos);
                     }
                 }
@@ -204,6 +203,16 @@ struct Room {
                 if (need_delete) {
                     add_hit_effect(Bullets[i].pos);
                     Bullets.erase(Bullets.begin() + i);
+                    i--;
+                }
+            }
+        }
+
+        // simulate effects
+        {
+            for (int i = 0; i < Effects.size(); i++) {
+                if (Effects[i].simulate(delta_time)) {
+                    Effects.erase(Effects.begin() + i);
                     i--;
                 }
             }
