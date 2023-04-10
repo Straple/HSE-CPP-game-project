@@ -1,7 +1,7 @@
 ﻿// use LPCSTR or LPCWSTR
-#define GAME_ENGINE_MY_LPCSTR LPCWSTR
+#define GAME_ENGINE_MY_LPCSTR LPCSTR
 
- #define GAME_MODE
+#define GAME_MODE
 //#define LEVEL_MAKER_MODE
 
 /*
@@ -72,8 +72,6 @@ void decrease_window_scaling(Dot &cursor_pos) {
 }
 
 #include "Game/Game objects/cursor.hpp"
-
-Cursor cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
 
 #ifdef GAME_MODE
 

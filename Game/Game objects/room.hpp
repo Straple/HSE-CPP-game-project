@@ -1,12 +1,10 @@
 #ifndef GAME_ROOM_HPP
 #define GAME_ROOM_HPP
 
-#include "../../Objects/platform_common.hpp"
 #include "../../objects.hpp"
 #include "../../render.hpp"
 #include "../../sprites.hpp"
-
-// #include "player.hpp"
+#include "game_objects.hpp"
 
 struct drawing_objects {
     Dot pos;
@@ -104,12 +102,12 @@ struct Room {
             }
         }
 
-        if (pressed(BUTTON_MOUSE_L)) {
+        if (pressed(BUTTON_MOUSE_L) && !Players[0].is_paralyzed) {
             Bullets.emplace_back(
                 // player.pos,
                 Players[0].get_collision().circle.pos +
                     Dot(6, 2),  // центрированная позиция относительно спрайта
-                cursor.pos + global_variables::camera.pos, 1000000000, 1000
+                cursor.pos + global_variables::camera.pos, 50, 1000
             );
         }
 
@@ -117,7 +115,6 @@ struct Room {
             // new wave
             for (auto [pos, name] : Interesting_dots) {
                 if (name == "enemy") {
-                    Slimes.emplace_back(pos);
                     Slimes.emplace_back(pos);
                 }
             }
@@ -168,12 +165,15 @@ struct Room {
 
             // slime bubbling slime
             for (auto &slime1 : Slimes) {
-                for (auto &slime2 : Slimes) {
-                    if (&slime1 !=
-                        &slime2) {  // чтобы не выталкивать самих себя
-                        slime1.pos =
-                            slime2.get_collision().bubble(slime1.get_collision()
+                if (!slime1.is_attack) {  // пока мы едим игрока, мы не
+                                          // выталкиваемы
+                    for (auto &slime2 : Slimes) {
+                        if (&slime1 !=
+                            &slime2) {  // чтобы не выталкивать самих себя
+                            slime1.pos = slime2.get_collision().bubble(
+                                slime1.get_collision()
                             );
+                        }
                     }
                 }
             }

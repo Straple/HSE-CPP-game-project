@@ -29,7 +29,7 @@ void add_hit_effect(const Dot &pos) {
 }
 
 void add_death_effect(const Dot &pos) {
-    Effects.emplace_back(pos, animation(SS_DEATH_EFFECT, 0, 10, 0.1));
+    Effects.emplace_back(pos + Dot(-5, 5), animation(SS_DEATH_EFFECT, 0, 10, 0.1));
 }
 
 #endif  // GAME_EFFECT_HPP

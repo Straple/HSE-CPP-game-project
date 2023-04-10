@@ -1,7 +1,7 @@
 
 #include "../game_utils.cpp"
 //
-#include "../Game objects/game_objects.cpp"
+#include "../Game objects/game_objects.hpp"
 
 void cast_to_top_left_and_bottom_right(Dot &p0, Dot &p1) {
     if (p0.x > p1.x) {

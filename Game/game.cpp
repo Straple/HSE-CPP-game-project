@@ -1,8 +1,7 @@
 ﻿static const Dot world_half_size(500, 500);
 
-#include "game_utils.cpp"
 // don't shuffle
-#include "Game objects\game_objects.cpp"
+#include "Game objects\game_objects.hpp"
 // don't shuffle
 #include "game_collision.cpp"
 
@@ -19,18 +18,18 @@ void simulate_player(const Input &input, efloat delta_time) {
 
     Players[0].simulate(
         delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S),
-        is_down(BUTTON_J), pressed(BUTTON_SPACE)
+        pressed(BUTTON_SPACE)
     );
 
     // player attack
     {
-        if (/*player.simulate_attack(Logs) | */ Players[0].simulate_attack(
+        /*if (player.simulate_attack(Logs) |  Players[0].simulate_attack(
                 Slimes
             ) |
             Players[0].simulate_attack(Bats) |
             Players[0].simulate_attack(Trees)) {
             Players[0].now_is_attached = false;
-        }
+        }*/
     }
 }
 
@@ -375,19 +374,34 @@ void simulate_game(
         }*/
     }
     for (auto &loot : Loot_objects) {
-        loot->draw();
+        loot.draw();
     }
 
     for (int i = 0; i < Loot_objects.size(); i++) {
         auto &object = Loot_objects[i];
-        object->simulate(delta_time);
-        if (object->simulate_collection()) {
+        object.simulate(delta_time);
+        if (object.simulate_collection()) {
             Loot_objects.erase(Loot_objects.begin() + i);
             i--;
         }
     }
 
     cursor.draw();
+
+    draw_object(Players[0].dp, Dot(), 1, BLACK);
+
+    /*static int id = 0;
+
+    if(pressed(BUTTON_Q)){
+        id--;
+    }
+    if(pressed(BUTTON_E)){
+        id++;
+    }
+
+    draw_spritesheet(Dot(), 1, SS_SLIME, id);
+
+    draw_object(id, Dot(), 1, RED);*/
 
     /*player.hp = 300;
     player.pos = Dot();

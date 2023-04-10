@@ -2,6 +2,7 @@
 #define GAME_BULLET_HPP
 
 #include "abstract_game_object.hpp"
+#include "player.hpp"
 #include "render.hpp"
 
 struct Bullet : abstract_game_object {
@@ -9,15 +10,10 @@ struct Bullet : abstract_game_object {
     // стрелять как кругами, так и прямоугольниками и ромбами.
     // Возможно, добавим лучевое оружие
 
-    Dot pos;
-    Dot dp;
-
     int speed;
     Dot dir;  // направление полета пули
 
     int damage;
-
-    // bool ricochet;  // TODO
 
     Bullet(Dot from, Dot to, int damage, int speed)
         : dir((to - from).normalize()), damage(damage), speed(speed) {
@@ -112,7 +108,7 @@ struct Bullet : abstract_game_object {
                 {
                     // Enemies[i].simulate_hit(player);
                     add_hit_effect(Enemies[i].pos);
-                    Enemies[i].hp -= 50;
+                    Enemies[i].hp -= damage;
 
                     Enemies[i].dp += dir * speed / 10;
                     Enemies[i].paralyzed_cooldown_accum = 0;
