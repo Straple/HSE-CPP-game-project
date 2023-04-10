@@ -13,21 +13,21 @@
 // effects
 #include "effect.hpp"
 
-// weapons
-#include "bullet.hpp"
-// #include "weapon.hpp"
-
 // loots
 #include "heart.hpp"
 #include "loot.hpp"
+
+// player
+#include "player.hpp"
 
 // enemies
 #include "bat.hpp"
 // #include "mini_slime.hpp"
 #include "slime.hpp"
 
-// player
-#include "player.hpp"
+// weapons
+#include "bullet.hpp"
+#include "weapon.hpp"
 
 // world
 #include "room.hpp"

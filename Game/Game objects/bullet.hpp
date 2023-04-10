@@ -1,11 +1,8 @@
 #ifndef GAME_BULLET_HPP
 #define GAME_BULLET_HPP
 
-#include "abstract_game_object.hpp"
-#include "bat.hpp"
-#include "player.hpp"
 #include "../../render.hpp"
-#include "slime.hpp"
+#include "abstract_game_object.hpp"
 
 struct Bullet : abstract_game_object {
     // Добавим позже поле формы пули, чтобы можно было
@@ -30,7 +27,7 @@ struct Bullet : abstract_game_object {
 
     // вернет правду, если атака кого-то зацепила
     template <typename enemy_t>
-    bool simulate_attack(Player &player, std::vector<enemy_t> &Enemies) {
+    bool simulate_attack(std::vector<enemy_t> &Enemies) {
         for (int i = 0; i < Enemies.size(); i++) {
             if (get_collision().trigger(Enemies[i].get_body_collision()) &&
                 reinterpret_cast<char *>(&Enemies[i]) !=
@@ -65,11 +62,10 @@ struct Bullet : abstract_game_object {
     }
 
     void draw() const override {
-        draw_sprite(pos+Dot(-2,2), 0.2, SP_COIN);
+        draw_sprite(pos + Dot(-2, 2), 0.2, SP_COIN);
         draw_collision_obj(*this);
     }
 };
-
 
 std::vector<Bullet> Bullets;
 

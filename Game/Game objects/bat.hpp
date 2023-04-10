@@ -68,7 +68,8 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
                 (Players[0].pos - pos).normalize() * ddp_speed, delta_time
             );
 
-            if ((Players[0].pos - pos).get_len() <= jump_radius &&
+            if (!Players[0].is_invulnerable() && !Players[0].is_jumped &&
+                (Players[0].pos - pos).get_len() <= jump_radius &&
                 attack_accum >= attack_cooldown) {
                 // hit
 

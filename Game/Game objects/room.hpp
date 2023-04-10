@@ -102,13 +102,9 @@ struct Room {
             }
         }
 
-        if (pressed(BUTTON_MOUSE_L) && !Players[0].is_paralyzed) {
-            Bullets.emplace_back(
-                // player.pos,
-                Players[0].get_collision().circle.pos +
-                    Dot(6, 2),  // центрированная позиция относительно спрайта
-                cursor.pos + global_variables::camera.pos, 50, 1000
-            );
+        if (pressed(BUTTON_MOUSE_L) && !Players[0].is_paralyzed &&
+            !Players[0].is_jumped) {
+            Players[0].weapon.shot(Players[0].pos);
         }
 
         if (Slimes.size() + Bats.size() == 0) {
@@ -185,8 +181,8 @@ struct Room {
 
             // bullet hit enemies
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
-                if (Bullets[i].simulate_attack(Players[0], Slimes) ||
-                    Bullets[i].simulate_attack(Players[0], Bats)) {
+                if (Bullets[i].simulate_attack(Slimes) ||
+                    Bullets[i].simulate_attack(Bats)) {
                     Bullets.erase(Bullets.begin() + i);
                     i--;
                 }
