@@ -1,4 +1,9 @@
-﻿
+#ifndef GAME_UTILS_HPP
+#define GAME_UTILS_HPP
+
+#include "../../render.hpp"
+#include "../../global_variables.hpp"
+
 void draw_collision(const collision_circle &coll) {
     if (global_variables::debug_mode) {
         Circle circle = coll.circle;
@@ -35,3 +40,5 @@ void draw_hp(const T &object) {
         draw_object(object.hp, p, 0.3, Color(0x0000ff, 0xff));
     }
 }
+
+#endif  // GAME_UTILS_HPP

@@ -73,8 +73,6 @@ void decrease_window_scaling(Dot &cursor_pos) {
 
 #include "Game/Game objects/cursor.hpp"
 
-Cursor cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
-
 #ifdef GAME_MODE
 
 #include "Game\game.cpp"
@@ -403,13 +401,24 @@ private:
                         update_button(BUTTON_C, 'C');
                         update_button(BUTTON_E, 'E');
                         update_button(BUTTON_F, 'F');
+                        update_button(BUTTON_G, 'G');
+                        update_button(BUTTON_H, 'H');
+                        update_button(BUTTON_I, 'I');
                         update_button(BUTTON_J, 'J');
                         update_button(BUTTON_K, 'K');
+                        update_button(BUTTON_L, 'L');
+                        update_button(BUTTON_M, 'M');
+                        update_button(BUTTON_N, 'N');
+                        update_button(BUTTON_O, 'O');
+                        update_button(BUTTON_P, 'P');
                         update_button(BUTTON_Q, 'Q');
-                        update_button(BUTTON_Z, 'Z');
-                        update_button(BUTTON_V, 'V');
                         update_button(BUTTON_R, 'R');
                         update_button(BUTTON_T, 'T');
+                        update_button(BUTTON_U, 'U');
+                        update_button(BUTTON_V, 'V');
+                        update_button(BUTTON_X, 'X');
+                        update_button(BUTTON_Y, 'Y');
+                        update_button(BUTTON_Z, 'Z');
                         update_button(BUTTON_DEL, VK_DELETE);
                         update_button(BUTTON_LEFT, VK_LEFT);
                         update_button(BUTTON_RIGHT, VK_RIGHT);
@@ -471,12 +480,12 @@ int main() {
         read_sprites();
         read_spritesheets();
 
-#ifdef GAME_MODE
-        build_world();
+#ifdef LEVEL_MAKER_MODE
+        current_room.read("level.txt");
 #endif
 
-#ifdef LEVEL_MAKER_MODE
-        read_level();
+#ifdef GAME_MODE
+        test_room.read("level.txt");
 #endif
 
         // init_render_threads();

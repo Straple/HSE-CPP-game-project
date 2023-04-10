@@ -55,6 +55,7 @@ void draw_pixels(
     if (x0 >= x1 || y0 >= y1) {
         return;
     }
+    global_variables::count_of_render_rects++;
     // ~22k
 
     ASSERT(
@@ -79,7 +80,6 @@ void draw_pixels(
     } else {
         for (unsigned int y = y0; y < y1; y++, row += screen_width) {
             unsigned int x = 0;
-
             while (x < len) {
                 unsigned int k = x + 1;
 

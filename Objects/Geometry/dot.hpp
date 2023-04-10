@@ -147,7 +147,7 @@ efloat get_good_angle(const Dot &a, const Dot &b) {
 }
 
 // возвращает неотрицательный угол меньше 180 между векторами
-efloat getVeryGoodAngle(const Dot &a, const Dot &b) {
+efloat get_very_good_angle(const Dot &a, const Dot &b) {
     efloat res = get_good_angle(a, b);
     if (res > PI) {
         res = 2 * PI - res;

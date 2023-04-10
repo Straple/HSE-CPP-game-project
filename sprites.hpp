@@ -226,34 +226,34 @@ void read_sprites() {
 
         // Wall
         {
-            read(SP_WALL_LEFT, "World\\Wall\\wall_left.png");
-            read(SP_WALL_RIGHT, "World\\Wall\\wall_right.png");
-            read(SP_WALL_BOTTOM, "World\\Wall\\wall_bottom.png");
-            read(SP_WALL_TOP, "World\\Wall\\wall_top.png");
+            read(SP_WALL_LEFT, "World\\Wall\\wall_left_fill.png");
+            read(SP_WALL_RIGHT, "World\\Wall\\wall_right_fill.png");
+            read(SP_WALL_BOTTOM, "World\\Wall\\wall_bottom_fill.png");
+            read(SP_WALL_TOP, "World\\Wall\\wall_top_fill.png");
 
-            read(SP_WALL_BOTTOM_LEFT, "World\\Wall\\wall_bottom_left.png");
-            read(SP_WALL_BOTTOM_RIGHT, "World\\Wall\\wall_bottom_right.png");
-            read(SP_WALL_TOP_LEFT, "World\\Wall\\wall_top_left.png");
-            read(SP_WALL_TOP_RIGHT, "World\\Wall\\wall_top_right.png");
+            read(SP_WALL_BOTTOM_LEFT, "World\\Wall\\wall_bottom_left_fill.png");
+            read(SP_WALL_BOTTOM_RIGHT, "World\\Wall\\wall_bottom_right_fill.png");
+            read(SP_WALL_TOP_LEFT, "World\\Wall\\wall_top_left_fill.png");
+            read(SP_WALL_TOP_RIGHT, "World\\Wall\\wall_top_right_fill.png");
 
             read(
                 SP_WALL_BOTTOM_LEFT_INSIDE,
-                "World\\Wall\\wall_bottom_left_inside.png"
+                "World\\Wall\\wall_bottom_left_inside_fill.png"
             );
             read(
                 SP_WALL_BOTTOM_RIGHT_INSIDE,
-                "World\\Wall\\wall_bottom_right_inside.png"
+                "World\\Wall\\wall_bottom_right_inside_fill.png"
             );
             read(
-                SP_WALL_TOP_LEFT_INSIDE, "World\\Wall\\wall_top_left_inside.png"
+                SP_WALL_TOP_LEFT_INSIDE, "World\\Wall\\wall_top_left_inside_fill.png"
             );
             read(
                 SP_WALL_TOP_RIGHT_INSIDE,
-                "World\\Wall\\wall_top_right_inside.png"
+                "World\\Wall\\wall_top_right_inside_fill.png"
             );
         }
         {
-            read(SP_M18, "Weapons\\M18.png")
+            read(SP_M18, "World\\bush.png")
         }
     }
 

@@ -11,7 +11,7 @@ struct Tree : abstract_game_object {
     Tree() = default;
 
     explicit Tree(const Dot &new_pos) {
-        size = 0.5;
+        size = 1;
         delta_draw_pos = Dot(-16, 36) * size;
         collision_radius = 5;
         pos = new_pos - delta_draw_pos;
@@ -39,5 +39,7 @@ struct Tree : abstract_game_object {
         }
     }
 };
+
+std::vector<Tree> Trees;
 
 #endif  // GAME_TREE_HPP

@@ -4,6 +4,7 @@
 #include "render.hpp"
 
 struct effect {
+    efloat size = 0.5;
     Dot pos;
     animation anim;
 
@@ -18,19 +19,22 @@ struct effect {
     }
 
     void draw() const {
-        anim.draw(pos, 0.4);
+        anim.draw(pos, size);
     }
 };
 
 std::vector<effect> Effects;
 
-void
-add_hit_effect(const Dot &pos) {
-    Effects.emplace_back(pos, animation(SS_HIT_EFFECT, 0, 2, 0.1));
+void add_hit_effect(const Dot &pos) {
+    Effects.emplace_back(
+        pos + Dot(-12, 12) * 0.5, animation(SS_HIT_EFFECT, 0, 2, 0.1)
+    );
 }
 
 void add_death_effect(const Dot &pos) {
-    Effects.emplace_back(pos, animation(SS_DEATH_EFFECT, 0, 10, 0.1));
+    Effects.emplace_back(
+        pos + Dot(-16, 16) * 0.5, animation(SS_DEATH_EFFECT, 0, 10, 0.1)
+    );
 }
 
 #endif  // GAME_EFFECT_HPP

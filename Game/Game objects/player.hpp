@@ -18,25 +18,25 @@ std::uniform_int_distribution<> gen_int(-1, 1);
 #include "sprites.hpp"
 
 const static animation player_anims[] = {
-    animation(SS_PLAYER, 0, 6, 0.1),   // run right
-    animation(SS_PLAYER, 6, 6, 0.1),   // run up
-    animation(SS_PLAYER, 12, 6, 0.1),  // run left
-    animation(SS_PLAYER, 18, 6, 0.1),  // run down
+        animation(SS_PLAYER, 0, 6, 0.1),   // run right
+        animation(SS_PLAYER, 6, 6, 0.1),   // run up
+        animation(SS_PLAYER, 12, 6, 0.1),  // run left
+        animation(SS_PLAYER, 18, 6, 0.1),  // run down
 
-    animation(SS_PLAYER, 24, 4, 0.12),  // attack right
-    animation(SS_PLAYER, 28, 4, 0.12),  // attack up
-    animation(SS_PLAYER, 32, 4, 0.12),  // attack left
-    animation(SS_PLAYER, 36, 4, 0.12),  // attack down
+        animation(SS_PLAYER, 24, 4, 0.12),  // attack right
+        animation(SS_PLAYER, 28, 4, 0.12),  // attack up
+        animation(SS_PLAYER, 32, 4, 0.12),  // attack left
+        animation(SS_PLAYER, 36, 4, 0.12),  // attack down
 
-    animation(SS_PLAYER, 40, 5, 0.1),  // roll right
-    animation(SS_PLAYER, 45, 5, 0.1),  // roll up
-    animation(SS_PLAYER, 50, 5, 0.1),  // roll left
-    animation(SS_PLAYER, 55, 5, 0.1),  // roll down
+        animation(SS_PLAYER, 40, 5, 0.1),  // roll right
+        animation(SS_PLAYER, 45, 5, 0.1),  // roll up
+        animation(SS_PLAYER, 50, 5, 0.1),  // roll left
+        animation(SS_PLAYER, 55, 5, 0.1),  // roll down
 
-    animation(SS_PLAYER, 0, 1, 0.1),   // idle right
-    animation(SS_PLAYER, 6, 1, 0.1),   // idle up
-    animation(SS_PLAYER, 12, 1, 0.1),  // idle left
-    animation(SS_PLAYER, 18, 1, 0.1),  // idle down
+        animation(SS_PLAYER, 0, 1, 0.1),   // idle right
+        animation(SS_PLAYER, 6, 1, 0.1),   // idle up
+        animation(SS_PLAYER, 12, 1, 0.1),  // idle left
+        animation(SS_PLAYER, 18, 1, 0.1),  // idle down
 };
 
 // дерево анимаций игрока
@@ -67,7 +67,7 @@ struct Player_anim_tree {
         if (type.anim == NONE) {
             return {IDLE, direction_t::RIGHT};
         }
-        // run
+            // run
         else if (dir.x < 0) {
             return {RUN, direction_t::LEFT};
         } else if (dir.x > 0) {
@@ -77,7 +77,7 @@ struct Player_anim_tree {
         } else if (dir.y > 0) {
             return {RUN, direction_t::UP};
         }
-        // idle
+            // idle
         else {
             return {IDLE, type.dir};
         }
@@ -86,18 +86,18 @@ struct Player_anim_tree {
 
 // |dp.x/y| <= 33.(3)
 std::map<int,Dot>BulletDeltas = {{0, Dot(9,4)},{1,Dot(9,2.5)},{2,Dot(8.7,0.5)},
-                                       {3,Dot(8.5,-1)},{4,Dot(7.5,-2.5)},{5,Dot(6.5,-3.5)},
-                                       {6,Dot(5.5,-4)},{7,Dot(4.4,-4.4)},{8,Dot(2.3,-4.4)},
-                                       {9,Dot(1,-4)},{10,Dot(0,-3)},{11,Dot(-1,-1.7)},
-                                       {12,Dot(-2,-0.5)},{13,Dot(-3,0.7)},{14,Dot(-2.7,1.7)},
-                                       {15,Dot(-2.3,3.5)},{16,Dot(-1.3,5)},{17,Dot(-0.3,6.5)},
-                                       {18,Dot(0.7,7.5)},{19,Dot(2.5,8)},{20,Dot(3.7,7.9)},
-                                       {21,Dot(4.7,7.6)},{22,Dot(6,6.8)},{23,Dot(8.2,4.8)}};
+                                 {3,Dot(8.5,-1)},{4,Dot(7.5,-2.5)},{5,Dot(6.5,-3.5)},
+                                 {6,Dot(5.5,-4)},{7,Dot(4.4,-4.4)},{8,Dot(2.3,-4.4)},
+                                 {9,Dot(1,-4)},{10,Dot(0,-3)},{11,Dot(-1,-1.7)},
+                                 {12,Dot(-2,-0.5)},{13,Dot(-3,0.7)},{14,Dot(-2.7,1.7)},
+                                 {15,Dot(-2.3,3.5)},{16,Dot(-1.3,5)},{17,Dot(-0.3,6.5)},
+                                 {18,Dot(0.7,7.5)},{19,Dot(2.5,8)},{20,Dot(3.7,7.9)},
+                                 {21,Dot(4.7,7.6)},{22,Dot(6,6.8)},{23,Dot(8.2,4.8)}};
 
 
 struct Player {
     inline static const game_object_state gobj_state =
-        game_object_state(200, 10, 0.5);
+            game_object_state(200, 10, 0.5);
 
     // move and pos
     Dot pos;
@@ -151,8 +151,8 @@ struct Player {
 
     void draw() const {
         draw_sprite(
-            pos + Dot(-7, 4) * gobj_state.size, gobj_state.size,
-            SP_MEDIUM_SHADOW
+                pos + Dot(-7, 4) * gobj_state.size, gobj_state.size,
+                SP_MEDIUM_SHADOW
         );
 
         anim.draw(pos + PLAYER_DELTA_DRAW_POS, gobj_state.size);
@@ -160,8 +160,8 @@ struct Player {
         Dot p = pos;
         static_pos_update(p);
         draw_text_align(
-            name, p + Dot(0, 29) * gobj_state.size, gobj_state.size * 0.75,
-            WHITE
+                name, p + Dot(0, 29) * gobj_state.size, gobj_state.size * 0.75,
+                WHITE
         );
         if (!is_jumped) {
             Dot ox(1,0);
@@ -374,7 +374,7 @@ struct Player {
 
                 // текущая анимация+
                 auto current_anim =
-                    Player_anim_tree::get_anim(ddp.normalize(), anim_type);
+                        Player_anim_tree::get_anim(ddp.normalize(), anim_type);
 
                 if (anim_type.get_num() !=
                     current_anim.get_num()) {  // у нас сменились анимации
@@ -386,7 +386,7 @@ struct Player {
 
                     // начинаем с 1 кадра, чтобы мы сразу начинали движение
                     anim.frame_cur_count =
-                        std::min<unsigned int>(1, anim.frame_count - 1);
+                            std::min<unsigned int>(1, anim.frame_count - 1);
                 }
 
                 anim.frame_update(delta_time);
@@ -469,10 +469,10 @@ struct Player {
         add_death_effect(pos + Dot(-16, 22) * gobj_state.size);
 
         std::uniform_int_distribution<int> random_x(
-            -world_half_size.x, world_half_size.x
+                -world_half_size.x, world_half_size.x
         );
         std::uniform_int_distribution<int> random_y(
-            -world_half_size.y, world_half_size.y
+                -world_half_size.y, world_half_size.y
         );
 
         auto random_dot = [&]() -> Dot {
