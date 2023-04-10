@@ -28,7 +28,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         // enemy_state_for_trivial_enemy
         damage = 50;
         jump_radius = 8;
-        ddp_speed = 300;
+        ddp_speed = 400;
         paralyzed_accum = paralyzed_cooldown = 0.3;
         attack_accum = attack_cooldown = 3;
     }

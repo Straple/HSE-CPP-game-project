@@ -31,13 +31,6 @@ struct Room {
 
     std::vector<interesting_dot> Interesting_dots;
 
-    // enemies
-    std::vector<Slime> Slimes;
-    std::vector<Bat> Bats;
-
-    // bullets
-    std::vector<Bullet> Bullets;
-
     void read(const std::string &filename) {
         std::ifstream file(filename);
         {
