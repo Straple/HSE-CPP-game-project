@@ -569,11 +569,17 @@ void simulate_game(
         static efloat last_hit_time = 3;
         if (pressed(BUTTON_MOUSE_L) && last_hit_time >= PLAYER_ATTACK_COOLDOWN ) {
             // new bullet!
+            if (-1 > player.random_shot+player.random_shot_multiplyer || player.random_shot+player.random_shot_multiplyer > 1) {
+                player.random_shot_multiplyer*=-1;
+            }
+            player.random_shot += player.random_shot_multiplyer;
+//            std::cout << player.ind << ' ' << player.bullet_delta << ' ';
+//            std::cout << player.ind << ' ' << player.bullet_delta << std::endl;
             last_hit_time = 0;
             Bullets.emplace_back(
                 // player.pos,
                 player.get_collision()
-                    .circle.pos + Dot(6,2),  // центрированная позиция относительно спрайта
+                    .circle.pos + BulletDeltas[(player.ind+player.random_shot+24)%24],  // центрированная позиция относительно спрайта
                 cursor.pos + global_variables::camera.pos, 1000000000, 1000
             );
         }
@@ -589,7 +595,6 @@ void simulate_game(
         }
 
     for (int i = 0; i < Bullets.size(); i++) {
-
             bool attack1 = Bullets[i].simulate_attack(player, Bats);
             bool attack2 = Bullets[i].simulate_attack(player, Slimes);
             if (attack1 || attack2) {

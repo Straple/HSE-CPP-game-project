@@ -30,7 +30,7 @@ struct Loot {
             move_to2d(pos, player.pos, dp, ddp, delta_time);
         }
         else if (initial_flight) {
-            if (pos == initial_pos+Dot(2,2)) {
+            if ((pos-initial_pos).get_len() >= 6) {
                 initial_flight=false;
             }
             else {

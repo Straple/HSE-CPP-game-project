@@ -11,6 +11,12 @@
 #define PLAYER_JUMP_COOLDOWN 0.5
 #define PLAYER_RECOVERY_COOLDOWN 1
 
+std::mt19937 rng(293);
+std::uniform_int_distribution<> gen_int(-1, 1);
+
+#include <map>
+#include "sprites.hpp"
+
 const static animation player_anims[] = {
     animation(SS_PLAYER, 0, 6, 0.1),   // run right
     animation(SS_PLAYER, 6, 6, 0.1),   // run up
@@ -79,6 +85,14 @@ struct Player_anim_tree {
 };
 
 // |dp.x/y| <= 33.(3)
+std::map<int,Dot>BulletDeltas = {{0, Dot(9,4)},{1,Dot(9,2.5)},{2,Dot(8.7,0.5)},
+                                       {3,Dot(8.5,-1)},{4,Dot(7.5,-2.5)},{5,Dot(6.5,-3.5)},
+                                       {6,Dot(5.5,-4)},{7,Dot(4.4,-4.4)},{8,Dot(2.3,-4.4)},
+                                       {9,Dot(1,-4)},{10,Dot(0,-3)},{11,Dot(-1,-1.7)},
+                                       {12,Dot(-2,-0.5)},{13,Dot(-3,0.7)},{14,Dot(-2.7,1.7)},
+                                       {15,Dot(-2.3,3.5)},{16,Dot(-1.3,5)},{17,Dot(-0.3,6.5)},
+                                       {18,Dot(0.7,7.5)},{19,Dot(2.5,8)},{20,Dot(3.7,7.9)},
+                                       {21,Dot(4.7,7.6)},{22,Dot(6,6.8)},{23,Dot(8.2,4.8)}};
 
 
 struct Player {
@@ -94,6 +108,11 @@ struct Player {
     int hp = max_hp;
     int damage = 70;
     int exp = 0;
+    Spritesheet weapon = Spritesheets[SS_GOLDEN_GUN];
+    int random_shot{-1};
+    int random_shot_multiplyer{1};
+    mutable int ind;
+    mutable Dot bullet_delta;
 
     // каждый уровень:
     // max_hp += 30
@@ -115,6 +134,7 @@ struct Player {
     bool is_jumped = false;
     bool is_attack = false;
     bool is_paralyzed = false;
+
 
     // animations
     animation anim;
@@ -144,7 +164,114 @@ struct Player {
             WHITE
         );
         if (!is_jumped) {
-            draw_sprite(pos + Dot(1.5, 4), 0.3, SP_M18);
+            Dot ox(1,0);
+            auto angle = get_angle(cursor.pos, ox)*57.295779513;
+
+            if (angle < 0) {
+                angle += 360;
+            }
+            ind = angle / 15;
+
+            Dot drawing_delta;
+            switch(ind) {
+                case 0:
+                    drawing_delta=Dot(1.1, 7);
+                    bullet_delta=Dot(9,4);
+                    break;
+                case 1:
+                    drawing_delta=Dot(1.15, 7);
+                    bullet_delta=Dot(9,2.5);
+                    break;
+                case 2:
+                    drawing_delta=Dot(1, 6);
+                    bullet_delta=Dot(8.7,0.5);
+                    break;
+                case 3:
+                    drawing_delta=Dot(1.15, 5.5);
+                    bullet_delta=Dot(8.5,-1);
+                    break;
+                case 4:
+                    drawing_delta=Dot(1, 5.0);
+                    bullet_delta=Dot(7.5,-2.5);
+                    break;
+                case 5:
+                    drawing_delta=Dot(0.65, 4.5);
+                    bullet_delta=Dot(6.5,-3.5);
+                    break;
+                case 6:
+                    drawing_delta=Dot(0.5, 4);
+                    bullet_delta=Dot(5.5,-4);
+                    break;
+                case 7:
+                    drawing_delta=Dot(0, 3.7);
+                    bullet_delta=Dot(4.4,-4.4);
+                    break;
+                case 8:
+                    drawing_delta=Dot(-1, 3.5);
+                    bullet_delta=Dot(2.3,-4.4);
+                    break;
+                case 9:
+                    drawing_delta=Dot(-1.5, 3.7);
+                    bullet_delta=Dot(1,-4);
+                    break;
+                case 10:
+                    drawing_delta=Dot(-2, 4);
+                    bullet_delta=Dot(0,-3);
+                    break;
+                case 11:
+                    drawing_delta=Dot(-2.5, 4.5);
+                    bullet_delta=Dot(-1,-1.7);
+                    break;
+                case 12:
+                    drawing_delta=Dot(-3, 5);
+                    bullet_delta=Dot(-2,-0.5);
+                    break;
+                case 13:
+                    drawing_delta=Dot(-3.5, 5.5);
+                    bullet_delta=Dot(-3,0.7);
+                    break;
+                case 14:
+                    drawing_delta=Dot(-3.5, 6);
+                    bullet_delta=Dot(-2.7,1.7);
+                    break;
+                case 15:
+                    drawing_delta=Dot(-3.5, 7);
+                    bullet_delta=Dot(-2.3,3.5);
+                    break;
+                case 16:
+                    drawing_delta=Dot(-3, 7.5);
+                    bullet_delta=Dot(-1.3,5);
+                    break;
+                case 17:
+                    drawing_delta=Dot(-2.5, 8);
+                    bullet_delta=Dot(-0.3,6.5);
+                    break;
+                case 18:
+                    drawing_delta=Dot(-2.5, 8.5);
+                    bullet_delta=Dot(0.7,7.5);
+                    break;
+                case 19:
+                    drawing_delta=Dot(-1.2, 9);
+                    bullet_delta=Dot(2.5,8);
+                    break;
+                case 20:
+                    drawing_delta=Dot(-1, 9);
+                    bullet_delta=Dot(3.7,7.9);
+                    break;
+                case 21:
+                    drawing_delta=Dot(-0.2, 8.8);
+                    bullet_delta=Dot(4.7,7.6);
+                    break;
+                case 22:
+                    drawing_delta=Dot(0.3, 8.5);
+                    bullet_delta=Dot(6,6.8);
+                    break;
+                case 23:
+                    drawing_delta=Dot(0.5, 7.5);
+                    bullet_delta=Dot(8.2,4.8);
+                    break;
+            }
+            draw_spritesheet(pos + drawing_delta, 0.2, SS_GOLDEN_GUN, ind);
         }
         draw_collision_obj(*this);
     }

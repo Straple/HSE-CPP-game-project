@@ -91,6 +91,9 @@ enum spritesheet_t {
     SS_HIT_EFFECT,
     SS_DEATH_EFFECT,
 
+    // weapons
+    SS_GOLDEN_GUN,
+
     SS_COUNT,
     // НИЖЕ SS_COUNT ничего не должно быть, потому что SS_COUNT является
     // количеством элементов в spritesheet_t
@@ -308,6 +311,10 @@ void read_spritesheets() {
     {
         read(SS_HIT_EFFECT, "Effects\\hit_effect.png", 24);
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
+    }
+    //weapons
+    {
+        read(SS_GOLDEN_GUN, "Weapons\\golden_gun.png", 40);
     }
 
 #undef read
