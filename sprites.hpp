@@ -69,7 +69,7 @@ enum sprite_t {
 
     SP_KEK,
 
-    SP_M18,
+    SP_TEST_GUN,
 
     SP_COUNT,
     // НИЖЕ SP_COUNT ничего не должно быть, потому что SP_COUNT является
@@ -106,6 +106,7 @@ std::string sprite_type_to_string(sprite_t sp) {
     }
 
     switch (sp) {
+        foo(SP_TEST_GUN);
         foo(SP_BUSH);
         foo(SP_TREE);
         foo(SP_LOG);
@@ -161,7 +162,6 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_FOCUS_CURSOR);
         foo(SP_HEART);
         foo(SP_COIN);
-        foo(SP_M18);
         foo(SP_KEK);
     }
 #undef foo
@@ -196,6 +196,7 @@ void read_sprites() {
     }
 
     read(SP_KEK, "kek.png");
+    read(SP_TEST_GUN, "Weapons\\test_gun.png");
 
     // world
     {
@@ -232,7 +233,9 @@ void read_sprites() {
             read(SP_WALL_TOP, "World\\Wall\\wall_top_fill.png");
 
             read(SP_WALL_BOTTOM_LEFT, "World\\Wall\\wall_bottom_left_fill.png");
-            read(SP_WALL_BOTTOM_RIGHT, "World\\Wall\\wall_bottom_right_fill.png");
+            read(
+                SP_WALL_BOTTOM_RIGHT, "World\\Wall\\wall_bottom_right_fill.png"
+            );
             read(SP_WALL_TOP_LEFT, "World\\Wall\\wall_top_left_fill.png");
             read(SP_WALL_TOP_RIGHT, "World\\Wall\\wall_top_right_fill.png");
 
@@ -245,15 +248,13 @@ void read_sprites() {
                 "World\\Wall\\wall_bottom_right_inside_fill.png"
             );
             read(
-                SP_WALL_TOP_LEFT_INSIDE, "World\\Wall\\wall_top_left_inside_fill.png"
+                SP_WALL_TOP_LEFT_INSIDE,
+                "World\\Wall\\wall_top_left_inside_fill.png"
             );
             read(
                 SP_WALL_TOP_RIGHT_INSIDE,
                 "World\\Wall\\wall_top_right_inside_fill.png"
             );
-        }
-        {
-            read(SP_M18, "World\\bush.png")
         }
     }
 
@@ -312,10 +313,8 @@ void read_spritesheets() {
         read(SS_HIT_EFFECT, "Effects\\hit_effect.png", 24);
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
     }
-    //weapons
-    {
-        read(SS_GOLDEN_GUN, "Weapons\\golden_gun.png", 40);
-    }
+    // weapons
+    { read(SS_GOLDEN_GUN, "Weapons\\golden_gun.png", 40); }
 
 #undef read
 

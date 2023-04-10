@@ -1,11 +1,10 @@
 #ifndef GAME_WEAPON_HPP
 #define GAME_WEAPON_HPP
 
+#include <map>
 #include "../../render.hpp"
 #include "bullet.hpp"
 #include "cursor.hpp"
-
-#include <map>
 
 std::map<int, Dot> BulletDeltas = {
     {0, Dot(9, 4)},       {1, Dot(9, 2.5)},    {2, Dot(8.7, 0.5)},
@@ -133,7 +132,8 @@ struct Weapon {
                 break;
         }
 
-        draw_spritesheet(pos + drawing_delta, 0.2, SS_GOLDEN_GUN, ind);
+        draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);
+        // draw_spritesheet(pos + drawing_delta, 0.2, SS_GOLDEN_GUN, ind);
     }
 };
 

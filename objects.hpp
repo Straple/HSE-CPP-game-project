@@ -2,6 +2,7 @@
 #include "Objects/Sprite/sprite_object.hpp"
 #include "Objects/camera.hpp"
 #include "Objects/collision.hpp"
+#include "Objects/move.hpp"
 #include "Objects/platform_common.hpp"
 #include "Objects/render_state.hpp"
 #include "Objects/time.hpp"
