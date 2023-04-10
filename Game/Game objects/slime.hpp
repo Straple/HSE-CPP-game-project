@@ -3,10 +3,10 @@
 
 #include "../../render.hpp"
 #include "abstract_game_object.hpp"
+#include "effect.hpp"
 #include "enemy_states.hpp"
 #include "game_utils.hpp"
 #include "player.hpp"
-#include "effect.hpp"
 
 struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     inline const static u8 draw_alpha = 210;
@@ -17,8 +17,8 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
     int hp = 150;
 
-    efloat attack_cooldown_accum;
-    efloat paralyzed_cooldown_accum;
+    efloat attack_accum;
+    efloat paralyzed_accum;
 
     animation anim = animation_idle;
 
@@ -35,18 +35,27 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         damage = 100;
         jump_radius = 14;
         ddp_speed = 250;
-        paralyzed_cooldown_accum = paralyzed_cooldown = 0.3;
-        attack_cooldown_accum = attack_cooldown = 3;
+        paralyzed_accum = paralyzed_cooldown = 0.3;
+        attack_accum = attack_cooldown = 3;
+    }
+
+    [[nodiscard]] bool is_invulnerable() const {
+        return is_attack;
     }
 
     [[nodiscard]] collision_circle get_collision() const override {
         return collision_circle(Circle(pos, collision_radius));
     }
 
+    // for bullet hit
+    [[nodiscard]] collision_circle get_body_collision() const {
+        return get_collision();
+    }
+
     void simulate(efloat delta_time) {
         // мы парализованы и отлетаем от удара
-        if (paralyzed_cooldown_accum < paralyzed_cooldown) {
-            paralyzed_cooldown_accum += delta_time;
+        if (paralyzed_accum < paralyzed_cooldown) {
+            paralyzed_accum += delta_time;
             simulate_move2d(pos, dp, Dot(), delta_time);
         } else if (is_attack) {  // мы едим игрока
 
@@ -71,10 +80,10 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             if (anim.frame_update(delta_time)) {
                 is_attack = false;
                 anim = animation_idle;
-                attack_cooldown_accum = 0;
+                attack_accum = 0;
             }
         } else {
-            attack_cooldown_accum += delta_time;
+            attack_accum += delta_time;
             anim.frame_update(delta_time);
 
             move_to2d(
@@ -89,10 +98,10 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 !Players[0].is_jumped &&
                 // игрок не неуязвим
                 !Players[0].is_invulnerable() &&
-                // и мы близко к игроку
+                // мы близко к игроку
                 (Players[0].pos - pos).get_len() <= jump_radius &&
-                // и перезарядка атаки прошла
-                attack_cooldown_accum >= attack_cooldown) {
+                // перезарядка атаки прошла
+                attack_accum >= attack_cooldown) {
                 // игрок не может двигаться и у нас анимация атаки
                 Players[0].is_paralyzed = is_attack = true;
 
@@ -124,13 +133,19 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             );
 
             anim.draw(pos + delta_draw_pos, size, [&](Color color) {
-                return paralyzed_cooldown_accum < paralyzed_cooldown
+                return paralyzed_accum < paralyzed_cooldown
                            ? Color(0xffffff, 128)
                            : Color(color.operator unsigned int(), draw_alpha);
             });
         }
 
         draw_collision_obj(*this);
+
+        if (global_variables::debug_mode) {
+            Circle circle = get_body_collision().circle;
+            circle.pos -= global_variables::camera.pos;
+            draw_circle(circle, Color(0xff0000, 50));
+        }
 
         draw_hp(*this);
 

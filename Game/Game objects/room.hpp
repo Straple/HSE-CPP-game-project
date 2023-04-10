@@ -23,12 +23,19 @@ struct interesting_dot {
 };
 
 struct Room {
+    // room sprites
     std::vector<drawing_objects> Draw_objects;
+
+    // room collision
     std::vector<collision_box> Collision_boxes;
+
     std::vector<interesting_dot> Interesting_dots;
 
+    // enemies
     std::vector<Slime> Slimes;
+    std::vector<Bat> Bats;
 
+    // bullets
     std::vector<Bullet> Bullets;
 
     void read(const std::string &filename) {
@@ -111,41 +118,16 @@ struct Room {
             );
         }
 
-        if (Slimes.empty()) {
+        if (Slimes.size() + Bats.size() == 0) {
             // new wave
             for (auto [pos, name] : Interesting_dots) {
                 if (name == "enemy") {
-                    Slimes.emplace_back(pos);
-                }
-            }
-        }
-
-        // simulate bullets
-        {
-            for (auto &bullet : Bullets) {
-                bullet.simulate(delta_time);
-            }
-
-            // simulate bullet hit enemies
-            for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
-                if (Bullets[i].simulate_attack(Players[0], Slimes)) {
-                    Bullets.erase(Bullets.begin() + i);
-                    i--;
-                }
-            }
-
-            // simulate bullet hit wall
-            for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
-                bool need_delete = false;
-                for (auto &collision_box : Collision_boxes) {
-                    if (collision_box.trigger(Bullets[i].pos)) {
-                        need_delete = true;
+                    if(randomness(50)){
+                        Bats.emplace_back(pos);
                     }
-                }
-                if (need_delete) {
-                    add_hit_effect(Bullets[i].pos);
-                    Bullets.erase(Bullets.begin() + i);
-                    i--;
+                    else{
+                        Slimes.emplace_back(pos);
+                    }
                 }
             }
         }
@@ -175,6 +157,61 @@ struct Room {
                             );
                         }
                     }
+                }
+            }
+        }
+
+        // simulate bats
+        {
+            for (auto &bat : Bats) {
+                bat.simulate(delta_time);
+            }
+
+            // room collision bubbling slime
+            for (auto &bat : Bats) {
+                for (auto collision_box : Collision_boxes) {
+                    bat.pos = collision_box.bubble(bat.get_collision());
+                }
+            }
+
+            // slime bubbling slime
+            for (auto &bat1 : Bats) {
+                for (auto &bat2 : Bats) {
+                    if (&bat1 != &bat2) {  // чтобы не выталкивать самих себя
+                        bat1.pos =
+                            bat2.get_collision().bubble(bat1.get_collision());
+                    }
+                }
+            }
+        }
+
+        // simulate bullets
+        {
+            for (auto &bullet : Bullets) {
+                bullet.simulate(delta_time);
+            }
+
+            // bullet hit enemies
+            for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
+                if (Bullets[i].simulate_attack(Players[0], Slimes) ||
+                    Bullets[i].simulate_attack(Players[0], Bats)) {
+                    Bullets.erase(Bullets.begin() + i);
+                    i--;
+                }
+            }
+
+            // bullet hit wall
+            for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
+                bool need_delete = false;
+                for (auto &collision_box : Collision_boxes) {
+                    if (collision_box.trigger(Bullets[i].pos)) {
+                        need_delete = true;
+                    }
+                }
+                if (need_delete) {
+                    add_hit_effect(Bullets[i].pos);
+                    Bullets.erase(Bullets.begin() + i);
+                    i--;
                 }
             }
         }
@@ -274,6 +311,9 @@ struct Room {
             }
             for (auto &slime : Slimes) {
                 Objects.emplace_back(slime);
+            }
+            for (auto &bat : Bats) {
+                Objects.emplace_back(bat);
             }
 
             std::stable_sort(Objects.begin(), Objects.end());
