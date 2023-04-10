@@ -5,9 +5,6 @@
 #include "bullet.hpp"
 #include "cursor.hpp"
 
-std::mt19937 rng(293);
-std::uniform_int_distribution<> gen_int(-1, 1);
-
 #include <map>
 
 std::map<int, Dot> BulletDeltas = {
@@ -27,7 +24,7 @@ struct Weapon {
 
     Dot bullet_delta;
 
-    Weapon(efloat cooldown = 0.5, int damage = 50)
+    Weapon(efloat cooldown = 0, int damage = 50)
         : cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
     }
 
@@ -35,11 +32,12 @@ struct Weapon {
         if (cooldown_accum >= cooldown) {
             cooldown_accum = 0;
 
-            Bullets.emplace_back(
-                // player.pos,
-                pos + Dot(6, 2),  // центрированная позиция относительно спрайта
-                cursor.pos + global_variables::camera.pos, 50, 1000
-            );
+            pos += Dot(6, 2);
+            Dot dir = cursor.pos + global_variables::camera.pos - pos;
+            dir = dir.normalize();
+            dir += Circle(Dot(), 0.1).get_random_dot();
+
+            Bullets.emplace_back(pos, pos + dir, 50, 1000);
         }
     }
 
