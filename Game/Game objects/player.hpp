@@ -530,3 +530,5 @@ struct Player {
 };
 
 Player player;
+
+#endif  // GAME_PLAYER_HPP
