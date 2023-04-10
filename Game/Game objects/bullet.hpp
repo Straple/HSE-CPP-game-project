@@ -71,6 +71,6 @@ struct Bullet : abstract_game_object {
 };
 
 
-
+std::vector<Bullet> Bullets;
 
 #endif
