@@ -31,9 +31,9 @@ struct Room {
 
     std::vector<interesting_dot> Interesting_dots;
     bool player_spawned = false;
-    int wave_number=0;
+    int wave_number = 0;
     efloat wave_cooldown = 10;
-    efloat wave_cooldown_accum=0;
+    efloat wave_cooldown_accum = 0;
 
     void read(const std::string &filename) {
         std::ifstream file(filename);
@@ -101,15 +101,17 @@ struct Room {
 
     void simulate(efloat delta_time, const Input &input) {
         if (!player_spawned) {
-            for (auto& player : Players) {
+            for (auto &player : Players) {
                 for (auto [pos, name] : Interesting_dots) {
                     if (name == "player") {
                         player.pos = pos;
                         player_spawned = true;
+                        break;
                     }
                 }
             }
         }
+
         for (auto &player : Players) {
             for (auto collision_box : Collision_boxes) {
                 player.pos = collision_box.bubble(player.get_collision());
@@ -128,13 +130,11 @@ struct Room {
                 wave_cooldown_accum = 0;
                 ++wave_number;
 
-                
                 for (auto [pos, name] : Interesting_dots) {
-                    if (name == "wave"+std::to_string(wave_number)) {
+                    if (name == "wave" + std::to_string(wave_number)) {
                         if (randomness(50)) {
                             Bats.emplace_back(pos);
-                        }
-                        else {
+                        } else {
                             Slimes.emplace_back(pos);
                         }
                     }
@@ -239,14 +239,17 @@ struct Room {
 
         // simulate loot
         {
-            for (auto &heart : Loot_hearts) {
-                heart.simulate(delta_time);
-            }
-            for (int i = 0; i < static_cast<int>(Loot_hearts.size()); i++) {
-                auto &heart = Loot_hearts[i];
-                if (heart.simulate_collection()) {
-                    Loot_hearts.erase(Loot_hearts.begin() + i);
-                    i--;
+            // heart
+            {
+                for (auto &heart : Loot_hearts) {
+                    heart.simulate(delta_time);
+                }
+                for (int i = 0; i < static_cast<int>(Loot_hearts.size()); i++) {
+                    auto &heart = Loot_hearts[i];
+                    if (heart.simulate_collection()) {
+                        Loot_hearts.erase(Loot_hearts.begin() + i);
+                        i--;
+                    }
                 }
             }
         }
@@ -395,6 +398,8 @@ struct Room {
             //     draw_sprite(pos, size, sprite);
             // }
         }
+
+        draw_object(wave_cooldown_accum, Dot(), 1, RED);
     }
 };
 

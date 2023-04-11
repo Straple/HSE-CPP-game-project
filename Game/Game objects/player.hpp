@@ -76,7 +76,8 @@ struct Player_anim_tree {
 struct Player : abstract_game_object {
     inline static const efloat ddp_speed = 500;
 
-    int hp = 400;
+    int hp = 3;
+    int coins = 10;
 
     efloat jump_cooldown;
     efloat jump_accum;
