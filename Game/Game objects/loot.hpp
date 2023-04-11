@@ -7,11 +7,13 @@
 
 struct Loot : abstract_game_object {
     efloat magnet_radius = 30;
-    Dot initial_pos;
-    bool initial_flight = true;
 
-    Loot(Dot position = Dot()) {
-        initial_pos = pos = position;
+    Loot() {
+    }
+
+    Loot(Dot position, Dot dir) {
+        pos = position;
+        dp = dir * 200;
 
         collision_radius = 4;
         size = 1;
@@ -33,22 +35,12 @@ struct Loot : abstract_game_object {
 
     void simulate(efloat delta_time) {
         if ((Players[0].pos - pos).get_len() <= magnet_radius) {
-            initial_flight = false;
-            Dot ddp = (Players[0].pos - pos).normalize() * 100;
+            Dot ddp = (Players[0].pos - pos) * 100;
             move_to2d(pos, Players[0].pos, dp, ddp, delta_time);
-        } else if (initial_flight) {
-            if (pos == initial_pos + Dot(2, 2)) {
-                initial_flight = false;
-            } else {
-                move_to2d(
-                    pos, initial_pos + Dot(4, 4), dp,
-                    (initial_pos + Dot(2, 2)) * 2, delta_time
-                );
-            }
+        } else {
+            simulate_move2d(pos, dp, Dot(), delta_time);
         }
     }
 };
-
-std::vector<Loot> Loot_objects;
 
 #endif  // GAME_LOOT_HPP

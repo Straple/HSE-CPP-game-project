@@ -23,7 +23,7 @@ struct global_variables {
     static inline Dot arena_half_size;
 
     // масштаб рендеринга
-    static inline efloat render_scale = 0.01;
+    static inline efloat render_scale = 0.007;
 
     // множитель масштабирования = global_variables::render_state.height *
     // global_variables::render_scale

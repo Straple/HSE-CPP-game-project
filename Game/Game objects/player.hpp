@@ -191,7 +191,7 @@ struct Player : abstract_game_object {
             weapon.draw(pos);
         }
 
-        draw_collision_obj(*this);
+        draw_collision(*this);
     }
 
     // возвращает направление анимации игрока

@@ -94,40 +94,7 @@ void simulate_game(
 
     test_room.draw();
 
-    /*static efloat last_hit_time = 3;
-    if (pressed(BUTTON_MOUSE_L) && last_hit_time >= PLAYER_ATTACK_COOLDOWN ) {
-        // new bullet!
-        if (-1 > player.random_shot+player.random_shot_multiplyer ||
-player.random_shot+player.random_shot_multiplyer > 1) {
-            player.random_shot_multiplyer*=-1;
-        }
-        player.random_shot += player.random_shot_multiplyer;
-        last_hit_time = 0;
-        Bullets.emplace_back(
-            // player.pos,
-            player.get_collision()
-                .circle.pos +
-BulletDeltas[(player.ind+player.random_shot+24)%24],  // центрированная позиция
-относительно спрайта cursor.pos + global_variables::camera.pos, 1000000000, 1000
-        );
-    }
-    last_hit_time += delta_time;
-test_room.simulate(delta_time, input);
-
-for (auto &loot : Loot_objects) {
-    loot.draw();
-}
-
-for (int i = 0; i < Loot_objects.size(); i++) {
-    auto &object = Loot_objects[i];
-    object.simulate(delta_time);
-    if (object.simulate_collection()) {
-        Loot_objects.erase(Loot_objects.begin() + i);
-        i--;
-    }
-}*/
+    //draw_object(global_variables::render_scale, Dot(), 1, BLACK);
 
     cursor.draw();
-
-    draw_object(Players[0].dp, Dot(), 1, BLACK);
 }
