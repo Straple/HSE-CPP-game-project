@@ -312,7 +312,7 @@ void read_spritesheets() {
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
     }
     // weapons
-    { read(SS_GOLDEN_GUN, "Weapons\\golden_gun_big.png", 400); }
+    { read(SS_GOLDEN_GUN, "Weapons\\golden_gun_big.png", 800); }
 
 #undef read
 

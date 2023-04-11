@@ -4,8 +4,6 @@
 #define GAME_MODE
 // #define LEVEL_MAKER_MODE
 
-//#include "Game/Game objects/weapon.hpp"
-
 /*
 WARNINGS:
 Dot::get_len() uses hypot which is very slow
@@ -25,15 +23,6 @@ UP, DOWN = render_scale
 // this is bad
 #undef min
 #undef max
-
-// #include "Game\Game objects\bullet.hpp"
-// #include "Game\Game objects\bush.hpp"
-// #include "Game\Game objects\effect.hpp"
-// #include "Game\Game objects\tree.hpp"
-// #include "Game\Game objects\weapon.hpp"
-// #include "Game\Game objects\log.hpp"
-// #include "Game\Game objects\log.hpp"
-// #include "Game\Game objects\fireplace.hpp"
 
 #include "render.hpp"
 
