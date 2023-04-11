@@ -40,15 +40,14 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     }
 
     [[nodiscard]] bool is_invulnerable() const {
-        return is_attack;
+        return is_attack || paralyzed_accum < paralyzed_cooldown;
     }
 
     [[nodiscard]] collision_circle get_collision() const override {
         return collision_circle(Circle(pos, collision_radius));
     }
 
-    // for bullet hit
-    [[nodiscard]] collision_circle get_body_collision() const {
+    [[nodiscard]] collision_circle get_hitbox() const {
         return get_collision();
     }
 
@@ -66,14 +65,12 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 Players[0].dp = Circle(Dot(), 500).get_random_dot();
 
                 Players[0].is_paralyzed = false;
-                // Players[0].paralyzed_cooldown_acc = 0;
 
                 Players[0].hp -= damage;
 
-                add_hit_effect(Players[0].pos);
-
-                // игрок неуязвим
                 Players[0].set_invulnerable();
+
+                add_hit_effect(Players[0].pos);
             }
 
             // анимация атаки закончилась
@@ -139,13 +136,9 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             });
         }
 
-        draw_collision_obj(*this);
+        draw_collision(*this);
 
-        if (global_variables::debug_mode) {
-            Circle circle = get_body_collision().circle;
-            circle.pos -= global_variables::camera.pos;
-            draw_circle(circle, Color(0xff0000, 50));
-        }
+        draw_hitbox(*this);
 
         draw_hp(*this);
 

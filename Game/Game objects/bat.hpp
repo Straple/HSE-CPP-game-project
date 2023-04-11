@@ -11,8 +11,6 @@
 struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
     int hp = 100;
 
-    Dot ddp;
-
     efloat attack_accum;
     efloat paralyzed_accum;
 
@@ -34,15 +32,14 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
     }
 
     [[nodiscard]] bool is_invulnerable() const {
-        return false;
+        return paralyzed_accum < paralyzed_cooldown;
     }
 
     [[nodiscard]] collision_circle get_collision() const override {
         return collision_circle(Circle(pos, collision_radius));
     }
 
-    // for bullet hit
-    [[nodiscard]] collision_circle get_body_collision() const {
+    [[nodiscard]] collision_circle get_hitbox() const {
         return collision_circle(Circle(pos + Dot(0, 13), 5));
     }
 
@@ -51,9 +48,8 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         paralyzed_accum += delta_time;
 
         if (paralyzed_accum < paralyzed_cooldown) {
-            simulate_move2d(pos, dp, ddp, delta_time);
+            simulate_move2d(pos, dp, Dot(), delta_time);
         } else {
-            ddp = Dot();
 
             anim.frame_update(delta_time);
 
@@ -79,6 +75,8 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
                 Players[0].hp -= damage;
 
+                Players[0].set_invulnerable();
+
                 add_hit_effect(Players[0].pos);
             }
         }
@@ -92,13 +90,9 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
                                                         : color;
         });
 
-        draw_collision_obj(*this);
+        draw_collision(*this);
 
-        if (global_variables::debug_mode) {
-            Circle circle = get_body_collision().circle;
-            circle.pos -= global_variables::camera.pos;
-            draw_circle(circle, Color(0xff0000, 50));
-        }
+        draw_hitbox(*this);
 
         draw_hp(*this);
 

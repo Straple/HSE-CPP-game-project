@@ -1,6 +1,3 @@
-
-#include "../Game objects/game_utils.hpp"
-//
 #include "../Game objects/game_objects.hpp"
 
 void cast_to_top_left_and_bottom_right(Dot &p0, Dot &p1) {

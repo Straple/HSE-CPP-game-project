@@ -2,9 +2,10 @@
 #define GAME_BULLET_HPP
 
 #include "../../render.hpp"
-#include "effect.hpp"
 #include "abstract_game_object.hpp"
+#include "effect.hpp"
 #include "game_utils.hpp"
+#include "heart.hpp"
 
 struct Bullet : abstract_game_object {
     // Добавим позже поле формы пули, чтобы можно было
@@ -31,9 +32,7 @@ struct Bullet : abstract_game_object {
     template <typename enemy_t>
     bool simulate_attack(std::vector<enemy_t> &Enemies) {
         for (int i = 0; i < Enemies.size(); i++) {
-            if (get_collision().trigger(Enemies[i].get_body_collision()) &&
-                reinterpret_cast<char *>(&Enemies[i]) !=
-                    reinterpret_cast<char *>(this) &&
+            if (get_collision().trigger(Enemies[i].get_hitbox()) &&
                 !Enemies[i].is_invulnerable()) {
                 // simulate hit
                 {
@@ -46,8 +45,13 @@ struct Bullet : abstract_game_object {
                 }
 
                 if (Enemies[i].hp <= 0) {
-                    add_death_effect(Enemies[i].get_body_collision().circle.pos
-                    );
+                    add_death_effect(Enemies[i].get_hitbox().circle.pos);
+
+                    if (randomness(100)) {
+                        Loot_hearts.push_back(
+                            Heart(Enemies[i].get_hitbox().circle.pos, dir)
+                        );
+                    }
 
                     Enemies.erase(Enemies.begin() + i);
                     i--;
@@ -65,7 +69,7 @@ struct Bullet : abstract_game_object {
 
     void draw() const override {
         draw_sprite(pos + Dot(-2, 2), 0.2, SP_COIN);
-        draw_collision_obj(*this);
+        draw_collision(*this);
     }
 };
 

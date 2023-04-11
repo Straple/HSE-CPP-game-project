@@ -1,6 +1,9 @@
 ﻿#ifndef GAME_OBJECTS_HPP
 #define GAME_OBJECTS_HPP
 
+// game utils
+#include "game_utils.hpp"
+
 // UI
 #include "button.hpp"
 #include "cursor.hpp"
@@ -14,8 +17,8 @@
 #include "effect.hpp"
 
 // loots
-#include "loot.hpp"
 #include "heart.hpp"
+#include "loot.hpp"
 
 // player
 #include "player.hpp"
