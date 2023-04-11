@@ -128,7 +128,7 @@ struct Weapon {
         }
 
         // draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);
-        draw_spritesheet(pos + drawing_delta, 0.03, SS_GOLDEN_GUN, ind);
+        draw_spritesheet(pos+Dot(-5,15), 0.03, SS_GOLDEN_GUN, ind);
     }
 };
 

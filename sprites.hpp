@@ -106,7 +106,7 @@ std::string sprite_type_to_string(sprite_t sp) {
     }
 
     switch (sp) {
-        foo(SP_TEST_GUN);
+//        foo(SP_TEST_GUN);
         foo(SP_BUSH);
         foo(SP_TREE);
         foo(SP_LOG);
@@ -196,7 +196,7 @@ void read_sprites() {
     }
 
     read(SP_KEK, "kek.png");
-    read(SP_TEST_GUN, "Weapons\\test_gun.png");
+//    read(SP_TEST_GUN, "Weapons\\test_gun.png");
 
     // world
     {
@@ -312,7 +312,7 @@ void read_spritesheets() {
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
     }
     // weapons
-    { read(SS_GOLDEN_GUN, "Weapons\\golden_gun_big.png", 400); }
+    { read(SS_GOLDEN_GUN, "Weapons\\big_gun_2.png", 800); }
 
 #undef read
 
