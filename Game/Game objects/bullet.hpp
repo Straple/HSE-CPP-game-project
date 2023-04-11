@@ -5,7 +5,7 @@
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
 #include "game_utils.hpp"
-#include "heart.hpp"
+#include "heart&coin.hpp"
 
 struct Bullet : abstract_game_object {
     // Добавим позже поле формы пули, чтобы можно было
@@ -47,9 +47,14 @@ struct Bullet : abstract_game_object {
                 if (Enemies[i].hp <= 0) {
                     add_death_effect(Enemies[i].get_hitbox().circle.pos);
 
-                    if (randomness(100)) {
+                    if (randomness(10)) {
                         Loot_hearts.push_back(
                             Heart(Enemies[i].get_hitbox().circle.pos, dir)
+                        );
+                    }
+                    else {
+                        Loot_coins.push_back(
+                            Coin(Enemies[i].get_hitbox().circle.pos, dir)
                         );
                     }
 
@@ -68,7 +73,7 @@ struct Bullet : abstract_game_object {
     }
 
     void draw() const override {
-        draw_sprite(pos + Dot(-2, 2), 0.2, SP_COIN);
+        draw_sprite(pos + Dot(-2, 2), 0.4, SP_COIN);
         draw_collision(*this);
     }
 };

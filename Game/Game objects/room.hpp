@@ -32,7 +32,7 @@ struct Room {
     std::vector<interesting_dot> Interesting_dots;
     bool player_spawned = false;
     int wave_number = 0;
-    efloat wave_cooldown = 10;
+    efloat wave_cooldown = 2;
     efloat wave_cooldown_accum = 0;
 
     void read(const std::string &filename) {
@@ -252,6 +252,19 @@ struct Room {
                     }
                 }
             }
+            // coin
+            {
+                for (auto &coin : Loot_coins) {
+                    coin.simulate(delta_time);
+                }
+                for (int i = 0; i < static_cast<int>(Loot_coins.size()); i++) {
+                    auto &coin = Loot_coins[i];
+                    if (coin.simulate_collection()) {
+                        Loot_coins.erase(Loot_coins.begin() + i);
+                        i--;
+                    }
+                }
+            }
         }
     }
 
@@ -278,7 +291,8 @@ struct Room {
                     TO_PLAYER,
                     TO_SLIME,
                     TO_BAT,
-                    TO_HEART
+                    TO_HEART,
+                    TO_COIN,
                 };
 
                 type_object type;
@@ -309,6 +323,11 @@ struct Room {
                     ptr = reinterpret_cast<const void *>(&heart);
                 }
 
+                explicit top_sort_object(const Coin &coin) {
+                    type = TO_COIN;
+                    ptr = reinterpret_cast<const void *>(&coin);
+                }
+
                 [[nodiscard]] efloat get_y() const {
                     switch (type) {
                         case TO_PLAYER: {
@@ -322,6 +341,9 @@ struct Room {
                         }
                         case TO_HEART: {
                             return reinterpret_cast<const Heart *>(ptr)->pos.y;
+                        }
+                        case TO_COIN: {
+                            return reinterpret_cast<const Coin *>(ptr)->pos.y;
                         }
                         default:
                             ASSERT(false, "undefined object type");
@@ -343,6 +365,9 @@ struct Room {
                         case TO_HEART: {
                             reinterpret_cast<const Heart *>(ptr)->draw();
                         } break;
+                        case TO_COIN: {
+                            reinterpret_cast<const Coin *>(ptr)->draw();
+                        } break;
                         default: {
                             ASSERT(false, "undefind object type");
                         }
@@ -358,6 +383,9 @@ struct Room {
 
             for (auto &heart : Loot_hearts) {
                 Objects.emplace_back(heart);
+            }
+            for (auto &coin : Loot_coins) {
+                Objects.emplace_back(coin);
             }
 
             for (auto &player : Players) {

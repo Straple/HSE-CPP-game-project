@@ -17,7 +17,7 @@
 #include "effect.hpp"
 
 // loots
-#include "heart.hpp"
+#include "heart&coin.hpp"
 #include "loot.hpp"
 
 // player
