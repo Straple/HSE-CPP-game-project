@@ -48,12 +48,7 @@ struct Weapon {
     }
 
     void draw(Dot pos) const {
-        Dot ox(1, 0);
-        auto angle = get_angle(cursor.pos, ox) * 57.295779513;
-
-        if (angle < 0) {
-            angle += 360;
-        }
+        auto angle = get_good_angle(cursor.pos - pos + global_variables::camera.pos, Dot(1, 0)) * 57.295779513;
         int ind = angle / 15;
 
         Dot drawing_delta;
@@ -132,8 +127,8 @@ struct Weapon {
                 break;
         }
 
-        draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);
-        // draw_spritesheet(pos + drawing_delta, 0.2, SS_GOLDEN_GUN, ind);
+        // draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);
+        draw_spritesheet(pos + drawing_delta, 0.03, SS_GOLDEN_GUN, ind);
     }
 };
 

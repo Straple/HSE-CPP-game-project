@@ -2,7 +2,9 @@
 #define GAME_BULLET_HPP
 
 #include "../../render.hpp"
+#include "effect.hpp"
 #include "abstract_game_object.hpp"
+#include "game_utils.hpp"
 
 struct Bullet : abstract_game_object {
     // Добавим позже поле формы пули, чтобы можно было

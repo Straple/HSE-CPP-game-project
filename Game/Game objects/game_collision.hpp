@@ -1,4 +1,17 @@
-﻿
+﻿#ifndef GAME_COLLISION_HPP
+#define GAME_COLLISION_HPP
+
+// world
+#include "bush.hpp"
+#include "log.hpp"
+#include "tree.hpp"
+
+// enemies
+#include "bat.hpp"
+#include "slime.hpp"
+
+// player
+#include "player.hpp"
 
 template <typename T1, typename T2>
 bool verify_others_obj(const T1 &Lhs, const T2 &Rhs) {
@@ -6,7 +19,7 @@ bool verify_others_obj(const T1 &Lhs, const T2 &Rhs) {
            reinterpret_cast<const void *>(&Rhs);
 }
 
-template <typename collision>
+/*template <typename collision>
 void update_collision(Player &player, const collision &coll) {
     if (!player.is_paralyzed) {
         player.pos = coll.bubble(player.get_collision());
@@ -38,7 +51,7 @@ void update_collision(Bush &bush, const collision &coll) {
 template <typename collision>
 void update_collision(Tree &tree, const collision &coll) {
     tree.pos = coll.bubble(tree.get_collision());
-}
+}*/
 
 // массив объектов с коллизией выталкивет другие объекты
 template <typename container_t>
@@ -109,3 +122,5 @@ void simulate_game_collision(container_t &Objects) {
         }
     }
 }
+
+#endif  // GAME_COLLISION_HPP

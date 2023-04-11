@@ -1,9 +1,4 @@
-﻿static const Dot world_half_size(500, 500);
-
-// don't shuffle
-#include "Game objects\game_objects.hpp"
-// don't shuffle
-#include "game_collision.cpp"
+﻿#include "Game objects/game_objects.hpp"
 
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения

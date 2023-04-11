@@ -224,41 +224,39 @@ void read_sprites() {
         // read(SP_CARPET_TOP_LEFT, "World\\carpet_top_left.png");
 
         read(SP_WOODEN_FLOOR, "World\\wooden_floor.png");
-
-        // Wall
-        {
-            read(SP_WALL_LEFT, "World\\Wall\\wall_left_fill.png");
-            read(SP_WALL_RIGHT, "World\\Wall\\wall_right_fill.png");
-            read(SP_WALL_BOTTOM, "World\\Wall\\wall_bottom_fill.png");
-            read(SP_WALL_TOP, "World\\Wall\\wall_top_fill.png");
-
-            read(SP_WALL_BOTTOM_LEFT, "World\\Wall\\wall_bottom_left_fill.png");
-            read(
-                SP_WALL_BOTTOM_RIGHT, "World\\Wall\\wall_bottom_right_fill.png"
-            );
-            read(SP_WALL_TOP_LEFT, "World\\Wall\\wall_top_left_fill.png");
-            read(SP_WALL_TOP_RIGHT, "World\\Wall\\wall_top_right_fill.png");
-
-            read(
-                SP_WALL_BOTTOM_LEFT_INSIDE,
-                "World\\Wall\\wall_bottom_left_inside_fill.png"
-            );
-            read(
-                SP_WALL_BOTTOM_RIGHT_INSIDE,
-                "World\\Wall\\wall_bottom_right_inside_fill.png"
-            );
-            read(
-                SP_WALL_TOP_LEFT_INSIDE,
-                "World\\Wall\\wall_top_left_inside_fill.png"
-            );
-            read(
-                SP_WALL_TOP_RIGHT_INSIDE,
-                "World\\Wall\\wall_top_right_inside_fill.png"
-            );
-        }
     }
 
-    // shadow
+    // Walls
+    {
+        read(SP_WALL_LEFT, "World\\Wall\\wall_left_fill.png");
+        read(SP_WALL_RIGHT, "World\\Wall\\wall_right_fill.png");
+        read(SP_WALL_BOTTOM, "World\\Wall\\wall_bottom_fill.png");
+        read(SP_WALL_TOP, "World\\Wall\\wall_top_fill.png");
+
+        read(SP_WALL_BOTTOM_LEFT, "World\\Wall\\wall_bottom_left_fill.png");
+        read(SP_WALL_BOTTOM_RIGHT, "World\\Wall\\wall_bottom_right_fill.png");
+        read(SP_WALL_TOP_LEFT, "World\\Wall\\wall_top_left_fill.png");
+        read(SP_WALL_TOP_RIGHT, "World\\Wall\\wall_top_right_fill.png");
+
+        read(
+            SP_WALL_BOTTOM_LEFT_INSIDE,
+            "World\\Wall\\wall_bottom_left_inside_fill.png"
+        );
+        read(
+            SP_WALL_BOTTOM_RIGHT_INSIDE,
+            "World\\Wall\\wall_bottom_right_inside_fill.png"
+        );
+        read(
+            SP_WALL_TOP_LEFT_INSIDE,
+            "World\\Wall\\wall_top_left_inside_fill.png"
+        );
+        read(
+            SP_WALL_TOP_RIGHT_INSIDE,
+            "World\\Wall\\wall_top_right_inside_fill.png"
+        );
+    }
+
+    // Shadows
     {
         read(SP_LARGE_SHADOW, "Shadows\\large_shadow.png");
         read(SP_MEDIUM_SHADOW, "Shadows\\medium_shadow.png");
@@ -314,7 +312,7 @@ void read_spritesheets() {
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
     }
     // weapons
-    { read(SS_GOLDEN_GUN, "Weapons\\golden_gun.png", 40); }
+    { read(SS_GOLDEN_GUN, "Weapons\\golden_gun_big.png", 400); }
 
 #undef read
 

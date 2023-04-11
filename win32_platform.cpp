@@ -4,6 +4,8 @@
 #define GAME_MODE
 // #define LEVEL_MAKER_MODE
 
+//#include "Game/Game objects/weapon.hpp"
+
 /*
 WARNINGS:
 Dot::get_len() uses hypot which is very slow

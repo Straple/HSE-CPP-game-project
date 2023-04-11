@@ -14,16 +14,16 @@
 #include "effect.hpp"
 
 // loots
-#include "heart.hpp"
 #include "loot.hpp"
+#include "heart.hpp"
 
 // player
 #include "player.hpp"
 
 // enemies
 #include "bat.hpp"
-// #include "mini_slime.hpp"
 #include "slime.hpp"
+// #include "mini_slime.hpp"
 
 // weapons
 #include "bullet.hpp"
@@ -31,5 +31,8 @@
 
 // world
 #include "room.hpp"
+
+// game collision
+#include "game_collision.hpp"
 
 #endif  // GAME_OBJECTS_HPP
