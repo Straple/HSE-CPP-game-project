@@ -1,19 +1,28 @@
 #ifndef GAME_UTILS_HPP
 #define GAME_UTILS_HPP
 
-#include "../../render.hpp"
 #include "../../global_variables.hpp"
+#include "../../render.hpp"
 
-void draw_collision(const collision_circle &coll) {
+template <typename T>
+void draw_collision(const T &object) {
     if (global_variables::debug_mode) {
-        Circle circle = coll.circle;
-        static_pos_update(circle.pos, global_variables::camera_is_static);
-
-        draw_circle(circle, Color(0xffffff, 128));
+        Circle circle = object.get_collision().circle;
+        circle.pos -= global_variables::camera.pos;
+        draw_circle(circle, Color(0xffffff, 50));
     }
 }
 
-void draw_collision(const collision_box &coll) {
+template <typename T>
+void draw_hitbox(const T &object) {
+    if (global_variables::debug_mode) {
+        Circle circle = object.get_hitbox().circle;
+        circle.pos -= global_variables::camera.pos;
+        draw_circle(circle, Color(0xff0000, 50));
+    }
+}
+
+/*void draw_collision(const collision_box &coll) {
     if (global_variables::debug_mode) {
         Dot p0 = coll.p0;
         Dot p1 = coll.p1;
@@ -25,12 +34,7 @@ void draw_collision(const collision_box &coll) {
 
         draw_rect2(p0, p1, Color(0xffffff, 128));
     }
-}
-
-template <typename T>
-void draw_collision_obj(const T &object) {
-    draw_collision(object.get_collision());
-}
+}*/
 
 template <typename T>
 void draw_hp(const T &object) {

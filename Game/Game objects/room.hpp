@@ -30,6 +30,10 @@ struct Room {
     std::vector<collision_box> Collision_boxes;
 
     std::vector<interesting_dot> Interesting_dots;
+    bool player_spawned = false;
+    int wave_number=0;
+    efloat wave_cooldown = 10;
+    efloat wave_cooldown_accum=0;
 
     void read(const std::string &filename) {
         std::ifstream file(filename);
@@ -96,6 +100,16 @@ struct Room {
     }
 
     void simulate(efloat delta_time, const Input &input) {
+        if (!player_spawned) {
+            for (auto& player : Players) {
+                for (auto [pos, name] : Interesting_dots) {
+                    if (name == "player") {
+                        player.pos = pos;
+                        player_spawned = true;
+                    }
+                }
+            }
+        }
         for (auto &player : Players) {
             for (auto collision_box : Collision_boxes) {
                 player.pos = collision_box.bubble(player.get_collision());
@@ -109,12 +123,20 @@ struct Room {
 
         if (Slimes.size() + Bats.size() == 0) {
             // new wave
-            for (auto [pos, name] : Interesting_dots) {
-                if (name == "enemy") {
-                    if (randomness(50)) {
-                        Bats.emplace_back(pos);
-                    } else {
-                        Slimes.emplace_back(pos);
+            wave_cooldown_accum += delta_time;
+            if (wave_cooldown_accum >= wave_cooldown) {
+                wave_cooldown_accum = 0;
+                ++wave_number;
+
+                
+                for (auto [pos, name] : Interesting_dots) {
+                    if (name == "wave"+std::to_string(wave_number)) {
+                        if (randomness(50)) {
+                            Bats.emplace_back(pos);
+                        }
+                        else {
+                            Slimes.emplace_back(pos);
+                        }
                     }
                 }
             }
@@ -138,8 +160,8 @@ struct Room {
                 if (!slime1.is_attack) {  // пока мы едим игрока, мы не
                                           // выталкиваемы
                     for (auto &slime2 : Slimes) {
-                        if (&slime1 !=
-                            &slime2) {  // чтобы не выталкивать самих себя
+                        // чтобы не выталкивать самих себя
+                        if (&slime1 != &slime2) {
                             slime1.pos = slime2.get_collision().bubble(
                                 slime1.get_collision()
                             );
@@ -155,17 +177,18 @@ struct Room {
                 bat.simulate(delta_time);
             }
 
-            // room collision bubbling slime
+            // room collision bubbling bat
             for (auto &bat : Bats) {
                 for (auto collision_box : Collision_boxes) {
                     bat.pos = collision_box.bubble(bat.get_collision());
                 }
             }
 
-            // slime bubbling slime
+            // bat bubbling bat
             for (auto &bat1 : Bats) {
                 for (auto &bat2 : Bats) {
-                    if (&bat1 != &bat2) {  // чтобы не выталкивать самих себя
+                    // чтобы не выталкивать самих себя
+                    if (&bat1 != &bat2) {
                         bat1.pos =
                             bat2.get_collision().bubble(bat1.get_collision());
                     }
@@ -213,6 +236,20 @@ struct Room {
                 }
             }
         }
+
+        // simulate loot
+        {
+            for (auto &heart : Loot_hearts) {
+                heart.simulate(delta_time);
+            }
+            for (int i = 0; i < static_cast<int>(Loot_hearts.size()); i++) {
+                auto &heart = Loot_hearts[i];
+                if (heart.simulate_collection()) {
+                    Loot_hearts.erase(Loot_hearts.begin() + i);
+                    i--;
+                }
+            }
+        }
     }
 
     void draw() {
@@ -238,6 +275,7 @@ struct Room {
                     TO_PLAYER,
                     TO_SLIME,
                     TO_BAT,
+                    TO_HEART
                 };
 
                 type_object type;
@@ -263,6 +301,11 @@ struct Room {
                     ptr = reinterpret_cast<const void *>(&slime);
                 }
 
+                explicit top_sort_object(const Heart &heart) {
+                    type = TO_HEART;
+                    ptr = reinterpret_cast<const void *>(&heart);
+                }
+
                 [[nodiscard]] efloat get_y() const {
                     switch (type) {
                         case TO_PLAYER: {
@@ -273,6 +316,9 @@ struct Room {
                         }
                         case TO_BAT: {
                             return reinterpret_cast<const Bat *>(ptr)->pos.y;
+                        }
+                        case TO_HEART: {
+                            return reinterpret_cast<const Heart *>(ptr)->pos.y;
                         }
                         default:
                             ASSERT(false, "undefined object type");
@@ -291,6 +337,9 @@ struct Room {
                         case TO_BAT: {
                             reinterpret_cast<const Bat *>(ptr)->draw();
                         } break;
+                        case TO_HEART: {
+                            reinterpret_cast<const Heart *>(ptr)->draw();
+                        } break;
                         default: {
                             ASSERT(false, "undefind object type");
                         }
@@ -303,6 +352,10 @@ struct Room {
             };
 
             std::vector<top_sort_object> Objects;
+
+            for (auto &heart : Loot_hearts) {
+                Objects.emplace_back(heart);
+            }
 
             for (auto &player : Players) {
                 Objects.emplace_back(player);
