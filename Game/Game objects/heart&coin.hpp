@@ -36,7 +36,7 @@ struct Coin : Loot {
 
     bool simulate_collection() override {
         if (collection_trigger()) {
-            Players[0].hp++;
+            Players[0].coins++;
             return true;
         } else {
             return false;

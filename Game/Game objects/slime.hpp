@@ -15,7 +15,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
         animation_attack = animation(SS_SLIME, 25, 30, frame_duration);
 
-    int hp = 150;
+    int hp = 4;
 
     efloat attack_accum;
     efloat paralyzed_accum;
@@ -32,7 +32,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         delta_draw_pos = Dot(-30, 38) * size;
 
         // enemy_state_for_trivial_enemy
-        damage = 100;
+        damage = 2;
         jump_radius = 14;
         ddp_speed = 250;
         paralyzed_accum = paralyzed_cooldown = 0.3;

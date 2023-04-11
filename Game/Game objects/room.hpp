@@ -119,8 +119,9 @@ struct Room {
         }
 
         if (pressed(BUTTON_MOUSE_L) && !Players[0].is_paralyzed &&
-            !Players[0].is_jumped) {
+            !Players[0].is_jumped && Players[0].coins > 0) {
             Players[0].weapon.shot(Players[0].pos);
+            Players[0].coins--;
         }
 
         if (Slimes.size() + Bats.size() == 0) {
@@ -262,6 +263,15 @@ struct Room {
                     if (coin.simulate_collection()) {
                         Loot_coins.erase(Loot_coins.begin() + i);
                         i--;
+                    }
+                }
+
+                // coin bubbling coin
+                for (auto &coin1 : Loot_coins) {
+                    for (auto &coin2 : Loot_coins) {
+                        if (&coin1 != &coin2) {
+                            coin1.pos = coin2.get_collision().bubble(coin1.get_collision());
+                        }
                     }
                 }
             }
@@ -428,6 +438,32 @@ struct Room {
         }
 
         draw_object(wave_cooldown_accum, Dot(), 1, RED);
+
+        // draw UI
+        {
+            // draw hp
+            for (int i = 0; i < Players[0].hp; i++) {
+                draw_sprite(
+                    Dot(-global_variables::arena_half_size.x,
+                        global_variables::arena_half_size.y) *
+                            0.95 +
+                        global_variables::camera.pos + Dot(i, 0) * 7,
+                    0.5, SP_HEART
+                );
+            }
+
+            // draw coins
+            for (int i = 0; i < Players[0].coins; i++) {
+                draw_sprite(
+                    Dot(-global_variables::arena_half_size.x,
+                        global_variables::arena_half_size.y) *
+                            0.8 +
+                        global_variables::camera.pos +
+                        Dot(-14 - i * 2 + Players[0].coins * 2, 0),
+                    0.5, SP_COIN
+                );
+            }
+        }
     }
 };
 

@@ -9,7 +9,7 @@
 #include "player.hpp"
 
 struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
-    int hp = 100;
+    int hp = 3;
 
     efloat attack_accum;
     efloat paralyzed_accum;
@@ -24,7 +24,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         delta_draw_pos = Dot(-8, 26) * size;
 
         // enemy_state_for_trivial_enemy
-        damage = 50;
+        damage = 1;
         jump_radius = 8;
         ddp_speed = 400;
         paralyzed_accum = paralyzed_cooldown = 0.3;

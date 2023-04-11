@@ -36,7 +36,7 @@ struct Weapon {
             dir = dir.normalize();
             dir += Circle(Dot(), 0.1).get_random_dot();
 
-            Bullets.emplace_back(pos, pos + dir, 50, 1000);
+            Bullets.emplace_back(pos, pos + dir, 1, 1000);
         }
     }
 
