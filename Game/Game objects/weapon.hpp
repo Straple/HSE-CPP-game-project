@@ -20,7 +20,8 @@ struct Weapon {
     efloat cooldown;
     efloat cooldown_accum;
     int damage;
-
+    mutable Dot dulo;
+    mutable Dot hand;
     Dot bullet_delta;
 
     Weapon(efloat cooldown = 0, int damage = 50)
@@ -30,8 +31,13 @@ struct Weapon {
     void shot(Dot pos) {
         if (cooldown_accum >= cooldown) {
             cooldown_accum = 0;
-
-            pos += Dot(6, 2);
+            if (hand == Dot(-5,15)) {
+                pos += Dot(7,-2);
+            }
+            else {
+                pos += Dot(-2.5, -1.5);
+            }
+            pos+=dulo;
             Dot dir = cursor.pos + global_variables::camera.pos - pos;
             dir = dir.normalize();
             dir += Circle(Dot(), 0.1).get_random_dot();
@@ -128,7 +134,25 @@ struct Weapon {
         }
 
         // draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);
-        draw_spritesheet(pos + drawing_delta, 0.03, SS_GOLDEN_GUN, ind);
+
+        if (0 <= ind && ind <= 5 || 18 <= ind) {
+            hand = Dot(-5,15);
+            dulo = Dot(8,3);
+            Dot new_dulo{};
+            new_dulo.x = dulo.x * cos(-ind*15) - dulo.y * sin(-ind*15);
+            new_dulo.y = dulo.x * sin(-ind*15) + dulo.y * cos(-ind*15);
+            dulo=new_dulo;
+        }
+        else {
+            hand = Dot(-15, 15);
+            dulo = Dot(-2,-4);
+            Dot new_dulo{};
+            new_dulo.x = dulo.x * cos(-(ind-6)*15) - dulo.y * sin(-(ind-6)*15);
+            new_dulo.y = dulo.x * sin(-(ind-6)*15) + dulo.y * cos(-(ind-6)*15);
+            dulo=new_dulo;
+        }
+
+        draw_spritesheet(pos+hand, 0.03, SS_GOLDEN_GUN, ind);
     }
 };
 

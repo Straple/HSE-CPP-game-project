@@ -84,6 +84,8 @@ struct Bullet : abstract_game_object {
     void draw() const override {
         draw_sprite(pos + Dot(-2, 2), 0.4, SP_COIN);
         draw_collision(*this);
+        //draw_sprite(pos + Dot(-2, 6), 0.2, SP_COIN);
+
     }
 };
 
