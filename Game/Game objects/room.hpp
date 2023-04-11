@@ -30,6 +30,10 @@ struct Room {
     std::vector<collision_box> Collision_boxes;
 
     std::vector<interesting_dot> Interesting_dots;
+    bool player_spawned = false;
+    int wave_number=0;
+    efloat wave_cooldown = 10;
+    efloat wave_cooldown_accum=0;
 
     void read(const std::string &filename) {
         std::ifstream file(filename);
@@ -96,6 +100,16 @@ struct Room {
     }
 
     void simulate(efloat delta_time, const Input &input) {
+        if (!player_spawned) {
+            for (auto& player : Players) {
+                for (auto [pos, name] : Interesting_dots) {
+                    if (name == "player") {
+                        player.pos = pos;
+                        player_spawned = true;
+                    }
+                }
+            }
+        }
         for (auto &player : Players) {
             for (auto collision_box : Collision_boxes) {
                 player.pos = collision_box.bubble(player.get_collision());
@@ -109,12 +123,20 @@ struct Room {
 
         if (Slimes.size() + Bats.size() == 0) {
             // new wave
-            for (auto [pos, name] : Interesting_dots) {
-                if (name == "enemy") {
-                    if (randomness(50)) {
-                        Bats.emplace_back(pos);
-                    } else {
-                        Slimes.emplace_back(pos);
+            wave_cooldown_accum += delta_time;
+            if (wave_cooldown_accum >= wave_cooldown) {
+                wave_cooldown_accum = 0;
+                ++wave_number;
+
+                
+                for (auto [pos, name] : Interesting_dots) {
+                    if (name == "wave"+std::to_string(wave_number)) {
+                        if (randomness(50)) {
+                            Bats.emplace_back(pos);
+                        }
+                        else {
+                            Slimes.emplace_back(pos);
+                        }
                     }
                 }
             }
