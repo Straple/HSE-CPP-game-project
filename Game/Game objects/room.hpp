@@ -106,6 +106,7 @@ struct Room {
                     if (name == "player") {
                         player.pos = pos;
                         player_spawned = true;
+                        global_variables::camera.pos = pos;
                         break;
                     }
                 }
@@ -436,8 +437,6 @@ struct Room {
             //     draw_sprite(pos, size, sprite);
             // }
         }
-
-        draw_object(wave_cooldown_accum, Dot(), 1, RED);
 
         // draw UI
         {
