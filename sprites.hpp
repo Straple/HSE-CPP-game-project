@@ -69,8 +69,6 @@ enum sprite_t {
 
     SP_KEK,
 
-    SP_TEST_GUN,
-
     SP_COUNT,
     // НИЖЕ SP_COUNT ничего не должно быть, потому что SP_COUNT является
     // количеством элементов в sprite_t
@@ -106,7 +104,6 @@ std::string sprite_type_to_string(sprite_t sp) {
     }
 
     switch (sp) {
-        foo(SP_TEST_GUN);
         foo(SP_BUSH);
         foo(SP_TREE);
         foo(SP_LOG);
@@ -196,7 +193,6 @@ void read_sprites() {
     }
 
     read(SP_KEK, "kek.png");
-    read(SP_TEST_GUN, "Weapons\\test_gun.png");
 
     // world
     {
