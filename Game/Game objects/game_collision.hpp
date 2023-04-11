@@ -51,7 +51,7 @@ void update_collision(Bush &bush, const collision &coll) {
 template <typename collision>
 void update_collision(Tree &tree, const collision &coll) {
     tree.pos = coll.bubble(tree.get_collision());
-}*/
+}
 
 // массив объектов с коллизией выталкивет другие объекты
 template <typename container_t>
@@ -121,6 +121,6 @@ void simulate_game_collision(container_t &Objects) {
             }
         }
     }
-}
+}*/
 
 #endif  // GAME_COLLISION_HPP
