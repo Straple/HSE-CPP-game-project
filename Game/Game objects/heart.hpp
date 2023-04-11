@@ -6,7 +6,7 @@
 
 struct Heart : Loot {
     Heart(Dot position, Dot dir) : Loot(position, dir) {
-        size = 0.3;
+        size = 0.4;
     }
 
     bool simulate_collection() override {

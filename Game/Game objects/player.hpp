@@ -179,7 +179,7 @@ struct Player : abstract_game_object {
     void draw() const override {
         draw_sprite(pos + Dot(-7, 4), size, SP_MEDIUM_SHADOW);
 
-        if (is_invulnerable()) {
+        if (invulnerable_accum + 0.5 < invulnerable_cooldown) {
             anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
                 return Color(0xffffff, 128);
             });
