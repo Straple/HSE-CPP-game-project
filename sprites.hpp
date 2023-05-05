@@ -88,6 +88,7 @@ enum spritesheet_t {
 
     SS_HIT_EFFECT,
     SS_DEATH_EFFECT,
+    SS_PORTAL_EFFECT,
 
     // weapons
     SS_GOLDEN_GUN,

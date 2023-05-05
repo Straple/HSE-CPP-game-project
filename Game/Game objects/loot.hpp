@@ -43,4 +43,6 @@ struct Loot : abstract_game_object {
     }
 };
 
+
+
 #endif  // GAME_LOOT_HPP
