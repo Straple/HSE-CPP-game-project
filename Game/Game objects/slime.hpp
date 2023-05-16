@@ -34,7 +34,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         // enemy_state_for_trivial_enemy
         damage = 2;
         jump_radius = 14;
-        ddp_speed = 250;
+        ddp_speed = 400;
         paralyzed_accum = paralyzed_cooldown = 0.3;
         attack_accum = attack_cooldown = 3;
     }
