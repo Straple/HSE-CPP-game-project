@@ -15,7 +15,7 @@ struct Weapon {
     mutable Dot hand;
 
 
-    Weapon(efloat cooldown = 0, int damage = 50)
+    Weapon(efloat cooldown = 0, int damage = 1)
             : cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
     }
 

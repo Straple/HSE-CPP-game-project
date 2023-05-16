@@ -271,7 +271,9 @@ struct Room {
                 for (auto &coin1 : Loot_coins) {
                     for (auto &coin2 : Loot_coins) {
                         if (&coin1 != &coin2) {
-                            coin1.pos = coin2.get_collision().bubble(coin1.get_collision());
+                            coin1.pos = coin2.get_collision().bubble(
+                                coin1.get_collision()
+                            );
                         }
                     }
                 }

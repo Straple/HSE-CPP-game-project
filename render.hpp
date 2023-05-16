@@ -1,6 +1,10 @@
 ﻿#ifndef GAME_ENGINE_RENDER_HPP
 #define GAME_ENGINE_RENDER_HPP
 
+// 0 = без многопоточности
+// 1 = многопоточность
+#define MULTITHREAD_RENDER 0
+
 #include "objects.hpp"
 //
 #include "global_variables.hpp"
@@ -11,7 +15,7 @@
 //
 #include "Render/basic_render.cpp"
 //
-// #include "multi_threaded_render.cpp"
+//#include "Render/multi_threaded_render.cpp"
 //
 #include "Render/render_geometry.cpp"
 //

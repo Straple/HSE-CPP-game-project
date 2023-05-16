@@ -2,7 +2,7 @@
 #define GAME_ENGINE_MY_LPCSTR LPCSTR
 
 #define GAME_MODE
-//#define LEVEL_MAKER_MODE
+// #define LEVEL_MAKER_MODE
 
 /*
 WARNINGS:
@@ -29,9 +29,6 @@ UP, DOWN = render_scale
 void relax_scaling_after_change_window_scaling(Dot &cursor_pos) {
     global_variables::scale_factor = global_variables::render_state.height() *
                                      global_variables::render_scale;
-#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
-    clear_sprites_cache();
-#endif
 
     // relax arena
     global_variables::arena_half_size =
@@ -167,6 +164,49 @@ class engine_app {
 
     Input input;
 
+    void simulate_input() {
+        if (pressed(BUTTON_ESC)) {
+            global_variables::running = false;
+            return;
+        }
+
+        if (pressed(BUTTON_ENTER)) {
+            global_variables::fullscreen_mode =
+                !global_variables::fullscreen_mode;
+
+            if (global_variables::fullscreen_mode) {
+                set_fullscreen_mode();
+            } else {
+                set_window_mode();
+            }
+        }
+
+        if (pressed(BUTTON_TAB)) {
+            global_variables::debug_mode = !global_variables::debug_mode;
+        }
+
+        if (pressed(BUTTON_K)) {
+            global_variables::show_locator = !global_variables::show_locator;
+        }
+
+        if (pressed(BUTTON_F)) {
+            global_variables::show_fps = !global_variables::show_fps;
+        }
+
+        // update render_scale
+        {
+            if (is_down(BUTTON_UP)) {
+                increase_window_scaling(cursor.pos);
+            }
+
+            if (is_down(BUTTON_DOWN)) {
+                decrease_window_scaling(cursor.pos);
+            }
+        }
+
+        cursor.simulate(input);
+    }
+
 public:
     engine_app() {
         hInstance = GetModuleHandle(nullptr);
@@ -205,25 +245,30 @@ public:
         hdc = GetDC(window);
     }
 
+    engine_app(const engine_app &other) = delete;
+    engine_app(engine_app &&other) = delete;
+    engine_app &operator=(const engine_app &other) = delete;
+    engine_app &operator=(engine_app &&other) = delete;
+
     // симулирует один игровой кадр
     // delta_time = время между кадрами
     void simulate_frame(efloat delta_time) {
         global_variables::count_of_render_rects = 0;
         update_controls();
 
-        simulate_game(input, delta_time, [&]() -> void {
-            global_variables::fullscreen_mode =
-                !global_variables::fullscreen_mode;
+        simulate_input();
 
-            if (global_variables::fullscreen_mode) {
-                set_fullscreen_mode();
-            } else {
-                set_window_mode();
-            }
-        });
+        if (!global_variables::running) {
+            return;
+        }
+
+        simulate_game(input, delta_time);
 
         simulate_end_frame(delta_time);
 
+#if MULTITHREAD_RENDER != 0
+        wait_all_render_threads();
+#endif
         release_frame();
     }
 
@@ -312,9 +357,6 @@ private:
                 global_variables::scale_factor =
                     global_variables::render_state.height() *
                     global_variables::render_scale;
-#ifndef GAME_ENGINE_STANDARD_RENDER_SYSTEM
-                clear_sprites_cache();
-#endif
 
                 // relax arena
                 global_variables::arena_half_size =
@@ -479,7 +521,9 @@ int main() {
         test_room.read("level.txt");
 #endif
 
-        // init_render_threads();
+#if MULTITHREAD_RENDER == 1
+        init_render_threads();
+#endif
     }
 
     engine_app eng;
@@ -508,6 +552,8 @@ int main() {
         }
     }
 
-    // join_all_render_threads();
+#if MULTITHREAD_RENDER != 0
+    join_all_render_threads();
+#endif
     return 0;
 }

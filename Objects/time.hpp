@@ -32,26 +32,9 @@ u64 get_ticks() {
     return ticks.QuadPart;
 }
 
-#elif defined(__linux__) || defined(__APPLE__)
-
-#include <sys/time.h>
-
-// вернет частоту обновления устройства
-u64 get_performance_frequency() {
-    return 1'000'000;  // колво микросекунд в секунде
-}
-
-// вернет текущий тик
-u64 get_ticks() {
-    timeval ticks;
-    // вернет -1 в случае ошибки
-    ASSERT(gettimeofdey(&ticks, NULL) == 0, "call to gettimeofday fails");
-    return ticks.tv_usec;
-}
-
 #else
 
-static_assert(false, "<time.h> not supported operating system");
+static_assert(false, "not supported operating system");
 
 #endif
 

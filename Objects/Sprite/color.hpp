@@ -12,29 +12,23 @@ struct Color {
     u8 r;  // red
     u8 a;  // alpha
 
-#define calc_color(alpha, c) ((static_cast<unsigned int>(alpha) * (c)) / 255)
-
     Color() {
         b = g = r = a = 0;
     }
 
     Color(u8 red, u8 green, u8 blue, u8 alpha)
-        : a(alpha),
-          r(calc_color(alpha, red)),
-          g(calc_color(alpha, green)),
-          b(calc_color(alpha, blue)) {
+        : r(red), g(green), b(blue), a(alpha) {
     }
 
-    Color(u8 red, u8 green, u8 blue) : a(0xff), r(red), g(green), b(blue) {
+    Color(u8 red, u8 green, u8 blue) : r(red), g(green), b(blue), a(0xff) {
     }
 
     // 0xRRGGBB, alpha
     Color(unsigned int rgb, u8 alpha)
-        : b(rgb & 0xff), g((rgb & 0xff00) >> 8), r((rgb & 0xff0000) >> 16) {
-        r = calc_color(alpha, r);
-        g = calc_color(alpha, g);
-        b = calc_color(alpha, b);
-        a = alpha;
+        : b(rgb & 0xff),
+          g((rgb & 0xff00) >> 8),
+          r((rgb & 0xff0000) >> 16),
+          a(alpha) {
     }
 
     // 0xAARRGGBB
@@ -43,26 +37,21 @@ struct Color {
           g((argb & 0xff00) >> 8),
           r((argb & 0xff0000) >> 16),
           a((argb & 0xff000000) >> 24) {
-        r = calc_color(a, r);
-        g = calc_color(a, g);
-        b = calc_color(a, b);
     }
 
     // накладывает на этот цвет color
     [[nodiscard]] Color combine(const Color &color) const {
         Color result;
-        u8 inv_alpha = 0xff - color.a;
-        result.r = color.r + calc_color(inv_alpha, r);
-        result.g = color.g + calc_color(inv_alpha, g);
-        result.b = color.b + calc_color(inv_alpha, b);
-        result.a = color.a + calc_color(inv_alpha, a);
+
+        result.r = (color.r * color.a + r * (255 - color.a)) / 256;
+        result.g = (color.g * color.a + g * (255 - color.a)) / 256;
+        result.b = (color.b * color.a + b * (255 - color.a)) / 256;
         return result;
     }
 
-#undef calc_color
-
     explicit operator unsigned int() const {
-        return static_cast<unsigned int>(r << 16) + (g << 8) + b;
+        return (static_cast<unsigned int>(a) << 24) +
+               (static_cast<unsigned int>(r) << 16) + (g << 8) + b;
     }
 };
 

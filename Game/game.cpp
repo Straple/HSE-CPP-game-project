@@ -28,52 +28,12 @@ void simulate_player(const Input &input, efloat delta_time) {
     }
 }
 
-template <typename func_t>
-void simulate_input(const Input &input, func_t &&window_mode_callback) {
-    if (pressed(BUTTON_ESC)) {
-        global_variables::running = false;
-        return;
-    }
-
-    if (pressed(BUTTON_ENTER)) {
-        window_mode_callback();
-    }
-
-    if (pressed(BUTTON_TAB)) {
-        global_variables::debug_mode = !global_variables::debug_mode;
-    }
-
-    if (pressed(BUTTON_K)) {
-        global_variables::show_locator = !global_variables::show_locator;
-    }
-
-    if (pressed(BUTTON_F)) {
-        global_variables::show_fps = !global_variables::show_fps;
-    }
-
-    // update render_scale
-    {
-        if (is_down(BUTTON_UP)) {
-            increase_window_scaling(cursor.pos);
-        }
-
-        if (is_down(BUTTON_DOWN)) {
-            decrease_window_scaling(cursor.pos);
-        }
-    }
-
-    cursor.simulate(input);
-}
-
 Room test_room;
 
-template <typename func_t>
 void simulate_game(
     const Input &input,
-    efloat delta_time,
-    func_t &&window_mode_callback
+    efloat delta_time
 ) {
-    simulate_input(input, window_mode_callback);
 
     if (!global_variables::running) {
         return;

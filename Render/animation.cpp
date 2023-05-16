@@ -42,8 +42,8 @@ struct animation {
         return false;
     }
 
-    template <typename func_t = Color(const Color &color)>
-    void draw(Dot pos, efloat size, func_t &&func = standart_pixel_func) const {
+    template <typename func_t = dummy_color_func>
+    void draw(Dot pos, efloat size, func_t &&func = dummy_color_func()) const {
         draw_spritesheet(
             pos, size, sprite_sheet, frame_begin + frame_cur_count, func
         );
