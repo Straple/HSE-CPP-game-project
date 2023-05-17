@@ -153,7 +153,6 @@ void render_game(const Input &input) {
 }
 
 void simulate_input(const Input &input) {
-
     // change mode
     if (pressed(BUTTON_C)) {
         if (current_mode == LM_SPRITE) {
@@ -320,13 +319,13 @@ void simulate_input(const Input &input) {
     }
 }
 
-void simulate_game(
-    const Input &input,
-    efloat delta_time
-) {
-    simulate_input(input);
-
+void simulate_game(const Input &input, efloat delta_time) {
     current_pos = global_variables::camera.pos + cursor.pos;
+
+    simulate_input(input);
+    if (!global_variables::running) {
+        return;
+    }
 
     // simulate camera move
     {
