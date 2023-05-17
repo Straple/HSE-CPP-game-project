@@ -5,6 +5,8 @@
 // 1 = многопоточность
 #define MULTITHREAD_RENDER 0
 
+#define GAME_ENGINE_USE_SSE
+
 #include "objects.hpp"
 //
 #include "global_variables.hpp"

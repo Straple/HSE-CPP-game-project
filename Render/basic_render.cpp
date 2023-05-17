@@ -1,8 +1,6 @@
-﻿
-#define GAME_ENGINE_USE_SSE
-
-#ifdef GAME_ENGINE_USE_SSE
+﻿#ifdef GAME_ENGINE_USE_SSE
 #include <emmintrin.h>
+#include <future>
 #endif
 
 // заполняет значения dest[0], dest[1], ..., dest[len-1] значением val32
@@ -34,15 +32,18 @@ void fill(uint32_t *dest, uint32_t val32, unsigned int len) {
     // len > 40: ~7'000
 
 #ifdef GAME_ENGINE_USE_SSE
-    const __m128i val128 = _mm_set1_epi32(val32);
-    for (__m128i *ptr = reinterpret_cast<__m128i *>(dest),
-                 *end = reinterpret_cast<__m128i *>(dest + len - len % 4);
-         ptr != end; ptr++) {
-        _mm_store_si128(ptr, val128);
+
+    int to_len = len - len % 4;
+    while (len != to_len) {
+        len--;
+        dest[len] = val32;
     }
 
-    for (int index = len - len % 4; index < len; index++) {
-        dest[index] = val32;
+    const __m128i val128 = _mm_set1_epi32(val32);
+    for (__m128i *ptr = reinterpret_cast<__m128i *>(dest),
+                 *end = reinterpret_cast<__m128i *>(dest + len);
+         ptr != end; ptr++) {
+        _mm_store_si128(ptr, val128);
     }
 
 #else
@@ -58,6 +59,27 @@ void fill(uint32_t *dest, uint32_t val32, unsigned int len) {
         dest[len - 1] = val32;
     }
 #endif
+}
+
+void draw_pixels_row_trivial_impl(
+    Color *row,
+    unsigned int len,
+    const Color &color
+) {
+    unsigned int x = 0;
+    while (x < len) {
+        unsigned int k = x + 1;
+
+        while (k < len && row[k] == row[x]) {
+            k++;
+        }
+
+        fill(
+            reinterpret_cast<unsigned int *>(row + x),
+            static_cast<unsigned int>(row[x].combine(color)), k - x
+        );
+        x = k;
+    }
 }
 
 void draw_pixels_impl(
@@ -80,16 +102,17 @@ void draw_pixels_impl(
         }
     } else {
 #ifdef GAME_ENGINE_USE_SSE
-        const __m128i zero128 = _mm_setzero_si128();
-        const __m128i alpha128 = _mm_set1_epi16(color.a);
-        const __m128i packed_alpha_128 =
-            _mm_sub_epi16(_mm_set1_epi16(0x00FF), alpha128);
 
-        // заранее посчитанный цвет, чтобы в цикле возиться только с остальными
-        // цветами, а этот просто прибавить
+        const __m128i zero = _mm_setzero_si128();
+        const __m128i alpha = _mm_set1_epi16(color.a);
+        const __m128i inverse_alpha =
+            _mm_sub_epi16(_mm_set1_epi16(0x00FF), alpha);
+
+        // заранее посчитанный цвет, чтобы в цикле возиться только с
+        // остальными цветами, а этот просто прибавить
         __m128i pre_color = _mm_set1_epi32(static_cast<unsigned int>(color));
-        pre_color = _mm_unpacklo_epi8(pre_color, zero128);
-        pre_color = _mm_mullo_epi16(pre_color, alpha128);
+        pre_color = _mm_unpacklo_epi8(pre_color, zero);
+        pre_color = _mm_mullo_epi16(pre_color, alpha);
         pre_color = _mm_srli_epi16(pre_color, 8);
         pre_color = _mm_packus_epi16(pre_color, pre_color);
 
@@ -100,44 +123,28 @@ void draw_pixels_impl(
                  ptr < end; ptr++) {
                 const __m128i dest_pixels = _mm_load_si128(ptr);
 
-                const __m128i dest_lo16 =
-                    _mm_unpacklo_epi8(dest_pixels, zero128);
-                const __m128i dest_hi16 =
-                    _mm_unpackhi_epi8(dest_pixels, zero128);
+                const __m128i dest_lo16 = _mm_unpacklo_epi8(dest_pixels, zero);
+                const __m128i dest_hi16 = _mm_unpackhi_epi8(dest_pixels, zero);
 
                 const __m128i mult_dest_lo16 =
-                    _mm_mullo_epi16(dest_lo16, packed_alpha_128);
+                    _mm_mullo_epi16(dest_lo16, inverse_alpha);
                 const __m128i mult_dest_hi16 =
-                    _mm_mullo_epi16(dest_hi16, packed_alpha_128);
+                    _mm_mullo_epi16(dest_hi16, inverse_alpha);
 
                 const __m128i result_lo16 = _mm_srli_epi16(mult_dest_lo16, 8);
                 const __m128i result_hi16 = _mm_srli_epi16(mult_dest_hi16, 8);
+
                 const __m128i result_dest =
                     _mm_packus_epi16(result_lo16, result_hi16);
 
                 _mm_store_si128(ptr, _mm_add_epi8(result_dest, pre_color));
             }
 
-            for (unsigned int x = len - len % 4; x < len; x++) {
-                row[x] = row[x].combine(color);
-            }
+            draw_pixels_row_trivial_impl(row + len - len % 4, len % 4, color);
         }
 #else
         for (unsigned int y = y0; y < y1; y++, row += screen_width) {
-            unsigned int x = 0;
-            while (x < len) {
-                unsigned int k = x + 1;
-
-                while (k < len && row[k] == row[x]) {
-                    k++;
-                }
-
-                fill(
-                    reinterpret_cast<unsigned int *>(row + x),
-                    static_cast<unsigned int>(row[x].combine(color)), k - x
-                );
-                x = k;
-            }
+            draw_pixels_row_trivial_impl(row, len, color);
         }
 #endif
     }
@@ -198,8 +205,18 @@ void draw_rect_in_pixels(s64 x0, s64 y0, s64 x1, s64 y1, const Color &color) {
 
 // зарисовывает весь экран цветом
 void clear_screen(const Color &color) {
-    draw_pixels(
-        0, 0, global_variables::render_state.width(),
-        global_variables::render_state.height(), color
-    );
+    if (color.a == 0xff) {
+        Color *pixels = global_variables::render_state.render_memory();
+        unsigned int size = global_variables::render_state.height() *
+                            global_variables::render_state.width();
+        fill(
+            reinterpret_cast<unsigned int *>(pixels),
+            static_cast<unsigned int>(color), size
+        );
+    } else {
+        draw_pixels(
+            0, 0, global_variables::render_state.width(),
+            global_variables::render_state.height(), color
+        );
+    }
 }
