@@ -13,7 +13,8 @@ struct Color {
     u8 a;  // alpha
 
     Color() {
-        b = g = r = a = 0;
+        b = g = r = 0;
+        a = 255;
     }
 
     Color(u8 red, u8 green, u8 blue, u8 alpha)
@@ -46,6 +47,7 @@ struct Color {
         result.r = (color.r * color.a + r * (255 - color.a)) / 256;
         result.g = (color.g * color.a + g * (255 - color.a)) / 256;
         result.b = (color.b * color.a + b * (255 - color.a)) / 256;
+        //result.a = color.a;
         return result;
     }
 
