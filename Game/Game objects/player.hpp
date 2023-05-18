@@ -74,7 +74,8 @@ struct Player_anim_tree {
 };
 
 struct Player : abstract_game_object {
-    inline static const efloat ddp_speed = 500;
+    inline static const efloat ddp_speed = 700;
+    inline static const efloat jump_speed = 110;
 
     int hp = 3;
     int coins = 10;
@@ -139,11 +140,13 @@ struct Player : abstract_game_object {
             anim_type.anim = Player_anim_tree::ROLL;
             anim = player_anims[anim_type.get_num()];
 
+            Dot jump_dir;
             if (ddp.get_len() == 0) {
-                dp = get_dir() * 70;
+                jump_dir = get_dir();
             } else {
-                dp = ddp.normalize() * 70;
+                jump_dir = ddp.normalize();
             }
+            dp = jump_dir * jump_speed;
         } else {
             jump_accum += delta_time;
             invulnerable_accum += delta_time;

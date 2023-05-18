@@ -34,7 +34,7 @@ public:
 
         // update render_memory
         {
-            u64 size = static_cast<u64>(new_width) * new_height;
+            u64 size = static_cast<u64>(m_width) * new_height;
 
             if (m_render_memory_len < size) {  // не хватает памяти
                 delete[] m_render_memory;

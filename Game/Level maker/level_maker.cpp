@@ -152,40 +152,7 @@ void render_game(const Input &input) {
     }
 }
 
-template <typename func_t>
-void simulate_input(const Input &input, func_t &&window_mode_callback) {
-    // standart buttons
-    {
-        if (pressed(BUTTON_ESC)) {
-            global_variables::running = false;
-            return;
-        }
-
-        if (pressed(BUTTON_ENTER)) {
-            window_mode_callback();
-        }
-
-        if (pressed(BUTTON_TAB)) {
-            global_variables::debug_mode = !global_variables::debug_mode;
-        }
-
-        /*if (pressed(BUTTON_K)) {
-            global_variables::show_locator = !global_variables::show_locator;
-        }*/
-
-        if (pressed(BUTTON_F)) {
-            global_variables::show_fps = !global_variables::show_fps;
-        }
-
-        if (is_down(BUTTON_UP)) {
-            increase_window_scaling(cursor.pos);
-        }
-
-        if (is_down(BUTTON_DOWN)) {
-            decrease_window_scaling(cursor.pos);
-        }
-    }
-
+void simulate_input(const Input &input) {
     // change mode
     if (pressed(BUTTON_C)) {
         if (current_mode == LM_SPRITE) {
@@ -352,15 +319,10 @@ void simulate_input(const Input &input, func_t &&window_mode_callback) {
     }
 }
 
-template <typename func_t>
-void simulate_game(
-    const Input &input,
-    efloat delta_time,
-    func_t &&window_mode_callback
-) {
+void simulate_game(const Input &input, efloat delta_time) {
     current_pos = global_variables::camera.pos + cursor.pos;
 
-    simulate_input(input, window_mode_callback);
+    simulate_input(input);
     if (!global_variables::running) {
         return;
     }

@@ -63,6 +63,8 @@ struct Weapon {
         }
         int ind = angle / 15;
 
+        Dot drawing_delta;
+
 
         // draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);
         if (0 <= ind && ind <= 5) {

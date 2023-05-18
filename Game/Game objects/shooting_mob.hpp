@@ -6,14 +6,14 @@
 #define BULLETPROOF_SHOOTING_MOB_H
 
 std::mt19937 mt(100);
-std::uniform_int_distribution<int> rand_shot_num(1,3);
+std::uniform_int_distribution<int> rand_shot_num(1, 3);
 
 struct ShootingSlime : abstract_game_object, enemy_state_for_shooting_enemy {
     inline const static u8 draw_alpha = 210;
     inline const static efloat frame_duration = 1.0 / 7;
     inline const static animation
-            animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
-            animation_attack = animation(SS_SLIME, 25, 30, frame_duration);
+        animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
+        animation_attack = animation(SS_SLIME, 25, 30, frame_duration);
 
     int hp = 150;
 
@@ -23,8 +23,6 @@ struct ShootingSlime : abstract_game_object, enemy_state_for_shooting_enemy {
     efloat paralyzed_accum;
 
     animation anim = animation_idle;
-
-
 
     ShootingSlime(const Dot &position = Dot()) {
         // abstract_game_object
@@ -63,8 +61,8 @@ struct ShootingSlime : abstract_game_object, enemy_state_for_shooting_enemy {
             anim.frame_update(delta_time);
 
             move_to2d(
-                    pos, Players[0].pos, dp,
-                    (Players[0].pos - pos).normalize() * ddp_speed, delta_time
+                pos, Players[0].pos, dp,
+                (Players[0].pos - pos).normalize() * ddp_speed, delta_time
             );
 
             if (
@@ -78,8 +76,6 @@ struct ShootingSlime : abstract_game_object, enemy_state_for_shooting_enemy {
                     (Players[0].pos - pos).get_len() <= shooting_radius &&
                     // перезарядка атаки прошла
                     attack_accum >= attack_cooldown) {
-
-
                 for (int i = 0; i < rand_shot_num(mt); i++) {
                     weapon.shot(Players[0].pos);
                 }
@@ -91,16 +87,15 @@ struct ShootingSlime : abstract_game_object, enemy_state_for_shooting_enemy {
 
     void draw() const override {
         draw_sprite(
-                pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW,
-                shadow_pixel_func
+            pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW,
+            shadow_color_func()
         );
 
         anim.draw(pos + delta_draw_pos, size, [&](Color color) {
             return paralyzed_accum < paralyzed_cooldown
-                   ? Color(0xffffff, 128)
-                   : Color(color.operator unsigned int(), draw_alpha);
+                       ? Color(0xffffff, 128)
+                       : Color(color.operator unsigned int(), draw_alpha);
         });
-
 
         draw_collision(*this);
 
@@ -112,8 +107,8 @@ struct ShootingSlime : abstract_game_object, enemy_state_for_shooting_enemy {
 
         if (global_variables::show_locator) {
             draw_circle(
-                    Circle(pos - global_variables::camera.pos, shooting_radius),
-                    Color(0xff0000, 50)
+                Circle(pos - global_variables::camera.pos, shooting_radius),
+                Color(0xff0000, 50)
             );
         }
     }
@@ -121,4 +116,4 @@ struct ShootingSlime : abstract_game_object, enemy_state_for_shooting_enemy {
 
 std::vector<ShootingSlime> ShootingSlimes;
 
-#endif //BULLETPROOF_SHOOTING_MOB_H
+#endif  // BULLETPROOF_SHOOTING_MOB_H

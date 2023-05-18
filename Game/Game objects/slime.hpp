@@ -61,7 +61,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         // enemy_state_for_trivial_enemy
         damage = 2;
         jump_radius = 14;
-        ddp_speed = 250;
+        ddp_speed = 400;
         paralyzed_accum = paralyzed_cooldown = 0.3;
         attack_accum = attack_cooldown = 3;
         shooter = shtr;
@@ -205,19 +205,19 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             if (is_between<u8>(9, anim.frame_count, 25)) {
                 draw_sprite(
                     pos + delta_draw_pos, size, SP_SLIME_LARGE_SHADOW,
-                    shadow_pixel_func
+                    shadow_color_func()
                 );
             } else {
                 draw_sprite(
                     pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW,
-                    shadow_pixel_func
+                    shadow_color_func()
                 );
             }
-            anim.draw(pos + delta_draw_pos, size, alpha_pixel_func<draw_alpha>);
+            anim.draw(pos + delta_draw_pos, size, alpha_color_func<draw_alpha>());
         } else {
             draw_sprite(
                 pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW,
-                shadow_pixel_func
+                shadow_color_func()
             );
 
             anim.draw(pos + delta_draw_pos, size, [&](Color color) {
