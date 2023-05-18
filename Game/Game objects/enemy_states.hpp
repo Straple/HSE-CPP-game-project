@@ -1,7 +1,7 @@
 #ifndef GAME_ENEMY_STATES_HPP
 #define GAME_ENEMY_STATES_HPP
 
-#include "../../utils.hpp"
+#include "utils.hpp"
 
 struct enemy_state_for_trivial_enemy {
     int damage;
@@ -22,5 +22,9 @@ struct enemy_state_for_shooting_enemy {
     efloat paralyzed_cooldown;
     efloat attack_cooldown;
 };
+
+
+
+
 
 #endif  // GAME_ENEMY_STATES_HPP

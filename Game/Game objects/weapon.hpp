@@ -15,11 +15,11 @@ struct Weapon {
     mutable Dot hand;
 
 
-    Weapon(efloat cooldown = 0, int damage = 50)
+    Weapon(efloat cooldown = 1, int damage = 50)
             : cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
     }
 
-    void shot(Dot pos) {
+    void shot(Dot pos, Dot target = cursor.pos) {
         if (cooldown_accum >= cooldown) {
             cooldown_accum = 0;
             if (hand == Dot(-5,15)) {
@@ -29,10 +29,19 @@ struct Weapon {
                 pos += Dot(-2.5, -1.5);
             }
 //            pos+=dulo;
-            Dot dir = cursor.pos + global_variables::camera.pos - pos;
+            Dot dir = target - pos;
+            if (target == cursor.pos) {
+                dir+=global_variables::camera.pos;
+            }
             dir = dir.normalize();
             dir += Circle(Dot(), 0.1).get_random_dot();
-            Bullets.emplace_back(pos+dulo, pos + dulo + dir, 50, 1000);
+            // убрать костыль
+            if (target == cursor.pos) {
+                Bullets.emplace_back(ShooterType::PLAYER,pos + dulo, pos + dulo + dir, 50, 1000);
+            }
+            else {
+                Bullets.emplace_back(ShooterType::ENEMY,pos + dulo, pos + dulo + dir, 50, 1000);
+            }
             std::cout << pos+dir << std::endl;
         }
     }
@@ -43,11 +52,16 @@ struct Weapon {
         int ind = angle / 15;
     }
 
-    void draw(Dot pos) const {
-        auto angle = get_good_angle(cursor.pos - pos + global_variables::camera.pos, Dot(1, 0)) * 57.295779513;
-        int ind = angle / 15;
+    void draw(Dot pos, Dot target=cursor.pos) const {
+        double angle;
+        if (target == cursor.pos) {
+            angle = get_good_angle(target - pos + global_variables::camera.pos, Dot(1, 0)) * 57.295779513;
+        }
+        else {
+            angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
 
-        Dot drawing_delta;
+        }
+        int ind = angle / 15;
 
 
         // draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);

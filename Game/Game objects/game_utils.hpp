@@ -1,8 +1,8 @@
 #ifndef GAME_UTILS_HPP
 #define GAME_UTILS_HPP
 
-#include "../../global_variables.hpp"
-#include "../../render.hpp"
+#include "global_variables.hpp"
+#include "render.hpp"
 
 template <typename T>
 void draw_collision(const T &object) {
