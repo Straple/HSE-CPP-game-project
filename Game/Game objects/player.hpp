@@ -196,11 +196,15 @@ struct Player : abstract_game_object {
         }
 
         draw_collision(*this);
+        draw_hitbox(*this);
     }
 
     // возвращает направление анимации игрока
     [[nodiscard]] Dot get_dir() const {
         return get_direction(anim_type.dir);
+    }
+    [[nodiscard]] collision_circle get_hitbox() const {
+        return collision_circle(Circle(pos + Dot(0, 13), 5));
     }
 
     [[nodiscard]] collision_circle get_collision() const override {

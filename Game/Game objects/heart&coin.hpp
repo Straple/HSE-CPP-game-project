@@ -2,7 +2,7 @@
 #define GAME_LOOT_HEART_HPP
 
 #include "loot.hpp"
-#include "../../render.hpp"
+#include "render.hpp"
 
 struct Heart : Loot {
     Heart(Dot position, Dot dir) : Loot(position, dir) {
@@ -10,7 +10,7 @@ struct Heart : Loot {
     }
 
     bool simulate_collection() override {
-        if (collection_trigger()) {
+        if (collection_trigger(Players[0].pos)) {
             Players[0].hp++;
             return true;
         }
@@ -35,7 +35,7 @@ struct Coin : Loot {
     }
 
     bool simulate_collection() override {
-        if (collection_trigger()) {
+        if (collection_trigger(Players[0].pos)) {
             Players[0].coins++;
             return true;
         } else {

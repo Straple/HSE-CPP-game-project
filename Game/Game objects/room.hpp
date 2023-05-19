@@ -147,7 +147,7 @@ struct Room {
         // simulate slimes
         {
             for (auto &slime : Slimes) {
-                slime.simulate(delta_time);
+                slime.simulate(delta_time, Collision_boxes);
             }
 
             // room collision bubbling slime
@@ -207,7 +207,7 @@ struct Room {
             // bullet hit enemies
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
                 if (Bullets[i].simulate_attack(Slimes) ||
-                    Bullets[i].simulate_attack(Bats)) {
+                    Bullets[i].simulate_attack(Bats) || Bullets[i].simulate_attack_on_player(Players)) {
                     Bullets.erase(Bullets.begin() + i);
                     i--;
                 }
@@ -244,7 +244,7 @@ struct Room {
             // heart
             {
                 for (auto &heart : Loot_hearts) {
-                    heart.simulate(delta_time);
+                    heart.simulate(delta_time, Players[0].pos);
                 }
                 for (int i = 0; i < static_cast<int>(Loot_hearts.size()); i++) {
                     auto &heart = Loot_hearts[i];
@@ -257,7 +257,7 @@ struct Room {
             // coin
             {
                 for (auto &coin : Loot_coins) {
-                    coin.simulate(delta_time);
+                    coin.simulate(delta_time, Players[0].pos);
                 }
                 for (int i = 0; i < static_cast<int>(Loot_coins.size()); i++) {
                     auto &coin = Loot_coins[i];
@@ -410,7 +410,6 @@ struct Room {
             for (auto &bat : Bats) {
                 Objects.emplace_back(bat);
             }
-
             std::stable_sort(Objects.begin(), Objects.end());
 
             for (auto &obj : Objects) {

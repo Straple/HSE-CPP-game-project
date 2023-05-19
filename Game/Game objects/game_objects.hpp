@@ -26,7 +26,6 @@
 // enemies
 #include "bat.hpp"
 #include "slime.hpp"
-#include "shooting_mob.hpp"
 // #include "mini_slime.hpp"
 
 // weapons

@@ -1,11 +1,22 @@
 #ifndef GAME_BULLET_HPP
 #define GAME_BULLET_HPP
 
-#include "../../render.hpp"
+#include "render.hpp"
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
 #include "game_utils.hpp"
 #include "heart&coin.hpp"
+#include "enemy_states.hpp"
+#include "player.hpp"
+
+
+
+enum class ShooterType {
+    PLAYER,
+    ENEMY,
+};
+
+
 
 struct Bullet : abstract_game_object {
     // Добавим позже поле формы пули, чтобы можно было
@@ -14,11 +25,11 @@ struct Bullet : abstract_game_object {
 
     int speed;
     Dot dir;  // направление полета пули
-
+    ShooterType host;
     int damage;
 
-    Bullet(Dot from, Dot to, int damage, int speed)
-        : dir((to - from).normalize()), damage(damage), speed(speed) {
+    Bullet(ShooterType h, Dot from, Dot to, int damage, int speed)
+        : host(h), dir((to - from).normalize()), damage(damage), speed(speed) {
         pos = from;
         collision_radius = 2;
         delta_draw_pos = Dot(-10, 10);
@@ -31,6 +42,9 @@ struct Bullet : abstract_game_object {
     // вернет правду, если атака кого-то зацепила
     template <typename enemy_t>
     bool simulate_attack(std::vector<enemy_t> &Enemies) {
+        if (host != ShooterType::PLAYER) {
+            return false;
+        }
         for (int i = 0; i < Enemies.size(); i++) {
             if (get_collision().trigger(Enemies[i].get_hitbox()) &&
                 !Enemies[i].is_invulnerable()) {
@@ -70,6 +84,55 @@ struct Bullet : abstract_game_object {
                     Enemies.erase(Enemies.begin() + i);
                     i--;
                 }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    template<typename Player_type>
+    bool simulate_attack_on_player(std::vector<Player_type>& Players) {
+        if (host != ShooterType::ENEMY) {
+            return false;
+        }
+        for (auto& player: Players) {
+            if (get_collision().trigger(player.get_hitbox()) &&
+                !player.is_invulnerable()) {
+                // simulate hit
+                {
+                    add_hit_effect(pos);
+
+                    player.hp -= damage;
+
+                    player.dp += dir * speed / 10;
+                }
+
+//                if (Enemies[i].hp <= 0) {
+//                    add_death_effect(Enemies[i].get_hitbox().circle.pos);
+//
+//                    if (randomness(20)) {
+//                        Loot_hearts.push_back(
+//                                Heart(Enemies[i].get_hitbox().circle.pos, dir)
+//                        );
+//                    } else {
+//                        if (randomness(50)) {
+//                            for (int count = 0; count < 4; count++) {
+//                                Loot_coins.push_back(Coin(
+//                                        Enemies[i].get_hitbox().circle.pos, dir
+//                                ));
+//                            }
+//                        } else {
+//                            for (int count = 0; count < 5; count++) {
+//                                Loot_coins.push_back(Coin(
+//                                        Enemies[i].get_hitbox().circle.pos, dir
+//                                ));
+//                            }
+//                        }
+//                    }
+//
+//                    Enemies.erase(Enemies.begin() + i);
+//                    i--;
+//                }
                 return true;
             }
         }
