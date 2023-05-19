@@ -37,12 +37,12 @@ struct Weapon {
             dir += Circle(Dot(), 0.1).get_random_dot();
             // убрать костыль
             if (target == cursor.pos) {
-                Bullets.emplace_back(ShooterType::PLAYER,pos + dulo, pos + dulo + dir, 50, 1000);
+                Bullets.emplace_back(ShooterType::PLAYER,pos + dulo, pos + dulo + dir, 1, 1000);
             }
             else {
-                Bullets.emplace_back(ShooterType::ENEMY,pos + dulo, pos + dulo + dir, 50, 1000);
+                Bullets.emplace_back(ShooterType::ENEMY,pos + dulo, pos + dulo + dir, 1, 1000);
             }
-            std::cout << pos+dir << std::endl;
+            // std::cout << pos+dir << std::endl;
         }
     }
 

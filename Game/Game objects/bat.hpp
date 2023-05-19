@@ -29,6 +29,10 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         ddp_speed = 600;
         paralyzed_accum = paralyzed_cooldown = 0.3;
         attack_accum = attack_cooldown = 3;
+
+        // чтобы разнообразить кучу летучих мышей, которые будут иметь
+        // одновременные анимации
+        anim.frame_cur_count = rnd() % 5;
     }
 
     [[nodiscard]] bool is_invulnerable() const {
@@ -50,7 +54,6 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         if (paralyzed_accum < paralyzed_cooldown) {
             simulate_move2d(pos, dp, Dot(), delta_time);
         } else {
-
             anim.frame_update(delta_time);
 
             if (dp.x < 0) {

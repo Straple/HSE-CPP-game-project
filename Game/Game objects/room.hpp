@@ -127,13 +127,20 @@ struct Room {
 
         if (Slimes.size() + Bats.size() == 0) {
             // new wave
-            wave_cooldown_accum += delta_time;
+
+            for (auto [pos, name] : Interesting_dots) {
+                if (name != "player") {
+                    Slimes.emplace_back(pos);
+                }
+            }
+
+            /*wave_cooldown_accum += delta_time;
             if (wave_cooldown_accum >= wave_cooldown) {
                 wave_cooldown_accum = 0;
                 ++wave_number;
 
                 for (auto [pos, name] : Interesting_dots) {
-                    if (name == "wave" + std::to_string(wave_number)) {
+                    if (name == "enemy") {
                         if (randomness(50)) {
                             Bats.emplace_back(pos);
                         } else {
@@ -141,7 +148,7 @@ struct Room {
                         }
                     }
                 }
-            }
+            }*/
         }
 
         // simulate slimes
@@ -159,7 +166,7 @@ struct Room {
 
             // slime bubbling slime
             for (auto &slime1 : Slimes) {
-                if (!slime1.is_attack) {  // пока мы едим игрока, мы не
+                if (!slime1.is_devour) {  // пока мы едим игрока, мы не
                                           // выталкиваемы
                     for (auto &slime2 : Slimes) {
                         // чтобы не выталкивать самих себя
@@ -207,7 +214,8 @@ struct Room {
             // bullet hit enemies
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
                 if (Bullets[i].simulate_attack(Slimes) ||
-                    Bullets[i].simulate_attack(Bats) || Bullets[i].simulate_attack_on_player(Players)) {
+                    Bullets[i].simulate_attack(Bats) ||
+                    Bullets[i].simulate_attack_on_player(Players)) {
                     Bullets.erase(Bullets.begin() + i);
                     i--;
                 }
