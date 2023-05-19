@@ -25,13 +25,11 @@ struct global_variables {
     // масштаб рендеринга
     static inline efloat render_scale = 0.007;
 
-    // множитель масштабирования = global_variables::render_state.height *
+    // множитель масштабирования = global_variables::render_state.height() *
     // global_variables::render_scale
     static inline efloat scale_factor = 0;
 
     static inline efloat mouse_wheel = 0;
-
-    static inline int count_of_render_rects = 0;
 };
 
 #endif  // GLOBAL_VARIABLES_HPP

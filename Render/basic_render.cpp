@@ -162,12 +162,9 @@ void draw_pixels(
     unsigned int y1,
     const Color &color
 ) {
-    // ~35k
     if (x0 >= x1 || y0 >= y1) {
         return;
     }
-    global_variables::count_of_render_rects++;
-    // ~22k
 
     ASSERT(
         x0 <= global_variables::render_state.width() &&

@@ -24,13 +24,6 @@ enum level_maker_mode {
     LM_INTERESTING_DOT
 };
 
-/*enum game_objects{
-    GO_BUSH,
-    GO_TREE,
-
-    GO_COUNT,
-};*/
-
 level_maker_mode current_mode;
 
 Dot downed_pos;
