@@ -27,6 +27,6 @@
 //
 #include "Render/animation.cpp"
 //
-#include "Render/render_phenomen.cpp"
+#include "Render/render_objects.cpp"
 
 #endif  // GAME_ENGINE_RENDER_HPP

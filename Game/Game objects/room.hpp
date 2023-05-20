@@ -27,7 +27,7 @@ struct Room {
     std::vector<drawing_objects> Draw_objects;
 
     // room collision
-    std::vector<collision_box> Collision_boxes;
+    std::vector<CollisionBox> Collision_boxes;
 
     std::vector<interesting_dot> Interesting_dots;
     bool player_spawned = false;
@@ -113,12 +113,6 @@ struct Room {
             }
         }
 
-        for (auto &player : Players) {
-            for (auto collision_box : Collision_boxes) {
-                player.pos = collision_box.bubble(player.get_collision());
-            }
-        }
-
         if (pressed(BUTTON_MOUSE_L) && !Players[0].is_paralyzed &&
             !Players[0].is_jumped && Players[0].coins > 0) {
             Players[0].weapon.shot(Players[0].pos);
@@ -130,7 +124,7 @@ struct Room {
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
-                    Slimes.emplace_back(pos);
+                    Bats.emplace_back(pos);
                 }
             }
 
@@ -151,58 +145,11 @@ struct Room {
             }*/
         }
 
-        // simulate slimes
-        {
-            for (auto &slime : Slimes) {
-                slime.simulate(delta_time, Collision_boxes);
-            }
-
-            // room collision bubbling slime
-            for (auto &slime : Slimes) {
-                for (auto collision_box : Collision_boxes) {
-                    slime.pos = collision_box.bubble(slime.get_collision());
-                }
-            }
-
-            // slime bubbling slime
-            for (auto &slime1 : Slimes) {
-                if (!slime1.is_devour) {  // пока мы едим игрока, мы не
-                                          // выталкиваемы
-                    for (auto &slime2 : Slimes) {
-                        // чтобы не выталкивать самих себя
-                        if (&slime1 != &slime2) {
-                            slime1.pos = slime2.get_collision().bubble(
-                                slime1.get_collision()
-                            );
-                        }
-                    }
-                }
-            }
+        for (auto &slime : Slimes) {
+            slime.simulate(delta_time);
         }
-
-        // simulate bats
-        {
-            for (auto &bat : Bats) {
-                bat.simulate(delta_time);
-            }
-
-            // room collision bubbling bat
-            for (auto &bat : Bats) {
-                for (auto collision_box : Collision_boxes) {
-                    bat.pos = collision_box.bubble(bat.get_collision());
-                }
-            }
-
-            // bat bubbling bat
-            for (auto &bat1 : Bats) {
-                for (auto &bat2 : Bats) {
-                    // чтобы не выталкивать самих себя
-                    if (&bat1 != &bat2) {
-                        bat1.pos =
-                            bat2.get_collision().bubble(bat1.get_collision());
-                    }
-                }
-            }
+        for (auto &bat : Bats) {
+            bat.simulate(delta_time);
         }
 
         // simulate bullets
@@ -274,19 +221,10 @@ struct Room {
                         i--;
                     }
                 }
-
-                // coin bubbling coin
-                for (auto &coin1 : Loot_coins) {
-                    for (auto &coin2 : Loot_coins) {
-                        if (&coin1 != &coin2) {
-                            coin1.pos = coin2.get_collision().bubble(
-                                coin1.get_collision()
-                            );
-                        }
-                    }
-                }
             }
         }
+
+        simulate_game_collisions(Collision_boxes);
     }
 
     void draw() {
@@ -314,6 +252,8 @@ struct Room {
                     TO_BAT,
                     TO_HEART,
                     TO_COIN,
+                    TO_BUSH,
+                    TO_TABLE,
                 };
 
                 type_object type;
@@ -349,6 +289,16 @@ struct Room {
                     ptr = reinterpret_cast<const void *>(&coin);
                 }
 
+                explicit top_sort_object(const Bush &bush) {
+                    type = TO_BUSH;
+                    ptr = reinterpret_cast<const void *>(&bush);
+                }
+
+                explicit top_sort_object(const Table &table) {
+                    type = TO_TABLE;
+                    ptr = reinterpret_cast<const void *>(&table);
+                }
+
                 [[nodiscard]] efloat get_y() const {
                     switch (type) {
                         case TO_PLAYER: {
@@ -365,6 +315,12 @@ struct Room {
                         }
                         case TO_COIN: {
                             return reinterpret_cast<const Coin *>(ptr)->pos.y;
+                        }
+                        case TO_BUSH: {
+                            return reinterpret_cast<const Bush *>(ptr)->pos.y;
+                        }
+                        case TO_TABLE: {
+                            return reinterpret_cast<const Table *>(ptr)->pos.y;
                         }
                         default:
                             ASSERT(false, "undefined object type");
@@ -389,6 +345,12 @@ struct Room {
                         case TO_COIN: {
                             reinterpret_cast<const Coin *>(ptr)->draw();
                         } break;
+                        case TO_BUSH: {
+                            reinterpret_cast<const Bush *>(ptr)->draw();
+                        } break;
+                        case TO_TABLE: {
+                            reinterpret_cast<const Table *>(ptr)->draw();
+                        } break;
                         default: {
                             ASSERT(false, "undefind object type");
                         }
@@ -407,6 +369,13 @@ struct Room {
             }
             for (auto &coin : Loot_coins) {
                 Objects.emplace_back(coin);
+            }
+
+            for (auto &bush : Bushes) {
+                Objects.emplace_back(bush);
+            }
+            for (auto &table : Tables) {
+                Objects.emplace_back(table);
             }
 
             for (auto &player : Players) {

@@ -5,7 +5,8 @@
 #include "render.hpp"
 
 struct Heart : Loot {
-    Heart(Dot position, Dot dir) : Loot(position, dir) {
+    Heart(Dot position, Dot dir)
+        : Loot(position, dir) {
         size = 0.4;
     }
 
@@ -13,16 +14,13 @@ struct Heart : Loot {
         if (collection_trigger(Players[0].pos)) {
             Players[0].hp++;
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
 
     void draw() const override {
-        draw_sprite(
-            pos + Dot(10, 10) * 0.25 - Dot(4.25, 0.5), size, SP_HEART
-        );
+        draw_sprite(pos + Dot(10, 10) * 0.25 - Dot(4.25, 0.5), size, SP_HEART);
         draw_collision(*this);
     }
 };
@@ -30,7 +28,8 @@ struct Heart : Loot {
 std::vector<Heart> Loot_hearts;
 
 struct Coin : Loot {
-    Coin(Dot position, Dot dir) : Loot(position, dir) {
+    Coin(Dot position, Dot dir)
+        : Loot(position, dir) {
         size = 0.4;
     }
 

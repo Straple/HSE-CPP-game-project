@@ -1,10 +1,10 @@
 ﻿#ifndef GAME_COLLISION_HPP
 #define GAME_COLLISION_HPP
 
-// world
 #include "bush.hpp"
 #include "log.hpp"
 #include "tree.hpp"
+#include "table.hpp"
 
 // enemies
 #include "bat.hpp"
@@ -13,13 +13,96 @@
 // player
 #include "player.hpp"
 
+void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
+    // через стены никто пройти не может
+    for (const auto &wall : Walls) {
+        for (auto &player : Players) {
+            player.push_out_of_collision(wall);
+        }
+        for (auto &bat : Bats) {
+            bat.push_out_of_collision(wall);
+        }
+        for (auto &slime : Slimes) {
+            slime.push_out_of_collision(wall);
+        }
+    }
+
+    // сами с собой
+    {
+        // player bubbling player
+        for (auto &player1 : Players) {
+            if (!player1.is_paralyzed) {  // пока мы парализованы, мы не выталкиваемы
+                for (auto &player2 : Players) {
+                    // чтобы не выталкивать самих себя
+                    if (&player1 != &player2) {
+                        player1.push_out_of_collision(*player2.get_collision());
+                    }
+                }
+            }
+        }
+
+        // slime bubbling slime
+        for (auto &slime1 : Slimes) {
+            if (!slime1.is_devour) {  // пока мы едим игрока, мы не выталкиваемы
+                for (auto &slime2 : Slimes) {
+                    // чтобы не выталкивать самих себя
+                    if (&slime1 != &slime2) {
+                        slime1.push_out_of_collision(*slime2.get_collision());
+                    }
+                }
+            }
+        }
+
+        // bat bubbling bat
+        for (auto &bat1 : Bats) {
+            for (auto &bat2 : Bats) {
+                // чтобы не выталкивать самих себя
+                if (&bat1 != &bat2) {
+                    bat1.push_out_of_collision(*bat2.get_collision());
+                }
+            }
+        }
+
+        // coin bubbling coin
+        for (auto &coin1 : Loot_coins) {
+            for (auto &coin2 : Loot_coins) {
+                if (&coin1 != &coin2) {
+                    coin1.push_out_of_collision(*coin2.get_collision());
+                }
+            }
+        }
+    }
+
+    // слайм не может пройти через Bush, Table
+    for (auto &slime : Slimes) {
+        for (const auto &bush : Bushes) {
+            slime.push_out_of_collision(*bush.get_collision());
+        }
+        for (const auto &table : Tables) {
+            slime.push_out_of_collision(*table.get_collision());
+        }
+    }
+
+    // игрок не может пройти через Bush, Table
+    for (auto &player : Players) {
+        for (const auto &bush : Bushes) {
+            player.push_out_of_collision(*bush.get_collision());
+        }
+        for (const auto &table : Tables) {
+            player.push_out_of_collision(*table.get_collision());
+        }
+    }
+}
+
+// old version
+/*
 template <typename T1, typename T2>
 bool verify_others_obj(const T1 &Lhs, const T2 &Rhs) {
     return reinterpret_cast<const void *>(&Lhs) !=
            reinterpret_cast<const void *>(&Rhs);
 }
 
-/*template <typename collision>
+template <typename collision>
 void update_collision(Player &player, const collision &coll) {
     if (!player.is_paralyzed) {
         player.pos = coll.bubble(player.get_collision());

@@ -1,22 +1,18 @@
 #ifndef GAME_BULLET_HPP
 #define GAME_BULLET_HPP
 
-#include "render.hpp"
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
+#include "enemy_states.hpp"
 #include "game_utils.hpp"
 #include "heart&coin.hpp"
-#include "enemy_states.hpp"
 #include "player.hpp"
-
-
+#include "render.hpp"
 
 enum class ShooterType {
     PLAYER,
     ENEMY,
 };
-
-
 
 struct Bullet : abstract_game_object {
     // Добавим позже поле формы пули, чтобы можно было
@@ -35,8 +31,8 @@ struct Bullet : abstract_game_object {
         delta_draw_pos = Dot(-10, 10);
     }
 
-    [[nodiscard]] collision_circle get_collision() const override {
-        return collision_circle(Circle(pos, collision_radius));
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+        return std::make_unique<CollisionCircle>(Circle(pos, collision_radius));
     }
 
     // вернет правду, если атака кого-то зацепила
@@ -46,7 +42,7 @@ struct Bullet : abstract_game_object {
             return false;
         }
         for (int i = 0; i < Enemies.size(); i++) {
-            if (get_collision().trigger(Enemies[i].get_hitbox()) &&
+            if (get_collision()->trigger(*Enemies[i].get_hitbox()) &&
                 !Enemies[i].is_invulnerable()) {
                 // simulate hit
                 {
@@ -59,23 +55,23 @@ struct Bullet : abstract_game_object {
                 }
 
                 if (Enemies[i].hp <= 0) {
-                    add_death_effect(Enemies[i].get_hitbox().circle.pos);
+                    add_death_effect(Enemies[i].get_hitbox()->get_pos());
 
                     if (randomness(20)) {
                         Loot_hearts.push_back(
-                            Heart(Enemies[i].get_hitbox().circle.pos, dir)
+                            Heart(Enemies[i].get_hitbox()->get_pos(), dir)
                         );
                     } else {
                         if (randomness(50)) {
                             for (int count = 0; count < 4; count++) {
                                 Loot_coins.push_back(Coin(
-                                    Enemies[i].get_hitbox().circle.pos, dir
+                                    Enemies[i].get_hitbox()->get_pos(), dir
                                 ));
                             }
                         } else {
                             for (int count = 0; count < 5; count++) {
                                 Loot_coins.push_back(Coin(
-                                    Enemies[i].get_hitbox().circle.pos, dir
+                                    Enemies[i].get_hitbox()->get_pos(), dir
                                 ));
                             }
                         }
@@ -90,13 +86,13 @@ struct Bullet : abstract_game_object {
         return false;
     }
 
-    template<typename Player_type>
-    bool simulate_attack_on_player(std::vector<Player_type>& Players) {
+    template <typename Player_type>
+    bool simulate_attack_on_player(std::vector<Player_type> &Players) {
         if (host != ShooterType::ENEMY) {
             return false;
         }
-        for (auto& player: Players) {
-            if (get_collision().trigger(player.get_hitbox()) &&
+        for (auto &player : Players) {
+            if (get_collision()->trigger(*player.get_hitbox()) &&
                 !player.is_invulnerable()) {
                 // simulate hit
                 {
@@ -107,32 +103,32 @@ struct Bullet : abstract_game_object {
                     player.dp += dir * speed / 10;
                 }
 
-//                if (Enemies[i].hp <= 0) {
-//                    add_death_effect(Enemies[i].get_hitbox().circle.pos);
-//
-//                    if (randomness(20)) {
-//                        Loot_hearts.push_back(
-//                                Heart(Enemies[i].get_hitbox().circle.pos, dir)
-//                        );
-//                    } else {
-//                        if (randomness(50)) {
-//                            for (int count = 0; count < 4; count++) {
-//                                Loot_coins.push_back(Coin(
-//                                        Enemies[i].get_hitbox().circle.pos, dir
-//                                ));
-//                            }
-//                        } else {
-//                            for (int count = 0; count < 5; count++) {
-//                                Loot_coins.push_back(Coin(
-//                                        Enemies[i].get_hitbox().circle.pos, dir
-//                                ));
-//                            }
-//                        }
-//                    }
-//
-//                    Enemies.erase(Enemies.begin() + i);
-//                    i--;
-//                }
+                //                if (Enemies[i].hp <= 0) {
+                //                    add_death_effect(Enemies[i].get_hitbox().circle.pos);
+                //
+                //                    if (randomness(20)) {
+                //                        Loot_hearts.push_back(
+                //                                Heart(Enemies[i].get_hitbox().circle.pos, dir)
+                //                        );
+                //                    } else {
+                //                        if (randomness(50)) {
+                //                            for (int count = 0; count < 4; count++) {
+                //                                Loot_coins.push_back(Coin(
+                //                                        Enemies[i].get_hitbox().circle.pos, dir
+                //                                ));
+                //                            }
+                //                        } else {
+                //                            for (int count = 0; count < 5; count++) {
+                //                                Loot_coins.push_back(Coin(
+                //                                        Enemies[i].get_hitbox().circle.pos, dir
+                //                                ));
+                //                            }
+                //                        }
+                //                    }
+                //
+                //                    Enemies.erase(Enemies.begin() + i);
+                //                    i--;
+                //                }
                 return true;
             }
         }
@@ -147,8 +143,6 @@ struct Bullet : abstract_game_object {
     void draw() const override {
         draw_sprite(pos + Dot(-2, 2), 0.4, SP_COIN);
         draw_collision(*this);
-        //draw_sprite(pos + Dot(-2, 6), 0.2, SP_COIN);
-
     }
 };
 

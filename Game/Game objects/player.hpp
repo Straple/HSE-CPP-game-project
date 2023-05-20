@@ -45,8 +45,7 @@ struct Player_anim_tree {
         direction_t dir = direction_t::NONE;
 
         [[nodiscard]] unsigned int get_num() const {
-            return (static_cast<unsigned int>(anim) - 1) * 4 +
-                   (static_cast<unsigned int>(dir) - 1);
+            return (static_cast<unsigned int>(anim) - 1) * 4 + (static_cast<unsigned int>(dir) - 1);
         }
     };
 
@@ -110,7 +109,7 @@ struct Player : abstract_game_object {
         pos = position;
         size = 1;
         collision_radius = 6;
-        delta_draw_pos = Dot(-30, 40) * size;
+        delta_draw_pos = Dot(-31, 40) * size;
 
         // player
         jump_accum = jump_cooldown = 0.5;
@@ -156,13 +155,11 @@ struct Player : abstract_game_object {
             // simulate move
             {
                 ddp *= ddp_speed;
-
                 simulate_move2d(pos, dp, ddp, delta_time);
             }
 
             // текущая анимация+
-            auto current_anim =
-                Player_anim_tree::get_anim(ddp.normalize(), anim_type);
+            auto current_anim = Player_anim_tree::get_anim(ddp.normalize(), anim_type);
 
             if (anim_type.get_num() !=
                 current_anim.get_num()) {  // у нас сменились анимации
@@ -172,8 +169,7 @@ struct Player : abstract_game_object {
                 anim = player_anims[current_anim.get_num()];
 
                 // начинаем с 1 кадра, чтобы мы сразу начинали движение
-                anim.frame_cur_count =
-                    std::min<unsigned int>(1, anim.frame_count - 1);
+                anim.frame_cur_count = std::min<unsigned int>(1, anim.frame_count - 1);
             }
 
             anim.frame_update(delta_time);
@@ -181,7 +177,7 @@ struct Player : abstract_game_object {
     }
 
     void draw() const override {
-        draw_sprite(pos + Dot(-7, 4), size, SP_MEDIUM_SHADOW);
+        draw_sprite(pos + Dot(-8, 3), size, SP_MEDIUM_SHADOW);
 
         if (invulnerable_accum + 0.5 < invulnerable_cooldown) {
             anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
@@ -203,12 +199,13 @@ struct Player : abstract_game_object {
     [[nodiscard]] Dot get_dir() const {
         return get_direction(anim_type.dir);
     }
-    [[nodiscard]] collision_circle get_hitbox() const {
-        return collision_circle(Circle(pos + Dot(0, 13), 5));
+
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_hitbox() const {
+        return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 
-    [[nodiscard]] collision_circle get_collision() const override {
-        return collision_circle(Circle(pos, collision_radius));
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const {
+        return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 };
 

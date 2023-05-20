@@ -1,15 +1,14 @@
 #ifndef GAME_LOOT_HPP
 #define GAME_LOOT_HPP
 
-#include "render.hpp"
 #include "abstract_game_object.hpp"
 #include "player.hpp"
+#include "render.hpp"
 
 struct Loot : abstract_game_object {
     efloat magnet_radius = 30;
 
-    Loot() {
-    }
+    Loot() = default;
 
     Loot(Dot position, Dot dir) {
         pos = position;
@@ -21,12 +20,12 @@ struct Loot : abstract_game_object {
     }
 
     // коллизия подбора предмета
-    [[nodiscard]] collision_circle get_collision() const override {
-        return collision_circle(Circle(pos, collision_radius));
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+        return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 
     [[nodiscard]] bool collection_trigger(Dot player_pos) const {
-        return get_collision().trigger(player_pos);
+        return get_collision()->trigger(player_pos);
     }
 
     virtual bool simulate_collection() = 0;
@@ -42,7 +41,5 @@ struct Loot : abstract_game_object {
         }
     }
 };
-
-
 
 #endif  // GAME_LOOT_HPP

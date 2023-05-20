@@ -5,7 +5,7 @@
 
 struct enemy_state_for_trivial_enemy {
     int damage;
-    efloat jump_radius; // радиус возможного прыжка до врага
+    efloat jump_radius;  // радиус возможного прыжка до врага
 
     efloat ddp_speed;
 
@@ -15,16 +15,12 @@ struct enemy_state_for_trivial_enemy {
 
 struct enemy_state_for_shooting_enemy {
     int damage;
-    efloat shooting_radius; // радиус возможного прыжка до врага
+    efloat shooting_radius;  // радиус возможного прыжка до врага
 
     efloat ddp_speed;
 
     efloat paralyzed_cooldown;
     efloat attack_cooldown;
 };
-
-
-
-
 
 #endif  // GAME_ENEMY_STATES_HPP

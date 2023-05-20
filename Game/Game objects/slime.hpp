@@ -72,20 +72,21 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         return is_devour || paralyzed_accum < paralyzed_cooldown;
     }
 
-    [[nodiscard]] collision_circle get_collision() const override {
-        return collision_circle(Circle(pos, collision_radius));
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+        return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 
-    [[nodiscard]] collision_circle get_hitbox() const {
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_hitbox() const {
         return get_collision();
     }
 
-    void simulate(efloat delta_time, std::vector<collision_box> Collision_box) {
+    void simulate(efloat delta_time) {
+        paralyzed_accum += delta_time;
+        shot_accum += delta_time;
+        devour_accum += delta_time;
+
         // мы парализованы и отлетаем от удара
         if (paralyzed_accum < paralyzed_cooldown) {
-            paralyzed_accum += delta_time;
-            shot_accum += delta_time;
-            devour_accum += delta_time;
             simulate_move2d(pos, dp, Dot(), delta_time);
         } else if (is_devour) {  // мы едим игрока
             // анимация атаки закончилась
@@ -99,8 +100,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             }
 
             // шарик лопнул
-            if ((anim.frame_cur_count > 25 || !is_devour) &&
-                Players[0].is_paralyzed) {
+            if ((anim.frame_cur_count > 25 || !is_devour) && Players[0].is_paralyzed) {
                 // выплюнуть игрока
                 Players[0].dp = Circle(Dot(), 500).get_random_dot();
                 Players[0].is_paralyzed = false;
@@ -115,21 +115,14 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 anim = animation_idle;
 
                 Dot bullet_pos = pos + Dot(0, 15);
-                Bullets.emplace_back(
-                    ShooterType::ENEMY, bullet_pos, Players[0].pos, 1, 1000
-                );
+                Bullets.emplace_back(ShooterType::ENEMY, bullet_pos, Players[0].pos, 1, 1000);
             }
         } else {
-            devour_accum += delta_time;
-            shot_accum += delta_time;
-
             anim.frame_update(delta_time);
 
             // чтобы слайм был поверх игрока, а не под ним
-            Dot to = Players[0].pos - Dot(0, 1e-3);
-            move_to2d(
-                pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time
-            );
+            Dot to = Players[0].pos - Dot(0, 0.1);
+            move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
 
             if (
                 // игрока никто не ест
@@ -138,8 +131,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             ) {
                 anim = animation_shot;
                 is_shooting = true;
-            }
-            else if (
+            } else if (
                 // игрока никто не ест
                 !Players[0].is_paralyzed &&
                 // игрок не прыгает
@@ -149,7 +141,8 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 // мы близко к игроку
                 (Players[0].pos - pos).get_len() <= jump_radius &&
                 // перезарядка атаки прошла
-                devour_accum >= devour_cooldown) {
+                devour_accum >= devour_cooldown
+            ) {
                 // игрок не может двигаться и у нас анимация атаки
                 Players[0].is_paralyzed = is_devour = true;
 
@@ -163,44 +156,22 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     void draw() const override {
         if (is_devour) {
             if (is_between<u8>(9, anim.frame_count, 25)) {
-                draw_sprite(
-                    pos + delta_draw_pos, size, SP_SLIME_LARGE_SHADOW,
-                    shadow_color_func()
-                );
+                draw_sprite(pos + delta_draw_pos, size, SP_SLIME_LARGE_SHADOW, shadow_color_func());
             } else {
-                draw_sprite(
-                    pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW,
-                    shadow_color_func()
-                );
+                draw_sprite(pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW, shadow_color_func());
             }
-            anim.draw(
-                pos + delta_draw_pos, size, alpha_color_func<draw_alpha>()
-            );
+            anim.draw(pos + delta_draw_pos, size, alpha_color_func<draw_alpha>());
         } else {
-            draw_sprite(
-                pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW,
-                shadow_color_func()
-            );
+            draw_sprite(pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW, shadow_color_func());
 
             anim.draw(pos + delta_draw_pos, size, [&](Color color) {
-                return paralyzed_accum < paralyzed_cooldown
-                           ? Color(0xffffff, 128)
-                           : Color(color.operator unsigned int(), draw_alpha);
+                return paralyzed_accum < paralyzed_cooldown ? Color(0xffffff, 128) : Color(color.operator unsigned int(), draw_alpha);
             });
         }
 
         draw_collision(*this);
-
         draw_hitbox(*this);
-
         draw_hp(*this);
-
-        if (global_variables::show_locator) {
-            draw_circle(
-                Circle(pos - global_variables::camera.pos, jump_radius),
-                Color(0xff0000, 50)
-            );
-        }
     }
 };
 

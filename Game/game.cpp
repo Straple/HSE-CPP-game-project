@@ -2,19 +2,13 @@
 
 void simulate_player(const Input &input, efloat delta_time) {
     // накопление вектора движения
-    auto accum_ddp = [&input](
-                         button_t left, button_t right, button_t top,
-                         button_t bottom
-                     ) -> Dot {
+    auto accum_ddp = [&input](button_t left, button_t right, button_t top, button_t bottom) -> Dot {
         return Dot(
             is_down(right) - is_down(left), is_down(top) - is_down(bottom)
         );
     };
 
-    Players[0].simulate(
-        delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S),
-        pressed(BUTTON_SPACE)
-    );
+    Players[0].simulate(delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S), pressed(BUTTON_SPACE));
 
     // player attack
     {
@@ -30,11 +24,7 @@ void simulate_player(const Input &input, efloat delta_time) {
 
 Room test_room;
 
-void simulate_game(
-    const Input &input,
-    efloat delta_time
-) {
-
+void simulate_game(const Input &input, efloat delta_time) {
     if (!global_variables::running) {
         return;
     }
@@ -54,7 +44,7 @@ void simulate_game(
 
     test_room.draw();
 
-    //draw_object(global_variables::render_scale, Dot(), 1, BLACK);
+    // draw_object(global_variables::render_scale, Dot(), 1, BLACK);
 
     cursor.draw();
 }

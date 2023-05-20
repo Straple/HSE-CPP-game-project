@@ -10,7 +10,8 @@ struct effect {
 
     effect() = default;
 
-    effect(const Dot &pos, const animation &anim) : pos(pos), anim(anim) {
+    effect(const Dot &pos, const animation &anim)
+        : pos(pos), anim(anim) {
     }
 
     // вернет правду, если его анимация закончилась и нужно удалить объект

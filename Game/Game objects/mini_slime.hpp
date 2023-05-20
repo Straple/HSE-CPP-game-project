@@ -1,6 +1,8 @@
 #ifndef GAME_SMALL_SLIME_HPP
 #define GAME_SMALL_SLIME_HPP
 
+// TODO: need rebuild this code
+
 #include "../../render.hpp"
 #include "abstract_game_object.hpp"
 #include "effect.hpp"

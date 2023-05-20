@@ -39,12 +39,12 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         return paralyzed_accum < paralyzed_cooldown;
     }
 
-    [[nodiscard]] collision_circle get_collision() const override {
-        return collision_circle(Circle(pos, collision_radius));
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+        return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 
-    [[nodiscard]] collision_circle get_hitbox() const {
-        return collision_circle(Circle(pos + Dot(0, 13), 5));
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_hitbox() const {
+        return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 
     void simulate(efloat delta_time) {
@@ -56,30 +56,25 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         } else {
             anim.frame_update(delta_time);
 
-            if (dp.x < 0) {
+            // чтобы летучая мышь не дергалась туда-сюда
+            if (dp.x < -30) {
                 anim.sprite_sheet = SS_BAT_INVERSE;
-            } else {
+            } else if(dp.x > 30){
                 anim.sprite_sheet = SS_BAT;
             }
 
-            move_to2d(
-                pos, Players[0].pos, dp,
-                (Players[0].pos - pos).normalize() * ddp_speed, delta_time
-            );
+            // чтобы летучая мышь была поверх игрока, а не под ним
+            Dot to = Players[0].pos - Dot(0, 0.1);
+            move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
 
             if (!Players[0].is_invulnerable() && !Players[0].is_jumped &&
                 (Players[0].pos - pos).get_len() <= jump_radius &&
                 attack_accum >= attack_cooldown) {
                 // hit
-
                 attack_accum = 0;
-
                 pos = Players[0].pos;  // прыгаем на игрока
-
                 Players[0].hp -= damage;
-
                 Players[0].set_invulnerable();
-
                 add_hit_effect(Players[0].pos);
             }
         }
@@ -89,22 +84,12 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         draw_sprite(pos + Dot(-5, 0) * size, size, SP_SMALL_SHADOW);
 
         anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
-            return paralyzed_accum < paralyzed_cooldown ? Color(0xffffff, 128)
-                                                        : color;
+            return paralyzed_accum < paralyzed_cooldown ? Color(0xffffff, 128) : color;
         });
 
         draw_collision(*this);
-
         draw_hitbox(*this);
-
         draw_hp(*this);
-
-        if (global_variables::show_locator) {
-            draw_circle(
-                Circle(pos - global_variables::camera.pos, jump_radius),
-                Color(0xff0000, 16)
-            );
-        }
     }
 };
 

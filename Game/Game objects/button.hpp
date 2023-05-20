@@ -1,6 +1,8 @@
 #ifndef GAME_BUTTON_HPP
 #define GAME_BUTTON_HPP
 
+// TODO: refactor this code, he is so old
+
 #include "../../Objects/Sprite/color.hpp"
 #include "../../Objects/collision.hpp"
 #include "../../global_variables.hpp"
@@ -12,7 +14,7 @@ struct button {
     std::string text;
     Dot pos;  // центр текста по x
     efloat size;
-    collision_box coll;
+    CollisionBox coll;
     Color color,      // usual color
         focus_color;  // color when the button doesn't focus
     bool is_focus;
@@ -42,15 +44,6 @@ struct button {
         }
     }
 
-    void draw() {
-        draw_text(text.c_str(), pos, size, (is_focus ? focus_color : color));
-
-        if (global_variables::debug_mode) {
-            draw_rect(coll.p0, Dot(0.5, 0.5), 0xff00ff00);
-            draw_rect(coll.p1, Dot(0.5, 0.5), 0xff00ff00);
-        }
-    }
-
     // обновит состояние фокуса курсора
     void simulate(Cursor &cursor) {
         if (coll.trigger(cursor.pos)) {
@@ -59,6 +52,12 @@ struct button {
         } else {
             is_focus = false;
         }
+    }
+
+    void draw() {
+        draw_text(text.c_str(), pos, size, (is_focus ? focus_color : color));
+
+        draw_collision(coll);
     }
 };
 

@@ -14,19 +14,17 @@ struct Log : abstract_game_object {
         pos = new_pos - delta_draw_pos;
     }
 
-    [[nodiscard]] collision_circle get_collision() const override {
-        return collision_circle(Circle(pos, collision_radius));
+    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+        return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 
     void draw() const override {
         draw_sprite(pos + delta_draw_pos, size, SP_LOG);
-
-        draw_rect(pos - global_variables::camera.pos, Dot(1, 1) * 0.3, RED);
+        draw_collision(*this);
     }
 
     void simulate(efloat delta_time) {
-        Dot ddp;
-        simulate_move2d(pos, dp, ddp, delta_time);
+        simulate_move2d(pos, dp, Dot(), delta_time);
     }
 };
 

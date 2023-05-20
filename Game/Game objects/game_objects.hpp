@@ -12,6 +12,7 @@
 #include "bush.hpp"
 #include "log.hpp"
 #include "tree.hpp"
+#include "table.hpp"
 
 // effects
 #include "effect.hpp"
@@ -32,10 +33,10 @@
 #include "bullet.hpp"
 #include "weapon.hpp"
 
-// world
-#include "room.hpp"
-
 // game collision
 #include "game_collision.hpp"
+
+// world
+#include "room.hpp"
 
 #endif  // GAME_OBJECTS_HPP

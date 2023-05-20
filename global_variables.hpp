@@ -25,8 +25,7 @@ struct global_variables {
     // масштаб рендеринга
     static inline efloat render_scale = 0.007;
 
-    // множитель масштабирования = global_variables::render_state.height() *
-    // global_variables::render_scale
+    // множитель масштабирования = global_variables::render_state.height() * global_variables::render_scale
     static inline efloat scale_factor = 0;
 
     static inline efloat mouse_wheel = 0;
