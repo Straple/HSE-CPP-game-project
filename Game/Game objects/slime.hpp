@@ -3,6 +3,7 @@
 
 #include <queue>
 #include <unordered_map>
+#include <unordered_set>
 #include "../../render.hpp"
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
@@ -59,7 +60,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         ddp_speed = 400;
         paralyzed_accum = paralyzed_cooldown = 0.3;
         // attack_cooldown = 3;
-
+        std::unordered_set<Dot, MyHash<Dot>>web;
         devour_cooldown = devour_accum = 5;
         shot_cooldown = shot_accum = 10;
 
@@ -80,7 +81,120 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         return get_collision();
     }
 
-    void simulate(efloat delta_time) {
+    void simulate(efloat delta_time, std::vector<CollisionBox> Collision_box) {
+        paralyzed_accum += delta_time;
+        shot_accum += delta_time;
+        devour_accum += delta_time;
+
+        // мы парализованы и отлетаем от удара
+        if (paralyzed_accum < paralyzed_cooldown) {
+    efloat len_between(Dot from, Dot to) {
+        return (from - to).get_len();
+    }
+    efloat manhattan_between(Dot from, Dot to) {
+        return abs(from.x - to.x) + abs(from.y - to.y);
+    }
+    void bfs_to_dot(Dot from, Dot to, std::vector<collision_box>&Collision_boxes) {
+        bfs_web.clear();
+
+        const efloat coef = 2;
+        const static std::vector<Dot>deltas = {{-1,0},{-1, 1},
+                                               {0, 1}, {1, 1},
+                                               {1, 0}, {1, -1},
+                                               {0, -1}, {-1, -1}};
+        std::queue<Dot>q;
+        std::unordered_map<Dot, efloat, MyHash<Dot>>dist;
+        std::unordered_map<Dot, Dot, MyHash<Dot>>pred;
+        dist[from] = 0;
+        q.push(from);
+        while (!q.empty()) {
+            Dot cur = q.front();
+            q.pop();
+            if (len_between(cur, to) <= 10) {
+                pred[to] = cur;
+                break;
+            }
+            for (auto& el: deltas) {
+                auto neighbour = cur + el * coef;
+                bool bad = false;
+                for (auto collision_box: Collision_boxes) {
+                    collision_box.p0 += Dot(-1, 1) * collision_radius;
+                    collision_box.p1 += Dot(1, -1) * collision_radius;
+                    if (collision_box.trigger(neighbour)) {
+                        bad = true;
+                        break;
+                    }
+                }
+                if (!bad) {
+                    if (!dist.count(neighbour)) {
+                        dist[neighbour] = dist[cur] + coef;
+                        pred[neighbour] = cur;
+                        bfs_web.insert(neighbour);
+                        q.push(neighbour);
+                    }
+                }
+            }
+        }
+    }
+
+    void go_to_dot(Dot from, Dot to, std::vector<CollisionBox>& Collision_boxes, efloat delta_time) {
+//        web.clear();
+        const efloat coef = 2;
+        std::priority_queue<std::pair<efloat, Dot>, std::vector<std::pair<efloat, Dot>>, std::greater<>> q;
+
+        const static std::vector<Dot>deltas = {{-1,0},{-1, 1},
+                                               {0, 1}, {1, 1},
+                                               {1, 0}, {1, -1},
+                                               {0, -1}, {-1, -1}};
+        std::unordered_map<Dot, efloat, MyHash<Dot>>dist;
+        std::unordered_map<Dot, Dot, MyHash<Dot>>pred;
+        q.emplace(len_between(from, to) , from);
+        dist[from] = 0;
+        int it = 0;
+        while (!q.empty()) {
+            auto[prior, cur] = q.top();
+            q.pop();
+            if (len_between(cur,to) <= 10) {
+                pred[to] = cur;
+                break;
+            }
+            for (auto& el: deltas) {
+                auto neighbour = cur + el*coef;
+                bool bad = false;
+                for (auto collision_box: Collision_boxes) {
+                    collision_box.p0 += Dot(-1, 1) * collision_radius;
+                    collision_box.p1 += Dot(1, -1) * collision_radius;
+                    if (collision_box.trigger(neighbour)) {
+                        bad = true;
+
+                        break;
+                    }
+                }
+                if (!bad) {
+                    auto cost = dist[cur] + coef;
+                    if (!dist.count(neighbour) || dist[neighbour] > cost) {
+//                        (this->web).insert(neighbour);
+                        dist[neighbour] = cost;
+                        pred[neighbour] = cur;
+                        q.emplace(len_between(neighbour, to) + dist[neighbour], neighbour);
+                    }
+                }
+            }
+        }
+        Dot current = to;
+        std::vector<Dot>path;
+        while (pred[current] != pos) {
+            path.push_back(current);
+            current = pred[current];
+        }
+        std::cout << std::endl;
+        move_to2d(
+                pos, current, dp,
+                (current - pos).normalize() * ddp_speed, delta_time
+        );
+    }
+
+    void simulate(efloat delta_time, std::vector<CollisionBox> Collision_box) {
         paralyzed_accum += delta_time;
         shot_accum += delta_time;
         devour_accum += delta_time;
@@ -122,7 +236,8 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
             // чтобы слайм был поверх игрока, а не под ним
             Dot to = Players[0].pos - Dot(0, 0.1);
-            move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
+            //move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
+            go_to_dot(pos, to, Collision_box, delta_time);
 
             if (
                 // игрока никто не ест
@@ -172,7 +287,24 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         draw_collision(*this);
         draw_hitbox(*this);
         draw_hp(*this);
+
+//        for (auto& el: web) {
+//            draw_rect(el-global_variables::camera.pos, Dot(0.5, 0.5), RED);
+//        }
+        for (auto& el: bfs_web) {
+            draw_rect(el-global_variables::camera.pos, Dot(0.5, 0.5), BLUE);
+        }
+
+        if (global_variables::show_locator) {
+            draw_circle(
+                Circle(pos - global_variables::camera.pos, jump_radius),
+                Color(0xff0000, 50)
+            );
+        }
     }
+
+//    std::unordered_set<Dot, MyHash<Dot>> web;
+   std::unordered_set<Dot, MyHash<Dot>> bfs_web;
 };
 
 std::vector<Slime> Slimes;
