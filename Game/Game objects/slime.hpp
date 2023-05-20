@@ -319,7 +319,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     }
 
 //    std::unordered_set<Dot, MyHash<Dot>> web;
-//    std::unordered_set<Dot, MyHash<Dot>> bfs_web;
+   std::unordered_set<Dot, MyHash<Dot>> bfs_web;
 };
 
 std::vector<Slime> Slimes;
