@@ -10,15 +10,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512vl")
 
 add_executable(game
-        # UTILS
+
         utils.cpp
-        # GEOMETRY
+        
         Objects/Geometry/dot.cpp
         Objects/Geometry/circle.cpp
         Objects/Geometry/line.cpp
-        # LIBPNG LIBRARY
+
         Objects/Sprite/png.cpp
-        # COLLISION
+
+        Objects/Sprite/color.cpp
+
+        Objects/Sprite/sprite_object.cpp
+
+        Objects/render_state.cpp
+
         Objects/collision.cpp
-        # MAIN
+
         win32_platform.cpp)
