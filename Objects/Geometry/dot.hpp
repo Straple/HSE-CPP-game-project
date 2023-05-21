@@ -9,150 +9,65 @@ struct Dot {
 
     Dot() = default;
 
-    Dot(efloat x, efloat y) : x(x), y(y) {
-    }
+    Dot(efloat x, efloat y);
 
-    [[nodiscard]] Dot operator-() const {
-        return {-x, -y};
-    }
+    [[nodiscard]] Dot operator-() const;
 
-    friend Dot operator+(const Dot &lhs, const Dot &rhs) {
-        return {lhs.x + rhs.x, lhs.y + rhs.y};
-    }
+    Dot &operator+=(const Dot &p);
 
-    friend Dot operator-(const Dot &lhs, const Dot &rhs) {
-        return {lhs.x - rhs.x, lhs.y - rhs.y};
-    }
+    Dot &operator-=(const Dot &p);
 
-    Dot &operator+=(const Dot &p) {
-        return *this = *this + p;
-    }
+    [[nodiscard]] Dot operator*(efloat k) const;
 
-    Dot &operator-=(const Dot &p) {
-        return *this = *this - p;
-    }
+    Dot &operator*=(efloat k);
 
-    [[nodiscard]] Dot operator*(efloat k) const {
-        return {x * k, y * k};
-    }
+    [[nodiscard]] Dot operator/(efloat k) const;
 
-    friend Dot operator*(efloat k, Dot p) {
-        return p * k;
-    }
+    Dot &operator/=(efloat k);
 
-    Dot &operator*=(efloat k) {
-        return *this = *this * k;
-    }
-
-    [[nodiscard]] Dot operator/(efloat k) const {
-        return {x / k, y / k};
-    }
-
-    Dot &operator/=(efloat k) {
-        return *this = *this / k;
-    }
-
-    [[nodiscard]] efloat get_quare_len() const {
-        return x * x + y * y;
-    }
+    [[nodiscard]] efloat get_quare_len() const;
 
     // VERY SLOW!!!
     // зато очень точно
-    [[nodiscard]] efloat get_len() const {
-        return hypot(x, y);
-    }
+    [[nodiscard]] efloat get_len() const;
 
-    [[nodiscard]] Dot normalize() const {
-        if (std::abs(x) + std::abs(y) > EPS) {
-            return *this / get_len();
-        } else {
-            return {};
-        }
-    }
+    [[nodiscard]] Dot normalize() const;
 };
 
-bool operator==(const Dot &lhs, const Dot &rhs) {
-    return std::abs(lhs.x - rhs.x) < EPS && std::abs(lhs.y - rhs.y) < EPS;
-    // return x == Rhs.x && y == Rhs.y;
-}
+Dot operator+(const Dot &lhs, const Dot &rhs);
 
-bool operator!=(const Dot &lhs, const Dot &rhs) {
-    return !(lhs == rhs);
-}
+Dot operator-(const Dot &lhs, const Dot &rhs);
+
+Dot operator*(efloat k, Dot p);
+
+bool operator==(const Dot &lhs, const Dot &rhs);
+
+bool operator!=(const Dot &lhs, const Dot &rhs);
 
 // самая левая, потом самая нижняя
-bool operator<(const Dot &lhs, const Dot &rhs) {
-    return lhs.x == rhs.x ? lhs.y < rhs.y : lhs.x < rhs.x;
-}
+bool operator<(const Dot &lhs, const Dot &rhs);
 
 // самая правая, потом самая верхняя
-bool operator>(const Dot &lhs, const Dot &rhs) {
-    return lhs.x == rhs.x ? lhs.y > rhs.y : lhs.x > rhs.x;
-}
+bool operator>(const Dot &lhs, const Dot &rhs);
 
 // векторное/косое произведение
 // Это площадь параллелограмма
-efloat operator%(const Dot &lhs, const Dot &rhs) {
-    return lhs.x * rhs.y - lhs.y * rhs.x;
-}
+efloat operator%(const Dot &lhs, const Dot &rhs);
 
 // скалярное произведение
-efloat operator*(const Dot &lhs, const Dot &rhs) {
-    return lhs.x * rhs.x + lhs.y * rhs.y;
-}
+efloat operator*(const Dot &lhs, const Dot &rhs);
 
-std::ostream &operator<<(std::ostream &output, const Dot &p) {
-    return output << "Dot(" << p.x << ", " << p.y << ')';
-}
+std::ostream &operator<<(std::ostream &output, const Dot &p);
 
-std::istream &operator>>(std::istream &input, Dot &p) {
-    char c;
-    input >> c;  // D
-    ASSERT(c == 'D', "failed read Dot");
-
-    input >> c;  // o
-    ASSERT(c == 'o', "failed read Dot");
-
-    input >> c;  // t
-    ASSERT(c == 't', "failed read Dot");
-
-    input >> c;  // (
-    ASSERT(c == '(', "failed read Dot");
-
-    input >> p.x;
-
-    input >> c;  // ,
-    ASSERT(c == ',', "failed read Dot");
-
-    input >> p.y;
-
-    input >> c;  // )
-    ASSERT(c == ')', "failed read Dot");
-
-    return input;
-}
+std::istream &operator>>(std::istream &input, Dot &p);
 
 // возвращает угол между векторами
-efloat get_angle(const Dot &a, const Dot &b) {
-    return atan2(a % b, a * b);
-}
+efloat get_angle(const Dot &a, const Dot &b);
 
 // возвращает неотрицательный угол между векторами
-efloat get_good_angle(const Dot &a, const Dot &b) {
-    efloat res = get_angle(a, b);
-    if (res < 0) {
-        res += 2 * PI;
-    }
-    return res;
-}
+efloat get_good_angle(const Dot &a, const Dot &b);
 
 // возвращает неотрицательный угол меньше 180 между векторами
-efloat get_very_good_angle(const Dot &a, const Dot &b) {
-    efloat res = get_good_angle(a, b);
-    if (res > PI) {
-        res = 2 * PI - res;
-    }
-    return res;
-}
+efloat get_very_good_angle(const Dot &a, const Dot &b);
 
 #endif  // GAME_ENGINE_GEOMETRY_DOT_HPP

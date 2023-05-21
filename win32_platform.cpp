@@ -128,12 +128,6 @@ void draw_debug_info(efloat delta_time) {
             Dot(30, 5) - global_variables::arena_half_size, 0.5, WHITE
         );
 
-        // draw_object(
-        //     static_cast<int>(game_engine_time_for_calc * 1000),
-        //     Dot(60, 5) - global_variables::arena_half_size, 0.5, RED
-        //);
-        game_engine_time_for_calc = 0;
-
         Dot cursor_pos = cursor.pos;
         cursor_pos += global_variables::camera.pos;
         draw_object(cursor_pos, Dot(60, 5) - global_variables::arena_half_size, 0.5, WHITE);

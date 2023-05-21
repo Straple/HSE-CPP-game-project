@@ -66,7 +66,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
         // чтобы разнообразить кучу слаймов, которые будут иметь одновременные
         // анимации
-        anim.frame_cur_count = rnd() % 24;
+        anim.frame_cur_count = get_random_engine()() % 24;
     }
 
     [[nodiscard]] bool is_invulnerable() const {

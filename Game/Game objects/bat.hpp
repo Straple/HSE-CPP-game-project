@@ -32,7 +32,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
         // чтобы разнообразить кучу летучих мышей, которые будут иметь
         // одновременные анимации
-        anim.frame_cur_count = rnd() % 5;
+        anim.frame_cur_count = get_random_engine()() % 5;
     }
 
     [[nodiscard]] bool is_invulnerable() const {
