@@ -4,26 +4,26 @@
 #include <memory>
 #include "Geometry/geometry.hpp"
 
-struct AbstractCollision {
+struct Collision {
     // некоторая позиция
     [[nodiscard]] virtual Dot get_pos() const = 0;
 
     // находится ли точка внутри коллизии
     [[nodiscard]] virtual bool trigger(const Dot &pos) const = 0;
 
-    [[nodiscard]] virtual bool trigger(const AbstractCollision &other) const = 0;
+    [[nodiscard]] virtual bool trigger(const Collision &other) const = 0;
 
     // вернет вытолкнутую точку за пределы коллизии
     [[nodiscard]] virtual Dot bubble(Dot pos) const = 0;
 
-    [[nodiscard]] virtual std::unique_ptr<AbstractCollision> bubble(const AbstractCollision &other) const = 0;
+    [[nodiscard]] virtual std::unique_ptr<Collision> bubble(const Collision &other) const = 0;
 
-    virtual ~AbstractCollision() = default;
+    virtual ~Collision() = default;
 };
 
 struct CollisionBox;
 
-struct CollisionCircle : AbstractCollision {
+struct CollisionCircle : Collision {
     Circle circle;
 
     CollisionCircle() = default;
@@ -50,7 +50,7 @@ struct CollisionCircle : AbstractCollision {
 
     [[nodiscard]] bool trigger(const CollisionBox &other) const;
 
-    [[nodiscard]] bool trigger(const AbstractCollision &other) const override;
+    [[nodiscard]] bool trigger(const Collision &other) const override;
 
     [[nodiscard]] Dot bubble(Dot pos) const override {
         if (circle.isin(pos)) {
@@ -64,7 +64,7 @@ struct CollisionCircle : AbstractCollision {
         return pos;
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> bubble(const AbstractCollision &other) const override;
+    [[nodiscard]] std::unique_ptr<Collision> bubble(const Collision &other) const override;
 
     [[nodiscard]] CollisionCircle bubble(const CollisionCircle &other) const {
         return {CollisionCircle(circle.pos, circle.radius + other.circle.radius).bubble(other.circle.pos), other.circle.radius};
@@ -79,7 +79,7 @@ struct CollisionCircle : AbstractCollision {
  *  |    |
  *  +----p1
  */
-struct CollisionBox : AbstractCollision {
+struct CollisionBox : Collision {
     Dot p0, p1;
 
     CollisionBox() = default;
@@ -114,7 +114,7 @@ struct CollisionBox : AbstractCollision {
         return !(p1.x <= other.p0.x || p1.y >= other.p0.y || p0.x >= other.p1.x || p0.y <= other.p1.y);
     }
 
-    [[nodiscard]] bool trigger(const AbstractCollision &other) const override;
+    [[nodiscard]] bool trigger(const Collision &other) const override;
 
     // выталкивает pos за пределы коллизии
     [[nodiscard]] Dot bubble(Dot pos) const override {
@@ -143,7 +143,7 @@ struct CollisionBox : AbstractCollision {
         return pos;
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> bubble(const AbstractCollision &other) const override {
+    [[nodiscard]] std::unique_ptr<Collision> bubble(const Collision &other) const override {
         if (dynamic_cast<const CollisionCircle *>(&other) != nullptr) {
             return std::make_unique<CollisionCircle>(bubble(*dynamic_cast<const CollisionCircle *>(&other)));
         } else if (dynamic_cast<const CollisionBox *>(&other) != nullptr) {
@@ -211,7 +211,7 @@ struct CollisionBox : AbstractCollision {
     return other.trigger(*this);
 }
 
-[[nodiscard]] std::unique_ptr<AbstractCollision> CollisionCircle::bubble(const AbstractCollision &other) const {
+[[nodiscard]] std::unique_ptr<Collision> CollisionCircle::bubble(const Collision &other) const {
     if (dynamic_cast<const CollisionCircle *>(&other) != nullptr) {
         return std::make_unique<CollisionCircle>(bubble(*dynamic_cast<const CollisionCircle *>(&other)));
     } else if (dynamic_cast<const CollisionBox *>(&other) != nullptr) {
@@ -226,7 +226,7 @@ struct CollisionBox : AbstractCollision {
     return {other.p0 - diff, other.p1 - diff};
 }
 
-[[nodiscard]] bool CollisionCircle::trigger(const AbstractCollision &other) const {
+[[nodiscard]] bool CollisionCircle::trigger(const Collision &other) const {
     if (dynamic_cast<const CollisionCircle *>(&other) != nullptr) {
         return trigger(dynamic_cast<const CollisionCircle &>(other));
     } else if (dynamic_cast<const CollisionBox *>(&other) != nullptr) {
@@ -236,7 +236,7 @@ struct CollisionBox : AbstractCollision {
     }
 }
 
-[[nodiscard]] bool CollisionBox::trigger(const AbstractCollision &other) const {
+[[nodiscard]] bool CollisionBox::trigger(const Collision &other) const {
     if (dynamic_cast<const CollisionCircle *>(&other) != nullptr) {
         return trigger(dynamic_cast<const CollisionCircle &>(other));
     } else if (dynamic_cast<const CollisionBox *>(&other) != nullptr) {

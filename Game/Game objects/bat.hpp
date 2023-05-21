@@ -39,11 +39,11 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         return paralyzed_accum < paralyzed_cooldown;
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
         return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_hitbox() const {
+    [[nodiscard]] std::unique_ptr<Collision> get_hitbox() const {
         return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 

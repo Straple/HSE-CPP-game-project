@@ -31,7 +31,7 @@ struct Bullet : abstract_game_object {
         delta_draw_pos = Dot(-10, 10);
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
         return std::make_unique<CollisionCircle>(Circle(pos, collision_radius));
     }
 

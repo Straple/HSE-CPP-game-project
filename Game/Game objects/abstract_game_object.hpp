@@ -14,10 +14,10 @@ struct abstract_game_object {
     efloat size = 0;
     Dot delta_draw_pos;
 
-    [[nodiscard]] virtual std::unique_ptr<AbstractCollision> get_collision() const = 0;
+    [[nodiscard]] virtual std::unique_ptr<Collision> get_collision() const = 0;
 
     // выталкивает игрока за пределы коллизии
-    void push_out_of_collision(const AbstractCollision &collision) {
+    void push_out_of_collision(const Collision &collision) {
         pos += collision.bubble(*get_collision())->get_pos() - get_collision()->get_pos();
     }
 

@@ -200,11 +200,11 @@ struct Player : abstract_game_object {
         return get_direction(anim_type.dir);
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_hitbox() const {
+    [[nodiscard]] std::unique_ptr<Collision> get_hitbox() const {
         return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const {
         return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 };

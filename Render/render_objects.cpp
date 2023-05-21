@@ -18,13 +18,13 @@ void draw_collision(const CollisionBox &collision, const Color color = Color(0x0
     }
 }
 
-void draw_collision(const AbstractCollision &collision, const Color color = Color(0x00ff00, 70)) {
+void draw_collision(const Collision &collision, const Color color = Color(0x00ff00, 70)) {
     if (dynamic_cast<const CollisionCircle *>(&collision) != nullptr) {
         draw_collision(*dynamic_cast<const CollisionCircle *>(&collision), color);
     } else if (dynamic_cast<const CollisionBox *>(&collision) != nullptr) {
         draw_collision(*dynamic_cast<const CollisionBox *>(&collision), color);
     } else {
-        ASSERT(false, "who is this AbstractCollision?");
+        ASSERT(false, "who is this Collision?");
     }
 }
 
@@ -33,7 +33,7 @@ void draw_collision(const T &object) {
     draw_collision(*object.get_collision());
 }
 
-void draw_hitbox(const AbstractCollision &collision) {
+void draw_hitbox(const Collision &collision) {
     draw_collision(collision, Color(0xff0000, 70));
 }
 

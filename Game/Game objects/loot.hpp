@@ -20,7 +20,7 @@ struct Loot : abstract_game_object {
     }
 
     // коллизия подбора предмета
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
         return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 

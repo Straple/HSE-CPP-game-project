@@ -14,7 +14,7 @@ struct Log : abstract_game_object {
         pos = new_pos - delta_draw_pos;
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
         return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 

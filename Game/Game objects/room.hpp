@@ -146,7 +146,7 @@ struct Room {
         }
 
         for (auto &slime : Slimes) {
-            slime.simulate(delta_time);
+            slime.simulate(delta_time, Collision_boxes);
         }
         for (auto &bat : Bats) {
             bat.simulate(delta_time);
