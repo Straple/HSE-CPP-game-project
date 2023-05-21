@@ -142,8 +142,9 @@ CollisionCircle CollisionBox::bubble(const CollisionCircle &other) const {
     const efloat radius = other.circle.radius;
     Dot pos = other.circle.pos;
 
-    CollisionBox box1(p0 + Dot(-radius, 0), p1 + Dot(radius, 0));
-    CollisionBox box2(p0 + Dot(0, radius), p1 + Dot(0, -radius));
+    const efloat eps = 1e-1;
+    CollisionBox box1(p0 + Dot(-radius + eps, 0), p1 + Dot(radius - eps, 0));
+    CollisionBox box2(p0 + Dot(0, radius - eps), p1 + Dot(0, -radius + eps));
     CollisionCircle circle1(p0, radius);
     CollisionCircle circle2(p1, radius);
     CollisionCircle circle3(Dot(p0.x, p1.y), radius);
