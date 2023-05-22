@@ -27,4 +27,4 @@ add_executable(game
 
         Objects/collision.cpp
 
-        win32_platform.cpp)
+        main.cpp)
