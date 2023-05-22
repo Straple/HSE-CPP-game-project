@@ -3,8 +3,8 @@
 
 #include "bush.hpp"
 #include "log.hpp"
-#include "tree.hpp"
 #include "table.hpp"
+#include "tree.hpp"
 
 // enemies
 #include "bat.hpp"
@@ -54,6 +54,20 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
         }
 
         // bat bubbling bat
+        /*static bool who = false;
+        who = !who;
+        for (int i = 0; i < Bats.size(); i++) {
+            for (int j = i + 1; j < Bats.size(); j++) {
+                if (who) {
+                    // i bubble j
+                    Bats[j].push_out_of_collision(*Bats[i].get_collision());
+                } else {
+                    // j bubble i
+                    Bats[i].push_out_of_collision(*Bats[j].get_collision());
+                }
+            }
+        }*/
+
         for (auto &bat1 : Bats) {
             for (auto &bat2 : Bats) {
                 // чтобы не выталкивать самих себя
@@ -62,6 +76,18 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
                 }
             }
         }
+
+        /*for (const auto &wall : Walls) {
+            for (auto &player : Players) {
+                player.push_out_of_collision(wall);
+            }
+            for (auto &bat : Bats) {
+                bat.push_out_of_collision(wall);
+            }
+            for (auto &slime : Slimes) {
+                slime.push_out_of_collision(wall);
+            }
+        }*/
 
         // coin bubbling coin
         for (auto &coin1 : Loot_coins) {

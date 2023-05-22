@@ -65,7 +65,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
             // чтобы летучая мышь была поверх игрока, а не под ним
             Dot to = Players[0].pos - Dot(0, 0.1);
-            move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
+            simulate_move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
 
             if (!Players[0].is_invulnerable() && !Players[0].is_jumped &&
                 (Players[0].pos - pos).get_len() <= jump_radius &&

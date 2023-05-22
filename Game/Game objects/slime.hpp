@@ -177,10 +177,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             current = pred[current];
         }
         std::cout << std::endl;
-        move_to2d(
-            pos, current, dp,
-            (current - pos).normalize() * ddp_speed, delta_time
-        );
+        simulate_move_to2d(pos, current, dp,(current - pos).normalize() * ddp_speed, delta_time);
     }
 
     void simulate(efloat delta_time, std::vector<CollisionBox> Collision_box) {

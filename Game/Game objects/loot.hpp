@@ -35,7 +35,7 @@ struct Loot : abstract_game_object {
     void simulate(efloat delta_time, Dot player_pos) {
         if ((player_pos - pos).get_len() <= magnet_radius) {
             Dot ddp = (player_pos - pos) * 100;
-            move_to2d(pos, player_pos, dp, ddp, delta_time);
+            simulate_move_to2d(pos, player_pos, dp, ddp, delta_time);
         } else {
             simulate_move2d(pos, dp, Dot(), delta_time);
         }
