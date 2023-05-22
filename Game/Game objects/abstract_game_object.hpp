@@ -16,9 +16,19 @@ struct abstract_game_object {
 
     [[nodiscard]] virtual std::unique_ptr<Collision> get_collision() const = 0;
 
-    // выталкивает игрока за пределы коллизии
-    void push_out_of_collision(const Collision &collision) {
-        pos += collision.bubble(*get_collision())->get_pos() - get_collision()->get_pos();
+    // жестко выталкивает за пределы коллизии
+    // это нужно, чтобы прям запретить там быть
+    void push_out_of_collision_hard(const Collision &collision) {
+        Dot need_delta_pos = (collision.bubble(*get_collision())->get_pos() - get_collision()->get_pos());
+        pos += need_delta_pos;
+    }
+
+    // мягко выталкивает за пределы коллизии
+    // это нужно, чтобы например слаймы в стае могли прижиматься друг к другу
+    // выглядит красиво
+    void push_out_of_collision_soft(const Collision &collision) {
+        Dot need_delta_pos = (collision.bubble(*get_collision())->get_pos() - get_collision()->get_pos());
+        dp += 0.5 * need_delta_pos;
     }
 
     virtual void draw() const = 0;

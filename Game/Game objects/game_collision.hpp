@@ -17,13 +17,13 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
     // через стены никто пройти не может
     for (const auto &wall : Walls) {
         for (auto &player : Players) {
-            player.push_out_of_collision(wall);
+            player.push_out_of_collision_hard(wall);
         }
         for (auto &bat : Bats) {
-            bat.push_out_of_collision(wall);
+            bat.push_out_of_collision_hard(wall);
         }
         for (auto &slime : Slimes) {
-            slime.push_out_of_collision(wall);
+            slime.push_out_of_collision_hard(wall);
         }
     }
 
@@ -35,7 +35,7 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
                 for (auto &player2 : Players) {
                     // чтобы не выталкивать самих себя
                     if (&player1 != &player2) {
-                        player1.push_out_of_collision(*player2.get_collision());
+                        player1.push_out_of_collision_soft(*player2.get_collision());
                     }
                 }
             }
@@ -47,7 +47,7 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
                 for (auto &slime2 : Slimes) {
                     // чтобы не выталкивать самих себя
                     if (&slime1 != &slime2) {
-                        slime1.push_out_of_collision(*slime2.get_collision());
+                        slime1.push_out_of_collision_soft(*slime2.get_collision());
                     }
                 }
             }
@@ -72,7 +72,7 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
             for (auto &bat2 : Bats) {
                 // чтобы не выталкивать самих себя
                 if (&bat1 != &bat2) {
-                    bat1.push_out_of_collision(*bat2.get_collision());
+                    bat1.push_out_of_collision_soft(*bat2.get_collision());
                 }
             }
         }
@@ -93,7 +93,7 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
         for (auto &coin1 : Loot_coins) {
             for (auto &coin2 : Loot_coins) {
                 if (&coin1 != &coin2) {
-                    coin1.push_out_of_collision(*coin2.get_collision());
+                    coin1.push_out_of_collision_soft(*coin2.get_collision());
                 }
             }
         }
@@ -102,20 +102,20 @@ void simulate_game_collisions(const std::vector<CollisionBox> &Walls) {
     // слайм не может пройти через Bush, Table
     for (auto &slime : Slimes) {
         for (const auto &bush : Bushes) {
-            slime.push_out_of_collision(*bush.get_collision());
+            slime.push_out_of_collision_hard(*bush.get_collision());
         }
         for (const auto &table : Tables) {
-            slime.push_out_of_collision(*table.get_collision());
+            slime.push_out_of_collision_hard(*table.get_collision());
         }
     }
 
     // игрок не может пройти через Bush, Table
     for (auto &player : Players) {
         for (const auto &bush : Bushes) {
-            player.push_out_of_collision(*bush.get_collision());
+            player.push_out_of_collision_soft(*bush.get_collision());
         }
         for (const auto &table : Tables) {
-            player.push_out_of_collision(*table.get_collision());
+            player.push_out_of_collision_soft(*table.get_collision());
         }
     }
 }
