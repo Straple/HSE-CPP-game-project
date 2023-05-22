@@ -201,7 +201,7 @@ struct Player : abstract_game_object {
     }
 
     [[nodiscard]] std::unique_ptr<Collision> get_hitbox() const {
-        return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
+        return std::make_unique<CollisionBox>(pos + Dot(-7, 20), pos + Dot(7, -5));
     }
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const {
