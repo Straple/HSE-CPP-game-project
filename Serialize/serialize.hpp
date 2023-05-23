@@ -37,6 +37,16 @@ T byte_deserialization(std::istream &input_stream) {
     return result;
 }
 
+// macro for bytes serialization in structures
+#define ADD_BYTE_SERIALIZATION()                                                                  \
+    void serialize(std::ostream &output_stream) const {                                           \
+        byte_serialization(output_stream, *this);                                                 \
+    }                                                                                             \
+                                                                                                  \
+    void deserialize(std::istream &input_stream) {                                                \
+        *this = byte_deserialization<std::remove_reference<decltype(*this)>::type>(input_stream); \
+    }
+
 //----------------------------------------------------------------------
 
 // serialization_traits for arithmetic: char, int, long long, double ...
@@ -56,10 +66,10 @@ struct serialization_traits<T, typename std::enable_if<std::is_arithmetic<T>::va
 // serialization_traits for container
 template <typename container_t>
 struct serialization_traits<container_t, typename std::enable_if<is_container<container_t>::value>::type> {
-    static void serialize(std::ostream &os, const container_t &container) {
-        byte_serialization<serialization_traits_container_size_t>(os, container.size());
+    static void serialize(std::ostream &output_stream, const container_t &container) {
+        byte_serialization<serialization_traits_container_size_t>(output_stream, container.size());
         for (const auto &value : container) {
-            serialization_traits<typename container_t::value_type>::serialize(os, value);
+            serialization_traits<typename container_t::value_type>::serialize(output_stream, value);
         }
     }
 
