@@ -13,14 +13,4 @@ struct enemy_state_for_trivial_enemy {
     efloat attack_cooldown;
 };
 
-struct enemy_state_for_shooting_enemy {
-    int damage;
-    efloat shooting_radius;  // радиус возможного прыжка до врага
-
-    efloat ddp_speed;
-
-    efloat paralyzed_cooldown;
-    efloat attack_cooldown;
-};
-
 #endif  // GAME_ENEMY_STATES_HPP
