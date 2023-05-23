@@ -11,7 +11,29 @@
 #include "../main.cpp"
 //
 #include "game_message.hpp"
+
 //
+
+GameMessage get_game_state() {
+    std::ostringstream oss(std::ios::binary);
+    serialization_traits<std::vector<Player>>::serialize(oss, Players);
+    serialization_traits<std::vector<Slime>>::serialize(oss, Slimes);
+    serialization_traits<std::vector<Bat>>::serialize(oss, Bats);
+    serialization_traits<std::vector<Tree>>::serialize(oss, Trees);
+    serialization_traits<std::vector<Bush>>::serialize(oss, Bushes);
+    serialization_traits<std::vector<Log>>::serialize(oss, Logs);
+    serialization_traits<std::vector<effect>>::serialize(oss, Effects);
+
+    GameMessage result;
+
+    ASSERT(oss.str().size() < result.max_body_length, "oh no, memory limit");
+
+    result.body_length(oss.str().size());
+    std::memcpy(result.body(), oss.str().data(), result.body_length());
+    result.encode_header();
+
+    return result;
+}
 
 using boost::asio::ip::tcp;
 
@@ -49,11 +71,13 @@ public:
     }
 
     void leave(const AbstractClientPtr &client_ptr) {
-        Clients.erase(client_ptr);
+        if (Clients.find(client_ptr) != Clients.end()) {
+            Clients.erase(client_ptr);
 
-        auto remote_endpoint = client_ptr->socket.remote_endpoint();
-        std::cout << "Client <" << remote_endpoint << "> leaved from session" << std::endl
-                  << std::endl;
+            auto remote_endpoint = client_ptr->socket.remote_endpoint();
+            std::cout << "Client <" << remote_endpoint << "> leaved from session" << std::endl
+                      << std::endl;
+        }
     }
 
     void deliver(const GameMessage &msg) {
@@ -90,7 +114,7 @@ public:
 private:
     void do_read_header() {
         auto self(shared_from_this());
-        boost::asio::async_read(socket, boost::asio::buffer(read_msg.data(), GameMessage::header_length), [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+        boost::asio::async_read(socket, boost::asio::buffer(read_msg.data(), GameMessage::header_length), [this, self](boost::system::error_code ec, std::size_t) {
             if (!ec && read_msg.decode_header()) {
                 do_read_body();
             } else {
@@ -101,9 +125,10 @@ private:
 
     void do_read_body() {
         auto self(shared_from_this());
-        boost::asio::async_read(socket, boost::asio::buffer(read_msg.body(), read_msg.body_length()), [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+        boost::asio::async_read(socket, boost::asio::buffer(read_msg.body(), read_msg.body_length()), [this, self](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                // room_.deliver(read_msg_); // доставить сообщение всем остальным
+                ASSERT(read_msg.body_length() == sizeof(Input), "wtf???");
+                std::memcpy(&input, read_msg.body(), sizeof(Input));
                 do_read_header();
             } else {
                 session.leave(shared_from_this());
@@ -113,7 +138,7 @@ private:
 
     void do_write() {
         auto self(shared_from_this());
-        boost::asio::async_write(socket, boost::asio::buffer(write_msg.body(), write_msg.length()), [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+        boost::asio::async_write(socket, boost::asio::buffer(write_msg.data(), write_msg.length()), [this, self](boost::system::error_code ec, std::size_t /*length*/) {
             if (!ec) {
                 // ok
             } else {
@@ -139,7 +164,7 @@ class Server {
 public:
     Server(boost::asio::io_context &io_context, const tcp::endpoint &endpoint)
         : acceptor(io_context, endpoint),
-          timer(io_context, boost::posix_time::seconds(5)),
+          timer(io_context, boost::posix_time::milliseconds(5)),
           time_tick_prev_frame(get_ticks()) {
         do_accept();
         timer.async_wait(boost::bind(&Server::simulate_game_frame, this));
@@ -159,11 +184,8 @@ public:
         }
         simulate_game(delta_time);
 
-        GameMessage game_state;
-        // TODO: записать состояние игры в game_state
-        for (auto &client : session.Clients) {
-            dynamic_cast<ClientHandler *>(client.get())->simulate(delta_time);
-        }
+        GameMessage game_state = get_game_state();
+        session.deliver(game_state);
 
         // продлеваем таймер следующей симуляции
         timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(5));
@@ -205,6 +227,8 @@ private:
 
 int main() {
     setlocale(LC_ALL, "ru-RU");
+
+    test_room.read("level.txt");
 
     try {
         boost::asio::io_context io_context;

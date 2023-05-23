@@ -6,9 +6,29 @@
 #include <iostream>
 #include <thread>
 #include "game_message.hpp"
-
 //
 #include "../main.cpp"
+
+//
+
+void set_game_state(GameMessage &message) {
+    std::string data;
+    // std::cout << "message length: " << message.length() << std::endl;
+    data.resize(message.length());
+    std::memcpy(data.data(), message.body(), message.length());
+    std::istringstream iss(data);
+
+    // std::cout << "deserializing..." << std::endl;
+
+    Players = serialization_traits<std::vector<Player>>::deserialize(iss);
+    Slimes = serialization_traits<std::vector<Slime>>::deserialize(iss);
+    Bats = serialization_traits<std::vector<Bat>>::deserialize(iss);
+    Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
+    Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
+    Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
+    Effects = serialization_traits<std::vector<effect>>::deserialize(iss);
+    // std::cout << "OK" << std::endl;
+}
 
 using boost::asio::ip::tcp;
 
@@ -16,7 +36,7 @@ typedef std::deque<GameMessage> GameMessageQueue;
 
 class Client {
 public:
-    Client(boost::asio::io_context &io_context, const tcp::resolver::results_type &endpoints, engine_app& eng)
+    Client(boost::asio::io_context &io_context, const tcp::resolver::results_type &endpoints, engine_app &eng)
         : io_context(io_context),
           socket(io_context),
           timer(io_context, boost::posix_time::milliseconds(5)),
@@ -28,18 +48,11 @@ public:
     void write(const GameMessage &msg) {
         write_msg = msg;
         do_write();
-        // это видимо типа мьютекса
-        /*boost::asio::post(io_context, [this, msg]() {
-            bool write_in_progress = !write_msgs.empty();
-            write_msgs_.push_back(msg);
-            if (!write_in_progress) {
-                do_write();
-            }
-        });*/
     }
 
     void close() {
         socket.close();
+        global_variables::running = false;
     }
 
     void render_game_frame() {
@@ -53,10 +66,19 @@ public:
 
         eng.simulate_frame(delta_time);
 
-        if(!global_variables::running){
+        if (!global_variables::running) {
             std::cout << "Stopping..." << std::endl;
             io_context.stop();
             return;
+        }
+
+        // send Input to server
+        {
+            GameMessage input_message;
+            input_message.body_length(sizeof(Input));
+            std::memcpy(input_message.body(), reinterpret_cast<char *>(&eng.input), input_message.body_length());
+            input_message.encode_header();
+            write(input_message);
         }
 
         // продлеваем таймер следующего кадра
@@ -70,8 +92,7 @@ private:
             if (!ec) {
                 do_read_header();
                 render_game_frame();
-            }
-            else{
+            } else {
                 std::cout << "connecting failed\n";
                 std::cout << "message: " << ec << std::endl;
                 io_context.stop();
@@ -92,8 +113,11 @@ private:
     void do_read_body() {
         boost::asio::async_read(socket, boost::asio::buffer(read_msg.body(), read_msg.body_length()), [this](boost::system::error_code ec, std::size_t /*length*/) {
             if (!ec) {
-                std::cout.write(read_msg.body(), read_msg.body_length());
-                std::cout << std::endl;
+                // std::cout.write(read_msg.body(), read_msg.body_length());
+                // std::cout << std::endl;
+
+                set_game_state(read_msg);
+
                 do_read_header();
             } else {
                 close();
@@ -102,9 +126,8 @@ private:
     }
 
     void do_write() {
-        boost::asio::async_write(socket, boost::asio::buffer(write_msg.data(), write_msg.length()), [this](boost::system::error_code ec, std::size_t /*length*/) {
+        boost::asio::async_write(socket, boost::asio::buffer(write_msg.data(), write_msg.length()), [this](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                do_write();
             } else {
                 close();
             }
@@ -132,8 +155,8 @@ int main() {
     {
         std::cout << "performance_frequency: " << performance_frequency << std::endl;
 
-        //ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
-        //ShowCursor(global_variables::show_cursor);
+        // ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
+        // ShowCursor(global_variables::show_cursor);
 
         read_sprites();
         read_spritesheets();
@@ -158,7 +181,7 @@ int main() {
 
         Client client(io_context, endpoints, eng);
 
-        io_context.run(); // run game
+        io_context.run();  // run game
 
         client.close();
     } catch (std::exception &e) {
