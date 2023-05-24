@@ -16,42 +16,34 @@
 // вернет частоту обновления устройства
 u64 get_performance_frequency() {
     LARGE_INTEGER perf;
-    ASSERT(
-        QueryPerformanceFrequency(&perf),
-        "call to QueryPerformanceFrequency fails"
-    );
+    ASSERT(QueryPerformanceFrequency(&perf), "call to QueryPerformanceFrequency fails");
     return perf.QuadPart;
 }
 
 // вернет текущий тик
 u64 get_ticks() {
     LARGE_INTEGER ticks;
-    ASSERT(
-        QueryPerformanceCounter(&ticks), "call to QueryPerformanceCounter fails"
-    );
+    ASSERT(QueryPerformanceCounter(&ticks), "call to QueryPerformanceCounter fails");
     return ticks.QuadPart;
 }
 
 #else
-
 static_assert(false, "not supported operating system");
-
 #endif
 
-const efloat performance_frequency =
-    static_cast<efloat>(get_performance_frequency());
+const efloat performance_frequency = static_cast<efloat>(get_performance_frequency());
 
 class Timer {
     u64 start_tick;
 
 public:
-    Timer() : start_tick(get_ticks()) {
+    Timer()
+        : start_tick(get_ticks()) {
     }
 
     // вернет время между начальным тиком и текущим
     [[nodiscard]] efloat get() const {
-        return static_cast<efloat>(get_ticks() - start_tick) /
-               performance_frequency;
+        return static_cast<efloat>(get_ticks() - start_tick) / performance_frequency;
     }
 
     // обновит начальный тик

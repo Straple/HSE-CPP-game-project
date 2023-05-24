@@ -125,6 +125,9 @@ struct Room {
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
                     Bats.emplace_back(pos);
+                    Bats.emplace_back(pos);
+                    Bats.emplace_back(pos);
+                    Bats.emplace_back(pos);
                 }
             }
 
@@ -146,7 +149,7 @@ struct Room {
         }
 
         for (auto &slime : Slimes) {
-            slime.simulate(delta_time);
+            slime.simulate(delta_time, Collision_boxes);
         }
         for (auto &bat : Bats) {
             bat.simulate(delta_time);
@@ -225,6 +228,10 @@ struct Room {
         }
 
         simulate_game_collisions(Collision_boxes);
+
+        /*if(is_down(BUTTON_K)){
+            Players[0].pos = Collision_boxes[0].p0;
+        }*/
     }
 
     void draw() {

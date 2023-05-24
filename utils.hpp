@@ -21,7 +21,7 @@
 // random
 #include <random>
 
-std::mt19937 rnd(13);
+std::mt19937 &get_random_engine();
 
 using s8 = int8_t;
 using u8 = uint8_t;
@@ -62,28 +62,8 @@ std::string to_string(const T &val) {
 }
 
 // efloat -> string
-std::string to_string(efloat val) {
-    std::ostringstream oss;
-    oss << std::fixed << std::setprecision(4) << val;
-    std::string s = oss.str();
-    if (s == "nan(ind)" || s == "-nan(ind)") {
-        s = "nan";
-    }
-    return s;
-}
+std::string to_string(efloat val);
 
-bool randomness(unsigned int percent) {
-    ASSERT(percent <= 100, "wrong percent");
-
-    std::uniform_int_distribution<unsigned int> rnd_range(0, 100);
-
-    return rnd_range(rnd) <= percent;
-}
-
-double game_engine_time_for_calc = 0;
-
-#define CALC_TIME_START Timer timer_for_calc_time;
-
-#define CALC_TIME_END game_engine_time_for_calc += timer_for_calc_time.get();
+bool randomness(unsigned int percent);
 
 #endif  // GAME_ENGINE_UTILS_HPP

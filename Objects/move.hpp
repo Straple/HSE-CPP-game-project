@@ -10,38 +10,67 @@ const static Dot grid_start(-75,35);
 const static efloat step_size = 4;
 
 
-void simulate_move(efloat &p, efloat &dp, efloat ddp, efloat dt) {
+/*
+ * p = позиция
+ *
+ * dp = p' = инерция движения, которую мы накапливаем, чтобы например когда игрок идет вправо,
+ * а потом резко поворачивает налево, то он еще некоторое время по инерции уходил вправо.
+ * А также, чтобы когда он только начал идти, то сначала медленно, и с каждым разом чуть быстрее до некоторого значения.
+ *
+ * ddp = p'' = момент движения в кадре. Когда начинается кадр, то ddp = 0. Когда игрок нажимает кнопку идти вправо, то
+ * ddp += C, а если влево то ddp -= C. Таким образом, если он нажал и вправо и влево, то он никуда в итоге не пойдет.
+ *
+ * После симуляции такого движения частичка ddp перейдет в dp, чтобы накопить инерцию движения
+ *
+ * delta_time = время между текущим кадром и предыдущим
+ */
+
+/*
+ * симулирует движение по системе, описанной в начале файла
+ */
+void simulate_move(efloat &p, efloat &dp, efloat ddp, efloat delta_time) {
     ddp -= dp * 15;
-    p = p + dp * dt + ddp * dt * dt * 0.5;
-    dp = dp + ddp * dt;
+    p = p + dp * delta_time + ddp * quare(delta_time) / 2;
+    dp = dp + ddp * delta_time;
 }
 
-void simulate_move2d(Dot &p, Dot &dp, Dot ddp, efloat dt) {
-    simulate_move(p.x, dp.x, ddp.x, dt);
-    simulate_move(p.y, dp.y, ddp.y, dt);
+/*
+ * аналогично simulate_move, только на плоскости
+ */
+void simulate_move2d(Dot &p, Dot &dp, Dot ddp, efloat delta_time) {
+    simulate_move(p.x, dp.x, ddp.x, delta_time);
+    simulate_move(p.y, dp.y, ddp.y, delta_time);
 }
 
-void move_to(efloat &p, efloat p_to, efloat &dp, efloat ddp, efloat dt) {
-    efloat to = p;
+/*
+ * Симулирует движение до точки p_to по системе из simulate_move
+ * Если мы ее перешагнули или что-то сломалось, то мы окажемся в точке p_to.
+ * Это нужно, чтобы когда мы были слишком близко к точке p_to, то не постоянно метались между ней, а сразу попали в неё
+ */
+void simulate_move_to(efloat &p, efloat p_to, efloat &dp, efloat ddp, efloat delta_time) {
+    efloat result = p;
 
-    simulate_move(to, dp, ddp, dt);
+    simulate_move(result, dp, ddp, delta_time);
 
     auto is_spoiled = [](efloat num) -> bool {
         return isnan(num) || isinf(num);
     };
 
-    if (is_spoiled(to) || is_spoiled(dp) || is_spoiled(ddp) ||
-        (p <= p_to && p_to <= to) || (to <= p_to && p_to <= p)) {
-        to = p_to;
+    if (is_spoiled(result) || is_spoiled(dp) || is_spoiled(ddp) ||
+        (p <= p_to && p_to <= result) || (result <= p_to && p_to <= p)) {
+        result = p_to;
         dp = 0;
     }
 
-    p = to;
+    p = result;
 }
 
-void move_to2d(Dot &p, const Dot &p_to, Dot &dp, Dot ddp, efloat dt) {
-    move_to(p.x, p_to.x, dp.x, ddp.x, dt);
-    move_to(p.y, p_to.y, dp.y, ddp.y, dt);
+/*
+ * аналогично simulate_move_to, только на плоскости
+ */
+void simulate_move_to2d(Dot &p, const Dot &p_to, Dot &dp, Dot ddp, efloat delta_time) {
+    simulate_move_to(p.x, p_to.x, dp.x, ddp.x, delta_time);
+    simulate_move_to(p.y, p_to.y, dp.y, ddp.y, delta_time);
 }
 
 #include <map>

@@ -10,7 +10,7 @@
 #include "../utils.hpp"
 #include "Sprite/color.hpp"
 
-class Render_state {
+class RenderState {
     unsigned int m_height = 0, m_width = 0;
 
     Color *m_render_memory = nullptr;  // память для рендера
@@ -20,62 +20,26 @@ class Render_state {
     BITMAPINFO m_bitmap_info{};
 
 public:
-    Render_state() = default;
-    Render_state(const Render_state &copy_object) = delete;
-    Render_state(Render_state &&move_object) = delete;
+    RenderState() = default;
+    RenderState(const RenderState &copy_object) = delete;
+    RenderState(RenderState &&move_object) = delete;
 
-    Render_state &operator=(const Render_state &source) = delete;
-    Render_state &operator=(Render_state &&source) = delete;
+    RenderState &operator=(const RenderState &source) = delete;
+    RenderState &operator=(RenderState &&source) = delete;
 
     // изменение размеров окна
-    void resize(unsigned int new_width, unsigned int new_height) {
-        m_width = new_width;
-        m_height = new_height;
-
-        // update render_memory
-        {
-            u64 size = static_cast<u64>(m_width) * new_height;
-
-            if (m_render_memory_len < size) {  // не хватает памяти
-                delete[] m_render_memory;
-                m_render_memory = new Color[size];
-                m_render_memory_len = size;
-            }
-        }
-
-        // update bitmap_info
-        {
-            auto &header = m_bitmap_info.bmiHeader;
-            header.biSize = sizeof(header);
-            header.biWidth = static_cast<LONG>(new_width);
-            header.biHeight = static_cast<LONG>(new_height);
-            header.biPlanes = 1;
-            header.biBitCount = 32;
-            header.biCompression = BI_RGB;
-        }
-    }
+    void resize(unsigned int new_width, unsigned int new_height);
 
     // вернет указатель на начало строки памяти экрана
-    [[nodiscard]] Color *operator[](unsigned int row) const {
-        ASSERT(row < height(), "row is bad: " + to_string(row));
-        return m_render_memory + row * m_width;
-    }
+    [[nodiscard]] Color *operator[](unsigned int row) const;
 
-    [[nodiscard]] unsigned int width() const {
-        return m_width;
-    }
+    [[nodiscard]] unsigned int width() const;
 
-    [[nodiscard]] unsigned int height() const {
-        return m_height;
-    }
+    [[nodiscard]] unsigned int height() const;
 
-    [[nodiscard]] Color *render_memory() const {
-        return m_render_memory;
-    }
+    [[nodiscard]] Color *render_memory() const;
 
-    [[nodiscard]] BITMAPINFO &bitmap_info() {
-        return m_bitmap_info;
-    }
+    [[nodiscard]] BITMAPINFO &bitmap_info();
 };
 
 #endif  // GAME_ENGINE_RENDER_STATE_HPP

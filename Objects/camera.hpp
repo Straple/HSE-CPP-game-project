@@ -10,7 +10,7 @@ struct Camera {
 
     // симулирует движение камеры к игроку
     void simulate(const Dot &player_pos, efloat delta_time) {
-        move_to2d(pos, player_pos, dp, (player_pos - pos) * 20, delta_time);
+        simulate_move_to2d(pos, player_pos, dp, (player_pos - pos) * 20, delta_time);
     }
 };
 

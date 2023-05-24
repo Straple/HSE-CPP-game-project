@@ -18,7 +18,7 @@ struct global_variables {
 
     static inline Camera camera;
 
-    static inline Render_state render_state;
+    static inline RenderState render_state;
 
     static inline Dot arena_half_size;
 

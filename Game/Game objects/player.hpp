@@ -101,7 +101,7 @@ struct Player : abstract_game_object {
     }
 
     // animations
-    animation anim;
+    animation anim = player_anims[0];
     Player_anim_tree::anim_and_dir_t anim_type;
 
     Player(Dot position = Dot()) {
@@ -200,15 +200,15 @@ struct Player : abstract_game_object {
         return get_direction(anim_type.dir);
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_hitbox() const {
-        return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
+    [[nodiscard]] std::unique_ptr<Collision> get_hitbox() const {
+        return std::make_unique<CollisionBox>(pos + Dot(-7, 20), pos + Dot(7, -5));
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const {
         return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 };
 
-std::vector<Player> Players(1);
+std::vector<Player> Players = {Dot(20, -106)};
 
 #endif  // GAME_PLAYER_HPP

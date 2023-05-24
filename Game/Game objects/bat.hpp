@@ -32,18 +32,18 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
         // чтобы разнообразить кучу летучих мышей, которые будут иметь
         // одновременные анимации
-        anim.frame_cur_count = rnd() % 5;
+        anim.frame_cur_count = get_random_engine()() % 5;
     }
 
     [[nodiscard]] bool is_invulnerable() const {
         return paralyzed_accum < paralyzed_cooldown;
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_collision() const override {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
         return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 
-    [[nodiscard]] std::unique_ptr<AbstractCollision> get_hitbox() const {
+    [[nodiscard]] std::unique_ptr<Collision> get_hitbox() const {
         return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 
@@ -65,7 +65,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
             // чтобы летучая мышь была поверх игрока, а не под ним
             Dot to = Players[0].pos - Dot(0, 0.1);
-            move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
+            simulate_move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
 
             if (!Players[0].is_invulnerable() && !Players[0].is_jumped &&
                 (Players[0].pos - pos).get_len() <= jump_radius &&
