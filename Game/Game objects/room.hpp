@@ -83,8 +83,7 @@ struct Room {
         file << "SPRITES\n";
         file << Draw_objects.size() << '\n';
         for (auto [pos, size, sprite, level] : Draw_objects) {
-            file << sprite_type_to_string(sprite) << ' ' << pos << ' ' << size
-                 << ' ' << level << '\n';
+            file << sprite_type_to_string(sprite) << ' ' << pos << ' ' << size << ' ' << level << '\n';
         }
 
         file << "COLLISION_BOXES\n";
@@ -117,16 +116,17 @@ struct Room {
         if (Slimes.size() + Bats.size() == 0) {
             // new wave
 
-            /*std::cout << "New wave!" << std::endl;
+            std::cout << "New wave!" << std::endl;
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
-                    Bats.emplace_back(pos);
-                    Bats.emplace_back(pos);
-                    Slimes.emplace_back(pos);
-                    Slimes.emplace_back(pos);
+                    if (randomness(50)) {
+                        Bats.emplace_back(pos);
+                    } else {
+                        Slimes.emplace_back(pos);
+                    }
                 }
-            }*/
+            }
 
             /*wave_cooldown_accum += delta_time;
             if (wave_cooldown_accum >= wave_cooldown) {
