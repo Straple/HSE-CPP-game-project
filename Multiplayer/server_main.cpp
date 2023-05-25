@@ -11,7 +11,7 @@
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include <boost/date_time/posix_time/posix_time.hpp>
 //-------------------------
 #include "../main.cpp"
 //-------------------------
@@ -19,29 +19,19 @@
 
 //----------------------------------------------------------------------
 
-// получить все игровое состояние
-GameMessage get_game_state() {
+// получить игровое состояние
+std::string get_game_state() {
     std::ostringstream oss(std::ios::binary);
-    {
-        serialization_traits<std::vector<Player>>::serialize(oss, Players);
-        serialization_traits<std::vector<Slime>>::serialize(oss, Slimes);
-        serialization_traits<std::vector<Bat>>::serialize(oss, Bats);
-        serialization_traits<std::vector<Tree>>::serialize(oss, Trees);
-        serialization_traits<std::vector<Bush>>::serialize(oss, Bushes);
-        serialization_traits<std::vector<Log>>::serialize(oss, Logs);
-        serialization_traits<std::vector<effect>>::serialize(oss, Effects);
-        serialization_traits<std::vector<Bullet>>::serialize(oss, Bullets);
-    }
 
-    GameMessage result;
-    {
-        ASSERT(oss.str().size() < result.max_body_length, "oh no, memory limit");
-
-        result.body_length(oss.str().size());
-        std::memcpy(result.body(), oss.str().data(), result.body_length());
-        result.encode_header();
-    }
-    return result;
+    serialization_traits<std::vector<Player>>::serialize(oss, Players);
+    serialization_traits<std::vector<Slime>>::serialize(oss, Slimes);
+    serialization_traits<std::vector<Bat>>::serialize(oss, Bats);
+    serialization_traits<std::vector<Tree>>::serialize(oss, Trees);
+    serialization_traits<std::vector<Bush>>::serialize(oss, Bushes);
+    serialization_traits<std::vector<Log>>::serialize(oss, Logs);
+    serialization_traits<std::vector<effect>>::serialize(oss, Effects);
+    serialization_traits<std::vector<Bullet>>::serialize(oss, Bullets);
+    return oss.str();
 }
 
 using boost::asio::ip::tcp;
@@ -58,12 +48,12 @@ public:
 
     //----------------------------------------------------------------------
 
-    AbstractClient(tcp::socket socket, const int client_id)
-        : socket(std::move(socket)), client_id(client_id) {
+    AbstractClient(tcp::socket socket, const int client_id) : socket(std::move(socket)), client_id(client_id) {
     }
 
     void simulate(efloat delta_time) {
         simulate_player(input, delta_time, client_id);
+        // текущий кадр инпута так и оставим, а вот предыдущий смениться текущим
         input.previous = input.current;
     }
 
@@ -90,9 +80,8 @@ using AbstractClientPtr = std::shared_ptr<AbstractClient>;
 class GameSession {
 public:
     explicit GameSession(boost::asio::io_context &io_context)
-        : timer(io_context, boost::posix_time::milliseconds(5)),
-          time_tick_prev_frame(get_ticks()) {
-        timer.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
+        : timer(io_context, boost::posix_time::milliseconds(0)), time_tick_prev_frame(get_ticks()) {
+        simulate_game_frame();
     }
 
     void simulate_game_frame() {
@@ -157,6 +146,11 @@ public:
         // добавим его в игру
         Players.push_back({});
         Players.back().client_id = client_ptr->client_id;
+
+        // обновим игровой снапшот, так как мы получили нового игрока
+        // иначе будет уб: после join() ClientHandler отправит get_game_state() клиенту,
+        // а потом мы не обновив game_state_snapshot отправим его уже без этого игрока
+        game_state_snapshot = get_game_state();
     }
 
     void leave(const AbstractClientPtr &client_ptr) {
@@ -169,7 +163,7 @@ public:
             std::cout << "Client <" << remote_endpoint << "> leaved from session\n\n";
             std::cout.flush();
 
-            // также удалим из игры
+            // также удалим персонажа из игры
             int index = find_player_index(client_ptr->client_id);
             Players.erase(Players.begin() + index);
         }
@@ -212,13 +206,15 @@ public:
         session.join(shared_from_this());
         do_read_header();
 
-        // нам нужно передать клиенту его client_id
+        // нам нужно передать клиенту его client_id, а также снапшот игрового состояния
         {
-            GameMessage message;
-            message.body_length(sizeof(int));
-            message.encode_header();
-            *reinterpret_cast<int *>(message.body()) = client_id;
             sending_chain_is_run = true;  // мы начали цепочку отправок
+
+            std::string client_id_string;
+            client_id_string.resize(sizeof(int));
+            std::memcpy(client_id_string.data(), &client_id, sizeof(int));
+
+            GameMessage message = client_id_string + get_game_state();
             deliver(message);
         }
     }
@@ -241,57 +237,68 @@ public:
 private:
     void do_read_header() {
         auto self(shared_from_this());
-        boost::asio::async_read(socket, boost::asio::buffer(read_message.data(), GameMessage::header_length), [this, self](boost::system::error_code ec, std::size_t) {
-            if (!ec && read_message.decode_header()) {
-                // считали заголовок с размером
-                // теперь можем считать и тело
-                do_read_body();
-            } else {
-                session.leave(shared_from_this());
+        boost::asio::async_read(
+            socket, boost::asio::buffer(read_message.data(), GameMessage::header_length),
+            [this, self](boost::system::error_code error_code, std::size_t) {
+                if (!error_code && read_message.decode_header()) {
+                    // считали заголовок с размером
+                    // теперь можем считать и тело
+                    do_read_body();
+                } else {
+                    std::cout << "reading header failed. message: \"" << error_code.message() << "\"" << std::endl;
+                    session.leave(shared_from_this());
+                }
             }
-        });
+        );
     }
 
     void do_read_body() {
         auto self(shared_from_this());
-        boost::asio::async_read(socket, boost::asio::buffer(read_message.body(), read_message.body_length()), [this, self](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                // обработаем полученное сообщение
-                cnt_peek_message_from_client++;
-                ASSERT(read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "wtf???");
-                std::memcpy(&input.current, read_message.body(), sizeof(ButtonsState));
-                Dot &cursor_dir = Players[find_player_index(client_id)].cursor_dir;
-                std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
+        boost::asio::async_read(
+            socket, boost::asio::buffer(read_message.body(), read_message.body_length()),
+            [this, self](boost::system::error_code error_code, std::size_t) {
+                if (!error_code) {
+                    // обработаем полученное сообщение
+                    cnt_peek_message_from_client++;
+                    ASSERT(read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "wtf???");
+                    std::memcpy(&input.current, read_message.body(), sizeof(ButtonsState));
+                    Dot &cursor_dir = Players[find_player_index(client_id)].cursor_dir;
+                    std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
 
-                do_read_header();  // продолжим цепочку чтения сообщений
-            } else {
-                session.leave(shared_from_this());
+                    do_read_header();  // продолжим цепочку чтения сообщений
+                } else {
+                    std::cout << "reading body failed. message: \"" << error_code.message() << "\"" << std::endl;
+                    session.leave(shared_from_this());
+                }
             }
-        });
+        );
     }
 
     void do_write() {
         auto self(shared_from_this());
-        boost::asio::async_write(socket, boost::asio::buffer(write_message.data(), write_message.length()), [this, self](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                // возьмем последний кадр и отправим его игроку
+        boost::asio::async_write(
+            socket, boost::asio::buffer(write_message.data(), write_message.length()),
+            [this, self](boost::system::error_code error_code, std::size_t) {
+                if (!error_code) {
+                    // возьмем последний кадр и отправим его игроку
 
-                // если мы очень медленны и не создали новый кадр, то сейчас отсылать нет смысла
+                    // если мы очень медленны и не создали новый кадр, то сейчас отсылать нет смысла
 
-                // оставим это дело на GameSession, чтобы она после создания нового кадра сказала нам об этом,
-                // чтобы мы отправили новый кадр
+                    // оставим это дело на GameSession, чтобы она после создания нового кадра сказала нам об этом,
+                    // чтобы мы отправили новый кадр
 
-                sending_chain_is_run = false;
+                    sending_chain_is_run = false;
 
-                // готов ли новый кадр
-                if (write_message_frame_id < session.frame_id) {
-                    // сообщим себе об этом и продолжим цепочку сообщений
-                    inform_me_about_new_frame();
+                    // готов ли новый кадр
+                    if (write_message_frame_id < session.frame_id) {
+                        // сообщим себе об этом и продолжим цепочку сообщений
+                        inform_me_about_new_frame();
+                    }
+                } else {
+                    session.leave(shared_from_this());
                 }
-            } else {
-                session.leave(shared_from_this());
             }
-        });
+        );
     }
 
     //----------------------------------------------------------------------
@@ -330,25 +337,23 @@ public:
 
 private:
     void do_accept() {
-        acceptor.async_accept(
-            [this](boost::system::error_code ec, tcp::socket socket) {
-                {
-                    auto remote_endpoint = socket.remote_endpoint();
-                    auto local_endpoint = socket.local_endpoint();
+        acceptor.async_accept([this](boost::system::error_code error_code, tcp::socket socket) {
+            {
+                auto remote_endpoint = socket.remote_endpoint();
+                auto local_endpoint = socket.local_endpoint();
 
-                    std::cout << "Connected " << remote_endpoint << " --> " << local_endpoint << '\n';
-                    std::cout << "message: " << ec.message() << "\n\n";
-                    std::cout.flush();
-                }
-                // если нет ошибок сокета
-                if (!ec) {
-                    // создать клиенту его обработчика и добавить в игровую сессию
-                    std::make_shared<ClientHandler>(std::move(socket), session, count_of_connects)->start();
-                    count_of_connects++;
-                }
-                do_accept();  // для дальнейших принятий соединений
+                std::cout << "Connected " << remote_endpoint << " --> " << local_endpoint << '\n';
+                std::cout << "message: " << error_code.message() << "\n\n";
+                std::cout.flush();
             }
-        );
+            // если нет ошибок сокета
+            if (!error_code) {
+                // создать клиенту его обработчика и добавить в игровую сессию
+                std::make_shared<ClientHandler>(std::move(socket), session, count_of_connects)->start();
+                count_of_connects++;
+            }
+            do_accept();  // для дальнейших принятий соединений
+        });
     }
 
     //----------------------------------------------------------------------

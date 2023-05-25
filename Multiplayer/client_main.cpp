@@ -1,6 +1,7 @@
 // boost
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+using boost::asio::ip::tcp;
 //
 #include <cstdlib>
 #include <deque>
@@ -13,32 +14,29 @@
 
 //----------------------------------------------------------------------
 
-void set_game_state(GameMessage &message) {
-    std::string data;
-    data.resize(message.length());
-    std::memcpy(data.data(), message.body(), message.length());
-    std::istringstream iss(data);
+void set_game_state(const std::string &game_state) {
+    std::istringstream iss(game_state);
 
-    {
-        Players = serialization_traits<std::vector<Player>>::deserialize(iss);
-        Slimes = serialization_traits<std::vector<Slime>>::deserialize(iss);
-        Bats = serialization_traits<std::vector<Bat>>::deserialize(iss);
-        Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
-        Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
-        Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
-        Effects = serialization_traits<std::vector<effect>>::deserialize(iss);
-        Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
-    }
+    Players = serialization_traits<std::vector<Player>>::deserialize(iss);
+    Slimes = serialization_traits<std::vector<Slime>>::deserialize(iss);
+    Bats = serialization_traits<std::vector<Bat>>::deserialize(iss);
+    Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
+    Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
+    Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
+    Effects = serialization_traits<std::vector<effect>>::deserialize(iss);
+    Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
 }
-
-using boost::asio::ip::tcp;
 
 //----------------------------------------------------------------------
 
 // Клиент. Это мы
 class Client {
 public:
-    Client(boost::asio::io_context &io_context, const tcp::resolver::results_type &endpoints, WindowHandler &window_handler)
+    Client(
+        boost::asio::io_context &io_context,
+        const tcp::resolver::results_type &endpoints,
+        WindowHandler &window_handler
+    )
         : io_context(io_context),
           socket(io_context),
           timer(io_context, boost::posix_time::milliseconds(5)),
@@ -60,24 +58,27 @@ public:
     }
 
     void send_input_to_server() {
+        write_message_frame_id = frame_id;
+        sending_chain_is_run = true;
+
+        GameMessage message;
+        message.body_length(sizeof(ButtonsState) + sizeof(Dot));
+        message.encode_header();
+
+        // запишем ButtonsState
+        std::memcpy(message.body(), &window_handler.input, sizeof(ButtonsState));
+
+        // запишем cursor_dir
         int index = find_player_index(client_id);
-        // не за чем отправлять свой инпут, когда мы не получили первое игровое состояние
-        if(index != -1) {
-            write_message_frame_id = frame_id;
-            sending_chain_is_run = true;
+        Dot cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+        std::memcpy(message.body() + sizeof(ButtonsState), &cursor_dir, sizeof(Dot));
 
-            GameMessage message;
-            message.body_length(sizeof(ButtonsState) + sizeof(Dot));
-            message.encode_header();
-            std::memcpy(message.body(), reinterpret_cast<char *>(&window_handler.input), sizeof(ButtonsState));
-
-            Dot cursor_pos = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-            std::memcpy(message.body() + sizeof(ButtonsState), &cursor_pos, sizeof(Dot));
-            write(message);
-        }
+        // отправим на сервер
+        write(message);
     }
 
     void simulate_game_frame() {
+        std::cout << "simulate_game_frame" << std::endl;
         frame_id++;
 
         efloat delta_time;
@@ -98,11 +99,9 @@ public:
         window_handler.simulate_frame(delta_time);
 
         int index = find_player_index(client_id);
-        // если в игровом состоянии есть наш персонаж
-        if (index != -1) {
-            Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-            global_variables::camera.simulate(Players[index].pos, delta_time);
-        }
+        std::cout << index << std::endl;
+        Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+        global_variables::camera.simulate(Players[index].pos, delta_time);
 
         draw_object(frame_read_count_snapshot, Dot(), 0.5, RED);
 
@@ -124,13 +123,13 @@ public:
 
 private:
     void do_connect(const tcp::resolver::results_type &endpoints) {
-        boost::asio::async_connect(socket, endpoints, [this](boost::system::error_code ec, tcp::endpoint) {
-            if (!ec) {
-                do_read_header();  // мы должны получить наш client_id от сервера
+        boost::asio::async_connect(socket, endpoints, [this](boost::system::error_code error_code, tcp::endpoint) {
+            if (!error_code) {
+                std::cout << "connecting successful. message: \"" << error_code.message() << "\"" << std::endl;
+                do_read_header();  // мы должны получить наш client_id и игровой снапшот от сервера
             } else {
-                std::cout << "connecting failed\n";
-                std::cout << "message: " << ec << std::endl;
-                io_context.stop();
+                std::cout << "connecting failed. message: \"" << error_code.message() << "\"" << std::endl;
+                close();
             }
         });
     }
@@ -138,56 +137,83 @@ private:
     //----------------------------------------------------------------
 
     void do_read_header() {
-        boost::asio::async_read(socket, boost::asio::buffer(read_message.data(), GameMessage::header_length), [this](boost::system::error_code ec, std::size_t /*length*/) {
-            if (!ec && read_message.decode_header()) {
-                do_read_body();
-            } else {
-                close();
+        boost::asio::async_read(
+            socket, boost::asio::buffer(read_message.data(), GameMessage::header_length),
+            [this](boost::system::error_code error_code, std::size_t) {
+                if (!error_code && read_message.decode_header()) {
+                    // считали заголовок с размером
+                    // теперь можем считать и тело
+                    do_read_body();
+                } else {
+                    std::cout << "reading header failed. message: \"" << error_code.message() << "\"" << std::endl;
+                    close();
+                }
             }
-        });
+        );
     }
 
     void do_read_body() {
-        boost::asio::async_read(socket, boost::asio::buffer(read_message.body(), read_message.body_length()), [this](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                if (client_id == -1) {
-                    // сервер прислал нам client_id
-                    ASSERT(read_message.body_length() == sizeof(int), "is not client_id?");
-                    std::memcpy(&client_id, read_message.body(), sizeof(int));
+        boost::asio::async_read(
+            socket, boost::asio::buffer(read_message.body(), read_message.body_length()),
+            [this](boost::system::error_code error_code, std::size_t) {
+                if (!error_code) {
+                    if (client_id == -1) {
+                        // это первый пакет от сервера
+                        // он прислал нам наш client_id и игровой снапшот
 
-                    // теперь мы можем начать играть
-                    simulate_game_frame();
+                        // считали client_id
+                        std::memcpy(&client_id, read_message.body(), sizeof(int));
+                        std::cout << "client_id: " << client_id << std::endl;
+
+                        // считали game_state
+                        std::string game_state;
+                        game_state.resize(read_message.body_length() - sizeof(int));
+                        std::memcpy(game_state.data(), read_message.body() + sizeof(int), game_state.size());
+
+                        set_game_state(game_state);
+
+                        simulate_game_frame();  // теперь мы можем начать играть
+                    } else {
+                        frame_read_count_accum++;
+
+                        // считали game_state
+                        std::string game_state;
+                        game_state.resize(read_message.body_length());
+                        std::memcpy(game_state.data(), read_message.body(), game_state.size());
+
+                        std::cout << "set new game state" << std::endl;
+                        set_game_state(game_state);
+                    }
+
+                    do_read_header();  // продолжим читать у сервера
                 } else {
-                    frame_read_count_accum++;
-                    set_game_state(read_message);
+                    std::cout << "reading body failed. message: \"" << error_code.message() << "\"" << std::endl;
+                    close();
                 }
-
-                do_read_header();  // продолжим читать у сервера
-            } else {
-                close();
             }
-        });
+        );
     }
 
     //----------------------------------------------------------------
 
     void do_write() {
-        boost::asio::async_write(socket, boost::asio::buffer(write_message.data(), write_message.length()), [this](boost::system::error_code ec, std::size_t) {
-            if (!ec) {
-                sending_chain_is_run = false;
+        boost::asio::async_write(
+            socket, boost::asio::buffer(write_message.data(), write_message.length()),
+            [this](boost::system::error_code ec, std::size_t) {
+                if (!ec) {
+                    sending_chain_is_run = false;
 
-                if (write_message_frame_id != frame_id) {
-                    send_input_to_server();
+                    if (write_message_frame_id != frame_id) {
+                        send_input_to_server();
+                    } else {
+                        // мы прервали цепочку отправок инпута на сервер
+                        // мы должны ее восстановить, когда обработаем новый игровой кадр
+                    }
                 } else {
-                    // мы прервали цепочку отправок инпута на сервер
-                    // мы должны ее восстановить, когда обработаем новый игровой кадр
+                    close();
                 }
-                // TODO: это возможно нужно удалить
-                // write_message_frame_id = frame_id;
-            } else {
-                close();
             }
-        });
+        );
     }
 
     //----------------------------------------------------------------
@@ -239,6 +265,8 @@ private:
 //----------------------------------------------------------------------
 
 int main() {
+    setlocale(LC_ALL, "ru-RU");
+
     // initialize
     {
         std::cout << "performance_frequency: " << performance_frequency << std::endl;

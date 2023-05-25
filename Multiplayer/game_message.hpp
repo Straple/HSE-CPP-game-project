@@ -7,16 +7,17 @@
 
 class GameMessage {
 public:
-    enum {
-        header_length = 4
-    };
+    enum { header_length = 4 };
 
-    enum {
-        max_body_length = 8 * 1024
-    };
+    enum { max_body_length = 8 * 1024 };
 
-    GameMessage()
-        : m_body_length(0) {
+    GameMessage() : m_body_length(0) {
+    }
+
+    GameMessage(const std::string &string) {
+        body_length(string.size());
+        encode_header();
+        std::memcpy(body(), string.data(), body_length());
     }
 
     [[nodiscard]] const char *data() const {
@@ -59,14 +60,14 @@ public:
 
     void encode_header() {
         char header[header_length + 1] = "";
-        std::sprintf(header, "%4d", static_cast<int>(m_body_length));
+        std::sprintf(header, "%4d", m_body_length);
         std::memcpy(m_data, header, header_length);
     }
 
 private:
     char m_data[header_length + max_body_length]{};
 
-    std::size_t m_body_length;
+    int m_body_length;
 };
 
 #endif  // MULTIPLAYER_GAME_MESSAGE_HPP
