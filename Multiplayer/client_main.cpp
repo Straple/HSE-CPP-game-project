@@ -59,16 +59,25 @@ public:
     }
 
     void send_buttons_state_to_server() {
+        write_message_frame_id = frame_id;
         sending_chain_is_run = true;
+
         GameMessage message;
         message.body_length(sizeof(ButtonsState));
-        std::memcpy(message.body(), reinterpret_cast<char *>(&window_handler.input), message.body_length());
-
         message.encode_header();
+        std::memcpy(message.body(), reinterpret_cast<char *>(&window_handler.input), message.body_length());
         write(message);
     }
 
     void simulate_game_frame() {
+        // std::cout << find_player_index(client_id) << ' ' << Players.size() << std::endl;
+        // мы еще не получили состояние игры, со своим персонажем
+        if (find_player_index(client_id) == -1) {
+            // продлеваем таймер следующего кадра
+            timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(10));
+            timer.async_wait(boost::bind(&Client::simulate_game_frame, this));
+            return;
+        }
         frame_id++;
 
         efloat delta_time;
@@ -88,7 +97,7 @@ public:
 
         window_handler.simulate_frame(delta_time);
 
-        // send_buttons_state_to_server();
+        global_variables::camera.simulate(Players[find_player_index(client_id)].pos, delta_time);
 
         draw_object(frame_read_count_snapshot, Dot(), 0.5, RED);
 
@@ -104,7 +113,7 @@ public:
         }
 
         // продлеваем таймер следующего кадра
-        timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(1));
+        timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(10));
         timer.async_wait(boost::bind(&Client::simulate_game_frame, this));
     }
 
@@ -112,9 +121,7 @@ private:
     void do_connect(const tcp::resolver::results_type &endpoints) {
         boost::asio::async_connect(socket, endpoints, [this](boost::system::error_code ec, tcp::endpoint) {
             if (!ec) {
-                do_read_header();
-                simulate_game_frame();
-                send_buttons_state_to_server();
+                do_read_header();  // мы должны получить наш client_id от сервера
             } else {
                 std::cout << "connecting failed\n";
                 std::cout << "message: " << ec << std::endl;
@@ -138,10 +145,20 @@ private:
     void do_read_body() {
         boost::asio::async_read(socket, boost::asio::buffer(read_message.body(), read_message.body_length()), [this](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                frame_read_count_accum++;
-                set_game_state(read_message);
+                if (client_id == -1) {
+                    // сервер прислал нам client_id
+                    ASSERT(read_message.body_length() == sizeof(int), "is not client_id?");
+                    std::memcpy(&client_id, read_message.body(), sizeof(int));
 
-                do_read_header();
+                    // теперь мы можем начать играть
+                    simulate_game_frame();
+                    send_buttons_state_to_server();
+                } else {
+                    frame_read_count_accum++;
+                    set_game_state(read_message);
+                }
+
+                do_read_header();  // продолжим читать у сервера
             } else {
                 close();
             }
@@ -153,8 +170,6 @@ private:
     void do_write() {
         boost::asio::async_write(socket, boost::asio::buffer(write_message.data(), write_message.length()), [this](boost::system::error_code ec, std::size_t) {
             if (!ec) {
-                // TODO мы слишком много раз это делаем
-
                 sending_chain_is_run = false;
 
                 if (write_message_frame_id != frame_id) {
@@ -163,7 +178,8 @@ private:
                     // мы прервали цепочку отправок инпута на сервер
                     // мы должны ее восстановить, когда обработаем новый игровой кадр
                 }
-                write_message_frame_id = frame_id;
+                // TODO: это возможно нужно удалить
+                // write_message_frame_id = frame_id;
             } else {
                 close();
             }
@@ -179,6 +195,8 @@ private:
     GameMessage read_message;  // нужно получить это сообщение
 
     GameMessage write_message;  // нужно отправить это сообщение
+
+    int client_id = -1;  // наш уникальный клиент id
 
     //----------------------------------------------------------------
 
@@ -231,13 +249,6 @@ int main() {
     }
 
     WindowHandler window_handler;
-    {
-        if (global_variables::fullscreen_mode) {
-            window_handler.set_fullscreen_mode();
-        } else {
-            window_handler.set_window_mode();
-        }
-    }
 
     try {
         boost::asio::io_context io_context;
@@ -247,9 +258,7 @@ int main() {
 
         Client client(io_context, endpoints, window_handler);
 
-        io_context.run();  // run game
-
-        // client.close();
+        io_context.run();
     } catch (std::exception &e) {
         std::cerr << "Exception: " << e.what() << "\n";
     }

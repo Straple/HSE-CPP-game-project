@@ -5,17 +5,17 @@
 #include <memory>
 #include <set>
 #include <utility>
-//-------------------------
-#include "../main.cpp"
-//-------------------------
-#include "game_message.hpp"
 //----------------------------------------------------------------------
-
 #define BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
+#define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
+//-------------------------
+#include "../main.cpp"
+//-------------------------
+#include "game_message.hpp"
 
 //----------------------------------------------------------------------
 
@@ -52,21 +52,25 @@ class AbstractClient {
 public:
     virtual ~AbstractClient() = default;
 
-    virtual void deliver(const GameMessage &message) = 0;
+    // проинформировать меня о готовом кадре
+    virtual void inform_me_about_new_frame() = 0;
 
-    explicit AbstractClient(tcp::socket socket)
-        : socket(std::move(socket)) {
+    //----------------------------------------------------------------------
+
+    AbstractClient(tcp::socket socket, const int client_id)
+        : socket(std::move(socket)), client_id(client_id) {
     }
 
     void simulate(efloat delta_time) {
-        simulate_player(input, delta_time);
+        simulate_player(input, delta_time, client_id);
         input.previous = input.current;
     }
 
-    // проинформировать меня о готовом кадре
-    virtual void inform_about_new_frame() = 0;
+    //----------------------------------------------------------------------
 
     tcp::socket socket;  // сокет клиента
+
+    const int client_id;  // уникальный id клиента
 
     Input input;  // инпут игрока
 
@@ -87,7 +91,6 @@ public:
           time_tick_prev_frame(get_ticks()) {
         timer.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
     }
-
 
     void simulate_game_frame() {
         frame_id++;
@@ -131,7 +134,7 @@ public:
 
         // сообщаем о нового кадре клиентам
         for (const auto &client_ptr : Clients) {
-            client_ptr->inform_about_new_frame();
+            client_ptr->inform_me_about_new_frame();
         }
 
         // продлеваем таймер следующей симуляции
@@ -142,11 +145,15 @@ public:
     //----------------------------------------------------------------------
 
     void join(const AbstractClientPtr &client_ptr) {
-        Clients.insert(client_ptr);                // НИКАКИХ STD::MOVE!!!
+        Clients.insert(client_ptr);  // НИКАКИХ STD::MOVE!!!
 
         auto remote_endpoint = client_ptr->socket.remote_endpoint();
         std::cout << "Client <" << remote_endpoint << "> joined in session\n\n";
         std::cout.flush();
+
+        // добавим его в игру
+        Players.push_back({});
+        Players.back().client_id = client_ptr->client_id;
     }
 
     void leave(const AbstractClientPtr &client_ptr) {
@@ -158,6 +165,10 @@ public:
             auto remote_endpoint = client_ptr->socket.remote_endpoint();
             std::cout << "Client <" << remote_endpoint << "> leaved from session\n\n";
             std::cout.flush();
+
+            // также удалим из игры
+            int index = find_player_index(client_ptr->client_id);
+            Players.erase(Players.begin() + index);
         }
     }
 
@@ -186,23 +197,36 @@ private:
 // обработчик клиента (взаимодействует с ним)
 class ClientHandler : public AbstractClient, public std::enable_shared_from_this<ClientHandler> {
 public:
-    ClientHandler(tcp::socket socket, GameSession &session)
-        : AbstractClient(std::move(socket)), session(session) {
+    ClientHandler(tcp::socket socket, GameSession &session, const int client_id)
+        : AbstractClient(std::move(socket), client_id), session(session) {
+        // тут нельзя вызывать никаких асинхронных операций,
+        // потому что мы еще не построили себя => не построили shared_from_this()
+        // поэтому будет error: bad_weak_ptr
     }
 
     // начинает обработку и добавляет в игровую сессию
     void start() {
         session.join(shared_from_this());
         do_read_header();
+
+        // нам нужно передать клиенту его client_id
+        {
+            GameMessage message;
+            message.body_length(sizeof(int));
+            message.encode_header();
+            *reinterpret_cast<int *>(message.body()) = client_id;
+            sending_chain_is_run = true;  // мы начали цепочку отправок
+            deliver(message);
+        }
     }
 
     // отправляет клиенту сообщение
-    void deliver(const GameMessage &message) override {
+    void deliver(const GameMessage &message) {
         write_message = message;
         do_write();
     }
 
-    void inform_about_new_frame() override {
+    void inform_me_about_new_frame() override {
         // если мы не отправляем клиенту сообщения о состоянии игры
         if (!sending_chain_is_run) {
             sending_chain_is_run = true;
@@ -243,7 +267,7 @@ private:
 
     void do_write() {
         auto self(shared_from_this());
-        boost::asio::async_write(socket, boost::asio::buffer(write_message.data(), write_message.length()), [this, self](boost::system::error_code ec, std::size_t /*length*/) {
+        boost::asio::async_write(socket, boost::asio::buffer(write_message.data(), write_message.length()), [this, self](boost::system::error_code ec, std::size_t) {
             if (!ec) {
                 // возьмем последний кадр и отправим его игроку
 
@@ -257,7 +281,7 @@ private:
                 // готов ли новый кадр
                 if (write_message_frame_id < session.frame_id) {
                     // сообщим себе об этом и продолжим цепочку сообщений
-                    inform_about_new_frame();
+                    inform_me_about_new_frame();
                 }
             } else {
                 session.leave(shared_from_this());
@@ -280,10 +304,11 @@ private:
     // если false, то она не работает и это нужно исправить при первой возможности
     //
     // GameSession после создания нового игрового кадра должна сказать нам об этом,
-    // чтобы мы взяли этот кадр и продолжили цепочку отправок клиенту
+    // чтобы мы взяли этот кадр и начали новую цепочку отправок клиенту
     bool sending_chain_is_run = false;
 
     // id игрового кадра, который мы отправили
+    // нужен для того, чтобы понимать, стоит ли отправлять кадр, возможно он старый
     int write_message_frame_id = 0;
 };
 
@@ -300,7 +325,6 @@ public:
 
 private:
     void do_accept() {
-        // асинхронно принимаю соединение от клиента
         acceptor.async_accept(
             [this](boost::system::error_code ec, tcp::socket socket) {
                 {
@@ -314,7 +338,8 @@ private:
                 // если нет ошибок сокета
                 if (!ec) {
                     // создать клиенту его обработчика и добавить в игровую сессию
-                    std::make_shared<ClientHandler>(std::move(socket), session)->start();
+                    std::make_shared<ClientHandler>(std::move(socket), session, count_of_connects)->start();
+                    count_of_connects++;
                 }
                 do_accept();  // для дальнейших принятий соединений
             }
@@ -326,6 +351,8 @@ private:
     tcp::acceptor acceptor;  // принимальщик соединений
 
     GameSession session;  // игровая сессия
+
+    int count_of_connects = 0;  // количество подключений, используется для формирования уникального id клиента
 };
 
 //----------------------------------------------------------------------
