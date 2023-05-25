@@ -13,7 +13,7 @@
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 //-------------------------
-#include "../main.cpp"
+#include "../window_handler.hpp"
 //-------------------------
 #include "game_message.hpp"
 
@@ -143,7 +143,7 @@ public:
         std::cout << "Client <" << remote_endpoint << "> joined in session\n\n";
         std::cout.flush();
 
-        // добавим его в игру
+        // добавим персонажа в игру
         Players.push_back({});
         Players.back().client_id = client_ptr->client_id;
 

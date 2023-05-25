@@ -1,42 +1,12 @@
-﻿// use LPCSTR or LPCWSTR
-#define GAME_ENGINE_MY_LPCSTR LPCSTR
-
-// #define GAME_ENGINE_DRAW_FPS_PLOT
-
-#define GAME_MODE
-// #define LEVEL_MAKER_MODE
-
-/*
-WARNINGS:
-Dot::get_len() uses hypot which is very slow
-*/
-
-/*
-ESC = exit
-ENTER = windows mode
-TAB = debug mode
-K = locator visibility
-BUTTON_F = fps mode
-UP, DOWN = render_scale
-*/
-
-#include <windows.h>
-// windows.h defined min and max macros
-// this is bad
-#undef min
-#undef max
-
-#include "render.hpp"
+﻿#include "main_header.hpp"
 
 void relax_scaling_after_change_window_scaling(Dot &cursor_pos) {
     global_variables::scale_factor = global_variables::render_state.height() * global_variables::render_scale;
 
     // relax arena
     global_variables::arena_half_size =
-        Dot(
-            static_cast<efloat>(global_variables::render_state.width()) / global_variables::scale_factor,
-            static_cast<efloat>(1) / global_variables::render_scale
-        ) *
+        Dot(static_cast<efloat>(global_variables::render_state.width()) / global_variables::scale_factor,
+            static_cast<efloat>(1) / global_variables::render_scale) *
         0.5;
 
     cursor_pos /= global_variables::scale_factor;
@@ -60,18 +30,6 @@ void decrease_window_scaling(Dot &cursor_pos) {
 
     relax_scaling_after_change_window_scaling(cursor_pos);
 }
-
-#include "Game/Game objects/cursor.hpp"
-
-#ifdef GAME_MODE
-
-#include "Game\game.cpp"
-
-#endif
-
-#ifdef LEVEL_MAKER_MODE
-#include "Game\Level maker\level_maker.cpp"
-#endif
 
 // draw fps and others useful info
 void draw_debug_info(efloat delta_time, const Cursor &cursor) {
@@ -115,7 +73,10 @@ void draw_debug_info(efloat delta_time, const Cursor &cursor) {
         }
 #endif
 
-        draw_object(static_cast<int>(summary_fps / global_time_accum), Dot(5, 12) - global_variables::arena_half_size, 0.5, WHITE);
+        draw_object(
+            static_cast<int>(summary_fps / global_time_accum), Dot(5, 12) - global_variables::arena_half_size, 0.5,
+            WHITE
+        );
 
         draw_object(global_time_accum, Dot(20, 12) - global_variables::arena_half_size, 0.5, WHITE);
 
@@ -124,7 +85,8 @@ void draw_debug_info(efloat delta_time, const Cursor &cursor) {
         draw_object(static_cast<int>(delta_time * 1000), Dot(20, 5) - global_variables::arena_half_size, 0.5, WHITE);
 
         draw_object(
-            to_string(global_variables::render_state.height()) + "x" + to_string(global_variables::render_state.width()),
+            to_string(global_variables::render_state.height()) + "x" +
+                to_string(global_variables::render_state.width()),
             Dot(30, 5) - global_variables::arena_half_size, 0.5, WHITE
         );
 
@@ -134,6 +96,7 @@ void draw_debug_info(efloat delta_time, const Cursor &cursor) {
     }
 }
 
+// общается с ОС Windows, чтобы обновлять и хранить состояние окна, кнопок, курсора
 class WindowHandler {
     HINSTANCE hInstance;  // дескриптор указанного модуля
     WNDCLASS window_class{sizeof(WNDCLASS)};
@@ -143,67 +106,22 @@ class WindowHandler {
     // всего экрана. Используется в последующих функциях GDI для рисования в DС
     HDC hdc;
 
-    void simulate_input() {
-        if (PRESSED(BUTTON_ESC)) {
-            global_variables::running = false;
-            return;
-        }
-
-        if (PRESSED(BUTTON_ENTER)) {
-            global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
-
-            if (global_variables::fullscreen_mode) {
-                set_fullscreen_mode();
-            } else {
-                set_window_mode();
-            }
-        }
-
-        if (PRESSED(BUTTON_TAB)) {
-            global_variables::debug_mode = !global_variables::debug_mode;
-        }
-
-        if (PRESSED(BUTTON_K)) {
-            global_variables::show_locator = !global_variables::show_locator;
-        }
-
-        if (PRESSED(BUTTON_F)) {
-            global_variables::show_fps = !global_variables::show_fps;
-        }
-
-        // update render_scale
-        {
-            if (IS_DOWN(BUTTON_UP)) {
-                increase_window_scaling(cursor.pos);
-            }
-
-            if (IS_DOWN(BUTTON_DOWN)) {
-                decrease_window_scaling(cursor.pos);
-            }
-        }
-
-        cursor.simulate(input);
-    }
-
 public:
     Input input;
 
     Cursor cursor;
 
-    WindowHandler()
-        : cursor(Cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09)) {
+    WindowHandler() : cursor(Cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09)) {
         hInstance = GetModuleHandle(nullptr);
 
         // Create Window class
         {
             window_class.style = CS_HREDRAW | CS_VREDRAW;
-            window_class.lpszClassName =
-                GAME_ENGINE_MY_LPCSTR("Game Window Class");
+            window_class.lpszClassName = GAME_ENGINE_MY_LPCSTR("Game Window Class");
             window_class.lpfnWndProc = window_callback;
-            window_class.hIcon = static_cast<HICON>(LoadImage(
-                nullptr, GAME_ENGINE_MY_LPCSTR("apple.ico"), IMAGE_ICON, 0, 0,
-                LR_LOADFROMFILE
-            ));
+            window_class.hIcon = static_cast<HICON>(
+                LoadImage(nullptr, GAME_ENGINE_MY_LPCSTR("apple.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE)
+            );
 
             window_class.cbClsExtra = 0;
             window_class.cbWndExtra = sizeof(LONG_PTR);
@@ -219,10 +137,8 @@ public:
 
         // Create window
         window = CreateWindow(
-            window_class.lpszClassName,
-            reinterpret_cast<GAME_ENGINE_MY_LPCSTR>("C++ Game Engine"),
-            WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 0,
-            0, nullptr, nullptr, hInstance, nullptr
+            window_class.lpszClassName, reinterpret_cast<GAME_ENGINE_MY_LPCSTR>("C++ Game Engine"),
+            WS_OVERLAPPEDWINDOW | WS_VISIBLE, CW_USEDEFAULT, CW_USEDEFAULT, 0, 0, nullptr, nullptr, hInstance, nullptr
         );
 
         hdc = GetDC(window);
@@ -240,21 +156,18 @@ public:
     WindowHandler &operator=(const WindowHandler &other) = delete;
     WindowHandler &operator=(WindowHandler &&other) = delete;
 
-    // симулирует один игровой кадр
-    // delta_time = время между кадрами
-    void simulate_frame(efloat delta_time) {
+    // обновляет окно, курсор, кнопки
+    // симулирует логику базовых клавиш:
+    // ESC => выход
+    // ENTER => поменять тип окна (полноэкранный или оконные)
+    // и т.п.
+    void update() {
         update_controls();
-
         simulate_input();
+    }
 
-        if (!global_variables::running) {
-            return;
-        }
-
-        // simulate_game(delta_time);
-        // simulate_player(input, delta_time);
-
-        // global_variables::camera.simulate(Players[0].pos, delta_time);
+    // рисует игру, полезную для дебага информацию, курсор
+    void draw_frame(efloat delta_time) {
         draw_game();
         draw_debug_info(delta_time, cursor);
         cursor.draw();
@@ -262,8 +175,6 @@ public:
 #if MULTITHREAD_RENDER != 0
         wait_all_render_threads();
 #endif
-
-        // release_frame();
     }
 
     // SetWindowLong WS макросы
@@ -281,10 +192,8 @@ public:
         MONITORINFO mi = {sizeof(mi)};
         GetMonitorInfo(MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY), &mi);
         SetWindowPos(
-            window, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top,
-            mi.rcMonitor.right - mi.rcMonitor.left,
-            mi.rcMonitor.bottom - mi.rcMonitor.top,
-            SWP_NOOWNERZORDER | SWP_FRAMECHANGED
+            window, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left,
+            mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_NOOWNERZORDER | SWP_FRAMECHANGED
         );
         EnableWindow(window, true);
     }
@@ -294,8 +203,7 @@ public:
         MONITORINFO mi = {sizeof(mi)};
         GetMonitorInfo(MonitorFromWindow(window, MONITOR_DEFAULTTOPRIMARY), &mi);
         SetWindowPos(
-            window, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top,
-            mi.rcMonitor.right - mi.rcMonitor.left,
+            window, HWND_TOP, mi.rcMonitor.left, mi.rcMonitor.top, mi.rcMonitor.right - mi.rcMonitor.left,
             mi.rcMonitor.bottom - mi.rcMonitor.top, SWP_SHOWWINDOW
         );
         EnableWindow(window, true);
@@ -316,8 +224,7 @@ public:
 private:
     // обновляет состояние окна:
     // окно закрыли, изменили размер
-    static LRESULT CALLBACK
-    window_callback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    static LRESULT CALLBACK window_callback(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
         LRESULT result = 0;
         switch (uMsg) {
             case WM_CLOSE:
@@ -333,15 +240,13 @@ private:
                 }
 
                 // relax scaling
-                global_variables::scale_factor = global_variables::render_state.height() * global_variables::render_scale;
+                global_variables::scale_factor =
+                    global_variables::render_state.height() * global_variables::render_scale;
 
                 // relax arena
                 global_variables::arena_half_size =
-                    Dot(static_cast<efloat>(
-                            global_variables::render_state.width()
-                        ) / global_variables::scale_factor,
-                        static_cast<efloat>(1) / global_variables::render_scale
-                    ) *
+                    Dot(static_cast<efloat>(global_variables::render_state.width()) / global_variables::scale_factor,
+                        static_cast<efloat>(1) / global_variables::render_scale) *
                     0.5;
 
             } break;
@@ -359,12 +264,8 @@ private:
     void update_controls() {
         input.previous = input.current;
 
-        auto button_up = [&input = input](button_t button_id) -> void {
-            input.current.set_button(button_id, false);
-        };
-        auto button_down = [&input = input](button_t button_id) -> void {
-            input.current.set_button(button_id, true);
-        };
+        auto button_up = [&input = input](button_t button_id) -> void { input.current.set_button(button_id, false); };
+        auto button_down = [&input = input](button_t button_id) -> void { input.current.set_button(button_id, true); };
 
         bool isPeekMessage = false;
 
@@ -461,66 +362,52 @@ private:
             RECT rect;
             GetWindowRect(window, &rect);
 
-            cursor.pos = Dot(static_cast<double>(message.pt.x) -
-                                 std::max<int>(0, rect.left) + 0.2,
+            cursor.pos = Dot(static_cast<double>(message.pt.x) - std::max<int>(0, rect.left) + 0.2,
                              static_cast<double>(rect.bottom) - message.pt.y) /
                              global_variables::scale_factor -
                          global_variables::arena_half_size;
         }
     }
-};
 
-/*int main() {
-    // initialize
-    {
-        std::cout << "performance_frequency: " << performance_frequency << std::endl;
-
-        ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
-        ShowCursor(global_variables::show_cursor);
-
-        read_sprites();
-        read_spritesheets();
-
-#ifdef LEVEL_MAKER_MODE
-        current_room.read("level.txt");
-#endif
-
-#ifdef GAME_MODE
-        test_room.read("level.txt");
-#endif
-
-#if MULTITHREAD_RENDER == 1
-        init_render_threads();
-#endif
-    }
-
-    WindowHandler window_handler;
-    {
-        if (global_variables::fullscreen_mode) {
-            window_handler.set_fullscreen_mode();
-        } else {
-            window_handler.set_window_mode();
+    void simulate_input() {
+        if (PRESSED(BUTTON_ESC)) {
+            global_variables::running = false;
+            return;
         }
-    }
 
-    u64 time_tick_global_start = get_ticks();
-    u64 time_tick_prev = time_tick_global_start;
+        if (PRESSED(BUTTON_ENTER)) {
+            global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
 
-    efloat delta_time = 0;
+            if (global_variables::fullscreen_mode) {
+                set_fullscreen_mode();
+            } else {
+                set_window_mode();
+            }
+        }
 
-    while (global_variables::running) {
-        window_handler.simulate_frame(delta_time);
+        if (PRESSED(BUTTON_TAB)) {
+            global_variables::debug_mode = !global_variables::debug_mode;
+        }
 
-        // update time
+        if (PRESSED(BUTTON_K)) {
+            global_variables::show_locator = !global_variables::show_locator;
+        }
+
+        if (PRESSED(BUTTON_F)) {
+            global_variables::show_fps = !global_variables::show_fps;
+        }
+
+        // update render_scale
         {
-            u64 cur_time_tick = get_ticks();
-            delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev) / performance_frequency;
-            time_tick_prev = cur_time_tick;
-        }
-    }
+            if (IS_DOWN(BUTTON_UP)) {
+                increase_window_scaling(cursor.pos);
+            }
 
-#if MULTITHREAD_RENDER != 0
-    join_all_render_threads();
-#endif
-}
-*/
+            if (IS_DOWN(BUTTON_DOWN)) {
+                decrease_window_scaling(cursor.pos);
+            }
+        }
+
+        cursor.simulate(input);
+    }
+};

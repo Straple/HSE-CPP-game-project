@@ -8,7 +8,7 @@ using boost::asio::ip::tcp;
 #include <iostream>
 #include <thread>
 //
-#include "../main.cpp"
+#include "../window_handler.hpp"
 //
 #include "game_message.hpp"
 
@@ -39,7 +39,7 @@ public:
     )
         : io_context(io_context),
           socket(io_context),
-          timer(io_context, boost::posix_time::milliseconds(5)),
+          timer(io_context, boost::posix_time::milliseconds(1)),
           time_tick_prev_frame(get_ticks()),
           window_handler(window_handler) {
         do_connect(endpoints);
@@ -78,7 +78,6 @@ public:
     }
 
     void simulate_game_frame() {
-        std::cout << "simulate_game_frame" << std::endl;
         frame_id++;
 
         efloat delta_time;
@@ -96,16 +95,21 @@ public:
             frame_time_accum = 0;
         }
 
-        window_handler.simulate_frame(delta_time);
+        // simulate frame
+        {
+            window_handler.update();
 
-        int index = find_player_index(client_id);
-        std::cout << index << std::endl;
-        Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-        global_variables::camera.simulate(Players[index].pos, delta_time);
+            int index = find_player_index(client_id);
+            Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+            global_variables::camera.simulate(Players[index].pos, delta_time);
+        }
 
-        draw_object(frame_read_count_snapshot, Dot(), 0.5, RED);
-
-        window_handler.release_frame();
+        // draw frame
+        {
+            window_handler.draw_frame(delta_time);
+            draw_object(frame_read_count_snapshot, Dot(), 0.5, RED);
+            window_handler.release_frame();
+        }
 
         if (!sending_chain_is_run) {
             // восстановим цепочку отправок сообщений инпута на сервер
@@ -117,7 +121,7 @@ public:
         }
 
         // продлеваем таймер следующего кадра
-        timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(5));
+        timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(1));
         timer.async_wait(boost::bind(&Client::simulate_game_frame, this));
     }
 
@@ -181,7 +185,6 @@ private:
                         game_state.resize(read_message.body_length());
                         std::memcpy(game_state.data(), read_message.body(), game_state.size());
 
-                        std::cout << "set new game state" << std::endl;
                         set_game_state(game_state);
                     }
 
