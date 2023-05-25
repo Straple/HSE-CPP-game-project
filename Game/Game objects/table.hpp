@@ -5,6 +5,8 @@
 #include "render.hpp"
 
 struct Table : abstract_game_object {
+    ADD_BYTE_SERIALIZATION();
+
     Table() = default;
 
     explicit Table(const Dot new_pos) {

@@ -32,10 +32,13 @@ struct Loot : abstract_game_object {
 
     void draw() const override = 0;
 
-    void simulate(efloat delta_time, Dot player_pos) {
-        if ((player_pos - pos).get_len() <= magnet_radius) {
-            Dot ddp = (player_pos - pos) * 100;
-            simulate_move_to2d(pos, player_pos, dp, ddp, delta_time);
+    void simulate(efloat delta_time) {
+        int index = find_nearest_player(pos);
+        Dot to = Players[index].pos;
+
+        if ((to - pos).get_len() <= magnet_radius) {
+            Dot ddp = (to - pos) * 100;
+            simulate_move_to2d(pos, to, dp, ddp, delta_time);
         } else {
             simulate_move2d(pos, dp, Dot(), delta_time);
         }

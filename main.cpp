@@ -134,7 +134,7 @@ void draw_debug_info(efloat delta_time) {
     }
 }
 
-class engine_app {
+class WindowHandler {
     HINSTANCE hInstance;  // дескриптор указанного модуля
     WNDCLASS window_class{sizeof(WNDCLASS)};
     HWND window;
@@ -143,15 +143,13 @@ class engine_app {
     // всего экрана. Используется в последующих функциях GDI для рисования в DС
     HDC hdc;
 
-    Input input;
-
     void simulate_input() {
-        if (pressed(BUTTON_ESC)) {
+        if (PRESSED(BUTTON_ESC)) {
             global_variables::running = false;
             return;
         }
 
-        if (pressed(BUTTON_ENTER)) {
+        if (PRESSED(BUTTON_ENTER)) {
             global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
 
             if (global_variables::fullscreen_mode) {
@@ -161,25 +159,25 @@ class engine_app {
             }
         }
 
-        if (pressed(BUTTON_TAB)) {
+        if (PRESSED(BUTTON_TAB)) {
             global_variables::debug_mode = !global_variables::debug_mode;
         }
 
-        if (pressed(BUTTON_K)) {
+        if (PRESSED(BUTTON_K)) {
             global_variables::show_locator = !global_variables::show_locator;
         }
 
-        if (pressed(BUTTON_F)) {
+        if (PRESSED(BUTTON_F)) {
             global_variables::show_fps = !global_variables::show_fps;
         }
 
         // update render_scale
         {
-            if (is_down(BUTTON_UP)) {
+            if (IS_DOWN(BUTTON_UP)) {
                 increase_window_scaling(cursor.pos);
             }
 
-            if (is_down(BUTTON_DOWN)) {
+            if (IS_DOWN(BUTTON_DOWN)) {
                 decrease_window_scaling(cursor.pos);
             }
         }
@@ -188,7 +186,9 @@ class engine_app {
     }
 
 public:
-    engine_app() {
+    Input input;
+
+    WindowHandler() {
         hInstance = GetModuleHandle(nullptr);
 
         // Create Window class
@@ -223,12 +223,19 @@ public:
         );
 
         hdc = GetDC(window);
+
+        // Update window mode
+        if (global_variables::fullscreen_mode) {
+            set_fullscreen_mode();
+        } else {
+            set_window_mode();
+        }
     }
 
-    engine_app(const engine_app &other) = delete;
-    engine_app(engine_app &&other) = delete;
-    engine_app &operator=(const engine_app &other) = delete;
-    engine_app &operator=(engine_app &&other) = delete;
+    WindowHandler(const WindowHandler &other) = delete;
+    WindowHandler(WindowHandler &&other) = delete;
+    WindowHandler &operator=(const WindowHandler &other) = delete;
+    WindowHandler &operator=(WindowHandler &&other) = delete;
 
     // симулирует один игровой кадр
     // delta_time = время между кадрами
@@ -241,14 +248,18 @@ public:
             return;
         }
 
-        simulate_game(input, delta_time);
+        // simulate_game(delta_time);
+        // simulate_player(input, delta_time);
 
+        //global_variables::camera.simulate(Players[0].pos, delta_time);
+        draw_game();
         draw_debug_info(delta_time);
 
 #if MULTITHREAD_RENDER != 0
         wait_all_render_threads();
 #endif
-        release_frame();
+
+        // release_frame();
     }
 
     // SetWindowLong WS макросы
@@ -286,7 +297,6 @@ public:
         EnableWindow(window, true);
     }
 
-private:
     // передает кадр ОС, чтобы та вывела его на монитор
     void release_frame() {
         StretchDIBits(
@@ -299,6 +309,7 @@ private:
         );
     }
 
+private:
     // обновляет состояние окна:
     // окно закрыли, изменили размер
     static LRESULT CALLBACK
@@ -342,18 +353,13 @@ private:
 
     // обновляет входные данные с клавиатуры и мыши
     void update_controls() {
-        // обнуляем значение нажатия кнопки
-        for (int i = 0; i < BUTTON_COUNT; i++) {
-            input.set_button(
-                button_t(i), input.button_is_down(button_t(i)), false
-            );
-        }
+        input.previous = input.current;
 
-        auto button_up = [&](button_t b) -> void {
-            input.set_button(b, false, true);
+        auto button_up = [&input = input](button_t button_id) -> void {
+            input.current.set_button(button_id, false);
         };
-        auto button_down = [&](button_t b) -> void {
-            input.set_button(b, true, true);
+        auto button_down = [&input = input](button_t button_id) -> void {
+            input.current.set_button(button_id, true);
         };
 
         bool isPeekMessage = false;
@@ -380,9 +386,9 @@ private:
                     u64 vk_code = message.wParam;
                     bool is_down = (message.message == WM_KEYDOWN);
 
-#define update_button(b, vk)                                                \
-    case vk: {                                                              \
-        input.set_button(b, is_down, (is_down != input.button_is_down(b))); \
+#define update_button(b, vk)                  \
+    case vk: {                                \
+        input.current.set_button(b, is_down); \
     } break;
 
                     switch (vk_code) {
@@ -460,7 +466,7 @@ private:
     }
 };
 
-int main() {
+/*int main() {
     // initialize
     {
         std::cout << "performance_frequency: " << performance_frequency << std::endl;
@@ -484,12 +490,12 @@ int main() {
 #endif
     }
 
-    engine_app eng;
+    WindowHandler window_handler;
     {
         if (global_variables::fullscreen_mode) {
-            eng.set_fullscreen_mode();
+            window_handler.set_fullscreen_mode();
         } else {
-            eng.set_window_mode();
+            window_handler.set_window_mode();
         }
     }
 
@@ -499,7 +505,7 @@ int main() {
     efloat delta_time = 0;
 
     while (global_variables::running) {
-        eng.simulate_frame(delta_time);
+        window_handler.simulate_frame(delta_time);
 
         // update time
         {
@@ -512,5 +518,5 @@ int main() {
 #if MULTITHREAD_RENDER != 0
     join_all_render_threads();
 #endif
-    return 0;
 }
+*/

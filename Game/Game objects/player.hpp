@@ -73,8 +73,13 @@ struct Player_anim_tree {
 };
 
 struct Player : abstract_game_object {
+    ADD_BYTE_SERIALIZATION();
+
     inline static const efloat ddp_speed = 700;
     inline static const efloat jump_speed = 110;
+
+    // уникальный id клиента
+    int client_id;
 
     int hp = 3;
     int coins = 10;
@@ -112,7 +117,7 @@ struct Player : abstract_game_object {
         delta_draw_pos = Dot(-31, 40) * size;
 
         // player
-        jump_accum = jump_cooldown = 0.5;
+        jump_accum = jump_cooldown = 0;  // jump_accum = jump_cooldown = 0.5;
         invulnerable_accum = invulnerable_cooldown = 2;
     }
 
@@ -133,7 +138,7 @@ struct Player : abstract_game_object {
 
                 anim = player_anims[anim_type.get_num()];
             }
-        } else if (pressed_jump && jump_accum >= jump_cooldown) {
+        } else if (pressed_jump /* && jump_accum >= jump_cooldown*/) {
             is_jumped = true;
 
             anim_type.anim = Player_anim_tree::ROLL;
@@ -209,6 +214,41 @@ struct Player : abstract_game_object {
     }
 };
 
-std::vector<Player> Players = {Dot(20, -106)};
+std::vector<Player> Players;
+
+// найти индекс в Players, у которого такой client_id
+// вернет -1, если такого не нашли
+int find_player_index(int client_id) {
+    for (std::size_t index = 0; index < Players.size(); index++) {
+        if (Players[index].client_id == client_id) {
+            return index;
+        }
+    }
+    return -1;
+}
+
+// найти самого близкого игрока к этой точке
+// вернет client_id, а не index, для более безопасной работы
+int find_nearest_player(Dot pos) {
+    if(Players.empty()){
+        return -1;
+    }
+    int best = -1;
+    for (int index = 0; index < Players.size(); index++) {
+        if (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
+            best = index;
+        }
+    }
+    ASSERT(best != -1, "hey!!!");
+    return Players[best].client_id;
+}
+
+// моб стоит в pos
+// мы должны найти лучшую для него цель
+// вернет client_id, а не index, для более безопасной работы
+int find_best_player(Dot pos) {
+    // TODO: улучшить логику
+    return find_nearest_player(pos);
+}
 
 #endif  // GAME_PLAYER_HPP

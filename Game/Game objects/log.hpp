@@ -5,6 +5,8 @@
 #include "render.hpp"
 
 struct Log : abstract_game_object {
+    ADD_BYTE_SERIALIZATION();
+
     Log() = default;
 
     explicit Log(const Dot &new_pos) {

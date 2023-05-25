@@ -5,6 +5,8 @@
 #include "render.hpp"
 
 struct Bush : abstract_game_object {
+    ADD_BYTE_SERIALIZATION();
+
     Bush() = default;
 
     explicit Bush(const Dot &new_pos) {

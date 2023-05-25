@@ -3,7 +3,7 @@
 
 #include "../utils.hpp"
 
-// КНОПКИ
+// Множество кнопок для удобной работы с ними
 enum button_t : u8 {
     BUTTON_UP,
     BUTTON_DOWN,
@@ -59,39 +59,54 @@ enum button_t : u8 {
     BUTTON_COUNT,
 };
 
-class Input {
-    u64 buttons_state[(BUTTON_COUNT * 2 + 64 - 1) / 64]{};
-
-    /*
-     * у каждой кнопки есть состояние: is_down, is_changed
-     * используется битовое сжатие (хз зачем)
-     * каждая кнопка записывается в двух битах рядом. Сначала is_down, потом
-     * is_changed
-     */
+// состояние кнопок (нажата или нет)
+class ButtonsState {
+    static const uint32_t size = (BUTTON_COUNT + 64 - 1) / 64;
+    uint64_t button_is_down[size]{};
 
 public:
-    Input() = default;
-
-    [[nodiscard]] bool button_is_down(button_t b) const {
-        return (buttons_state[b / 32] >> b % 32 * 2) & 1;
+    [[nodiscard]] bool is_down(button_t button_id) const {
+        return (button_is_down[button_id / 64] >> (button_id % 64)) & 1;
     }
 
-    [[nodiscard]] bool button_is_changed(button_t b) const {
-        return (buttons_state[b / 32] >> (b % 32 * 2 + 1)) & 1;
+    void set_button(button_t button_id, bool value) {
+        if (is_down(button_id) != value) {
+            button_is_down[button_id / 64] ^= (static_cast<uint64_t>(1) << (button_id % 64));
+        }
     }
 
-    void set_button(button_t b, bool is_down, bool changed) {
-        if (button_is_down(b) != is_down) {
-            buttons_state[b / 32] ^= (1ULL << b % 32 * 2);
+    ButtonsState &operator|=(const ButtonsState &rhs) {
+        for (uint32_t index = 0; index < size; index++) {
+            button_is_down[index] |= rhs.button_is_down[index];
         }
-        if (button_is_changed(b) != changed) {
-            buttons_state[b / 32] ^= (1ULL << (b % 32 * 2 + 1));
-        }
+        return *this;
+    }
+
+    [[nodiscard]] ButtonsState operator|(const ButtonsState &rhs) const {
+        return ButtonsState(*this) |= rhs;
     }
 };
 
-#define is_down(b) (input.button_is_down(b))
-#define pressed(b) (is_down(b) && input.button_is_changed(b))
-#define released(b) (!is_down(b) && input.button_is_changed(b))
+struct Input {
+    // состояние кнопок текущего кадра
+    ButtonsState current;
+
+    // состояние кнопок предыдущего кадра
+    ButtonsState previous;
+
+    Input() = default;
+
+    [[nodiscard]] bool is_down(button_t b) const {
+        return current.is_down(b);
+    }
+
+    [[nodiscard]] bool is_changed(button_t b) const {
+        return current.is_down(b) != previous.is_down(b);
+    }
+};
+
+#define IS_DOWN(b) (input.is_down(b))
+#define PRESSED(b) (IS_DOWN(b) && input.is_changed(b))
+#define RELEASED(b) (!IS_DOWN(b) && input.is_changed(b))
 
 #endif  // GAME_ENGINE_PLATFORM_COMMON_HPP

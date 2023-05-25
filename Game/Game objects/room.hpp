@@ -26,10 +26,11 @@ struct Room {
     // room sprites
     std::vector<drawing_objects> Draw_objects;
 
-    // room collision
+    // walls
     std::vector<CollisionBox> Collision_boxes;
 
     std::vector<interesting_dot> Interesting_dots;
+
     bool player_spawned = false;
     int wave_number = 0;
     efloat wave_cooldown = 2;
@@ -99,8 +100,8 @@ struct Room {
         }
     }
 
-    void simulate(efloat delta_time, const Input &input) {
-        if (!player_spawned) {
+    void simulate(efloat delta_time) {
+        /*if (!player_spawned) {
             for (auto &player : Players) {
                 for (auto [pos, name] : Interesting_dots) {
                     if (name == "player") {
@@ -111,25 +112,21 @@ struct Room {
                     }
                 }
             }
-        }
-
-        if (pressed(BUTTON_MOUSE_L) && !Players[0].is_paralyzed &&
-            !Players[0].is_jumped && Players[0].coins > 0) {
-            Players[0].weapon.shot(Players[0].pos);
-            Players[0].coins--;
-        }
+        }*/
 
         if (Slimes.size() + Bats.size() == 0) {
             // new wave
+
+            /*std::cout << "New wave!" << std::endl;
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
                     Bats.emplace_back(pos);
                     Bats.emplace_back(pos);
-                    Bats.emplace_back(pos);
-                    Bats.emplace_back(pos);
+                    Slimes.emplace_back(pos);
+                    Slimes.emplace_back(pos);
                 }
-            }
+            }*/
 
             /*wave_cooldown_accum += delta_time;
             if (wave_cooldown_accum >= wave_cooldown) {
@@ -164,8 +161,8 @@ struct Room {
             // bullet hit enemies
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
                 if (Bullets[i].simulate_attack(Slimes) ||
-                    Bullets[i].simulate_attack(Bats) ||
-                    Bullets[i].simulate_attack_on_player(Players)) {
+                    Bullets[i].simulate_attack(Bats)/* ||
+                    Bullets[i].simulate_attack_on_player(Players)*/) {
                     Bullets.erase(Bullets.begin() + i);
                     i--;
                 }
@@ -202,7 +199,7 @@ struct Room {
             // heart
             {
                 for (auto &heart : Loot_hearts) {
-                    heart.simulate(delta_time, Players[0].pos);
+                    heart.simulate(delta_time);
                 }
                 for (int i = 0; i < static_cast<int>(Loot_hearts.size()); i++) {
                     auto &heart = Loot_hearts[i];
@@ -215,7 +212,7 @@ struct Room {
             // coin
             {
                 for (auto &coin : Loot_coins) {
-                    coin.simulate(delta_time, Players[0].pos);
+                    coin.simulate(delta_time);
                 }
                 for (int i = 0; i < static_cast<int>(Loot_coins.size()); i++) {
                     auto &coin = Loot_coins[i];
@@ -228,14 +225,11 @@ struct Room {
         }
 
         simulate_game_collisions(Collision_boxes);
-
-        /*if(is_down(BUTTON_K)){
-            Players[0].pos = Collision_boxes[0].p0;
-        }*/
     }
 
     void draw() {
         clear_screen(GREY);
+
         for (auto [pos, size, sprite, level] : Draw_objects) {
             if (level < 0) {
                 draw_sprite(pos, size, sprite);
@@ -424,7 +418,7 @@ struct Room {
         }
 
         // draw UI
-        {
+        /*{
             // draw hp
             for (int i = 0; i < Players[0].hp; i++) {
                 draw_sprite(
@@ -447,7 +441,7 @@ struct Room {
                     0.5, SP_COIN
                 );
             }
-        }
+        }*/
     }
 };
 

@@ -15,6 +15,8 @@ enum class ShooterType {
 };
 
 struct Bullet : abstract_game_object {
+    ADD_BYTE_SERIALIZATION();
+
     // Добавим позже поле формы пули, чтобы можно было
     // стрелять как кругами, так и прямоугольниками и ромбами.
     // Возможно, добавим лучевое оружие
@@ -23,6 +25,8 @@ struct Bullet : abstract_game_object {
     Dot dir;  // направление полета пули
     ShooterType host;
     int damage;
+
+    Bullet() = default;
 
     Bullet(ShooterType h, Dot from, Dot to, int damage, int speed)
         : host(h), dir((to - from).normalize()), damage(damage), speed(speed) {

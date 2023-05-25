@@ -1,50 +1,34 @@
 ﻿#include "Game objects/game_objects.hpp"
 
-void simulate_player(const Input &input, efloat delta_time) {
+void simulate_player(const Input &input, efloat delta_time, int client_id) {
+    ASSERT(client_id >= 0, "is incorrect client_id");
+
+    int index = find_player_index(client_id);
+    if (index == -1) {
+        return; // TODO: или ассерт
+    }
+
     // накопление вектора движения
     auto accum_ddp = [&input](button_t left, button_t right, button_t top, button_t bottom) -> Dot {
-        return Dot(
-            is_down(right) - is_down(left), is_down(top) - is_down(bottom)
-        );
+        return Dot(IS_DOWN(right) - IS_DOWN(left), IS_DOWN(top) - IS_DOWN(bottom));
     };
 
-    Players[0].simulate(delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S), pressed(BUTTON_SPACE));
+    Players[index].simulate(delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S), PRESSED(BUTTON_SPACE));
 
-    // player attack
-    {
-        /*if (player.simulate_attack(Logs) |  Players[0].simulate_attack(
-                Slimes
-            ) |
-            Players[0].simulate_attack(Bats) |
-            Players[0].simulate_attack(Trees)) {
-            Players[0].now_is_attached = false;
-        }*/
+    if (PRESSED(BUTTON_MOUSE_L) && !Players[index].is_paralyzed &&
+        !Players[index].is_jumped && Players[index].coins > 0) {
+        Players[index].weapon.shot(Players[index].pos);
+        Players[index].coins--;
     }
 }
 
 Room test_room;
 
-void simulate_game(const Input &input, efloat delta_time) {
-    if (!global_variables::running) {
-        return;
-    }
+void simulate_game(efloat delta_time) {
+    test_room.simulate(delta_time);
+}
 
-    global_variables::camera.simulate(Players[0].pos, delta_time);
-
-    // simulate players
-    {
-        simulate_player(input, delta_time);
-
-        // simulate_game_collision(player);
-    }
-
-    cursor.simulate(input);
-
-    test_room.simulate(delta_time, input);
-
+void draw_game() {
     test_room.draw();
-
-    // draw_object(global_variables::render_scale, Dot(), 1, BLACK);
-
     cursor.draw();
 }

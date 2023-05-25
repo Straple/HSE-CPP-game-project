@@ -6,6 +6,8 @@
 #include "render.hpp"
 
 struct Tree : abstract_game_object {
+    ADD_BYTE_SERIALIZATION();
+
     int hp = 200;
 
     Tree() = default;

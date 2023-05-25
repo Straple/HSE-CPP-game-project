@@ -9,12 +9,18 @@
 #include "player.hpp"
 
 struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
+    ADD_BYTE_SERIALIZATION();
+
     int hp = 3;
 
     efloat attack_accum;
     efloat paralyzed_accum;
 
     animation anim = animation(SS_BAT, 0, 5, 1.0 / 7);
+
+    // TODO: вот это
+    // наша цель
+    // int target_client_id = -1;
 
     Bat(const Dot &position = Dot()) {
         // abstract_game_object
@@ -59,23 +65,31 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
             // чтобы летучая мышь не дергалась туда-сюда
             if (dp.x < -30) {
                 anim.sprite_sheet = SS_BAT_INVERSE;
-            } else if(dp.x > 30){
+            } else if (dp.x > 30) {
                 anim.sprite_sheet = SS_BAT;
             }
 
+            int target_client_id = find_best_player(pos);
+            int index = find_player_index(target_client_id);
+            if(index == -1){
+                return; // нет игроков
+            }
+
+            auto &player = Players[index];
+
             // чтобы летучая мышь была поверх игрока, а не под ним
-            Dot to = Players[0].pos - Dot(0, 0.1);
+            Dot to = player.pos - Dot(0, 0.1);
             simulate_move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
 
-            if (!Players[0].is_invulnerable() && !Players[0].is_jumped &&
-                (Players[0].pos - pos).get_len() <= jump_radius &&
+            if (!player.is_invulnerable() && !player.is_jumped &&
+                (player.pos - pos).get_len() <= jump_radius &&
                 attack_accum >= attack_cooldown) {
                 // hit
                 attack_accum = 0;
-                pos = Players[0].pos;  // прыгаем на игрока
-                Players[0].hp -= damage;
-                Players[0].set_invulnerable();
-                add_hit_effect(Players[0].pos);
+                pos = player.pos;  // прыгаем на игрока
+                player.hp -= damage;
+                player.set_invulnerable();
+                add_hit_effect(player.pos);
             }
         }
     }

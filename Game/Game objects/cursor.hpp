@@ -24,10 +24,10 @@ struct Cursor {
     }
 
     void simulate(const Input &input) {
-        if (pressed(BUTTON_MOUSE_L)) {
+        if (PRESSED(BUTTON_MOUSE_L)) {
             focus_pos = pos;
         }
-        is_down = is_down(BUTTON_MOUSE_L);
+        is_down = IS_DOWN(BUTTON_MOUSE_L);
         focus = false;
     }
 

@@ -3,6 +3,7 @@
 
 #include "objects.hpp"
 #include "utils.hpp"
+#include "../../Serialize/serialize.hpp"
 
 struct abstract_game_object {
     // physics

@@ -4,6 +4,8 @@
 #include "render.hpp"
 
 struct effect {
+    ADD_BYTE_SERIALIZATION();
+
     efloat size = 0.5;
     Dot pos;
     animation anim;

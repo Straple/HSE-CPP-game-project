@@ -5,18 +5,23 @@
 #include "render.hpp"
 
 struct Heart : Loot {
+    ADD_BYTE_SERIALIZATION();
+
+    Heart() = default;
+
     Heart(Dot position, Dot dir)
         : Loot(position, dir) {
         size = 0.4;
     }
 
     bool simulate_collection() override {
-        if (collection_trigger(Players[0].pos)) {
-            Players[0].hp++;
-            return true;
-        } else {
-            return false;
+        for (auto &player : Players) {
+            if (collection_trigger(player.pos)) {
+                player.hp++;
+                return true;
+            }
         }
+        return false;
     }
 
     void draw() const override {
@@ -28,18 +33,23 @@ struct Heart : Loot {
 std::vector<Heart> Loot_hearts;
 
 struct Coin : Loot {
+    ADD_BYTE_SERIALIZATION();
+
+    Coin() = default;
+
     Coin(Dot position, Dot dir)
         : Loot(position, dir) {
         size = 0.4;
     }
 
     bool simulate_collection() override {
-        if (collection_trigger(Players[0].pos)) {
-            Players[0].coins++;
-            return true;
-        } else {
-            return false;
+        for (auto &player : Players) {
+            if (collection_trigger(player.pos)) {
+                player.coins++;
+                return true;
+            }
         }
+        return false;
     }
 
     void draw() const override {
