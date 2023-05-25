@@ -97,6 +97,13 @@ struct Player : abstract_game_object {
 
     Weapon weapon;
 
+    // animations
+    animation anim = player_anims[0];
+    Player_anim_tree::anim_and_dir_t anim_type;
+
+    // для пушки. направление от позиции игрока
+    Dot cursor_dir;
+
     [[nodiscard]] bool is_invulnerable() const {
         return invulnerable_accum < invulnerable_cooldown;
     }
@@ -104,10 +111,6 @@ struct Player : abstract_game_object {
     void set_invulnerable() {
         invulnerable_accum = 0;
     }
-
-    // animations
-    animation anim = player_anims[0];
-    Player_anim_tree::anim_and_dir_t anim_type;
 
     Player(Dot position = Dot()) {
         // abstract_game_object
@@ -155,7 +158,7 @@ struct Player : abstract_game_object {
             jump_accum += delta_time;
             invulnerable_accum += delta_time;
 
-            weapon.simulate(delta_time);
+            weapon.simulate(delta_time, cursor_dir + pos);
 
             // simulate move
             {
@@ -193,7 +196,7 @@ struct Player : abstract_game_object {
         }
 
         if (!is_jumped) {
-            weapon.draw(pos);
+            weapon.draw(pos, cursor_dir + pos);
         }
 
         draw_collision(*this);
@@ -230,7 +233,7 @@ int find_player_index(int client_id) {
 // найти самого близкого игрока к этой точке
 // вернет client_id, а не index, для более безопасной работы
 int find_nearest_player(Dot pos) {
-    if(Players.empty()){
+    if (Players.empty()) {
         return -1;
     }
     int best = -1;

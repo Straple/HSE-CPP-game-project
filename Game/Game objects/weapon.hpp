@@ -12,11 +12,11 @@ struct Weapon {
     mutable Dot dulo;
     mutable Dot hand;
 
-    Weapon(efloat cooldown = 1, int damage = 50)
+    Weapon(efloat cooldown = 1, int damage = 1)
         : cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
     }
 
-    void shot(Dot pos, Dot target = cursor.pos) {
+    void shot(Dot pos, Dot target) {
         if (cooldown_accum >= cooldown) {
             cooldown_accum = 0;
             if (hand == Dot(-5, 15)) {
@@ -26,39 +26,23 @@ struct Weapon {
             }
             // pos+=dulo;
             Dot dir = target - pos;
-            if (target == cursor.pos) {
-                dir += global_variables::camera.pos;
-            }
             dir = dir.normalize();
             dir += Circle(Dot(), 0.1).get_random_dot();
-            // убрать костыль
-            if (target == cursor.pos) {
-                Bullets.emplace_back(ShooterType::PLAYER, pos + dulo, pos + dulo + dir, 1, 1000);
-            } else {
-                Bullets.emplace_back(ShooterType::ENEMY, pos + dulo, pos + dulo + dir, 1, 1000);
-            }
-            // std::cout << pos+dir << std::endl;
+            Bullets.emplace_back(ShooterType::ENEMY, pos + dulo, pos + dulo + dir, 1, 1000);
         }
     }
 
-    void simulate(efloat delta_time) {
+    void simulate(efloat delta_time, Dot target) {
         cooldown_accum += delta_time;
-        auto angle = get_good_angle(cursor.pos, Dot(1, 0)) * 57.295779513;
+        auto angle = get_good_angle(target, Dot(1, 0)) * 57.295779513;
         int ind = angle / 15;
     }
 
-    void draw(Dot pos, Dot target = cursor.pos) const {
+    void draw(Dot pos, Dot target) const {
         double angle;
-        if (target == cursor.pos) {
-            angle = get_good_angle(target - pos + global_variables::camera.pos, Dot(1, 0)) * 57.295779513;
-        } else {
-            angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
-        }
+        angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
         int ind = angle / 15;
 
-        Dot drawing_delta;
-
-        // draw_sprite(pos + drawing_delta, 0.7, SP_TEST_GUN);
         if (0 <= ind && ind <= 5) {
             hand = Dot(-5, 15);
             dulo = Dot(8, 3);

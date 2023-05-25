@@ -46,6 +46,4 @@ struct Cursor {
     }
 };
 
-Cursor cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09);
-
 #endif  // GAME_CURSOR_HPP

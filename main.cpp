@@ -74,7 +74,7 @@ void decrease_window_scaling(Dot &cursor_pos) {
 #endif
 
 // draw fps and others useful info
-void draw_debug_info(efloat delta_time) {
+void draw_debug_info(efloat delta_time, const Cursor &cursor) {
     static efloat global_time_accum = 0;
     global_time_accum += delta_time;
 
@@ -188,7 +188,10 @@ class WindowHandler {
 public:
     Input input;
 
-    WindowHandler() {
+    Cursor cursor;
+
+    WindowHandler()
+        : cursor(Cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09)) {
         hInstance = GetModuleHandle(nullptr);
 
         // Create Window class
@@ -251,9 +254,10 @@ public:
         // simulate_game(delta_time);
         // simulate_player(input, delta_time);
 
-        //global_variables::camera.simulate(Players[0].pos, delta_time);
+        // global_variables::camera.simulate(Players[0].pos, delta_time);
         draw_game();
-        draw_debug_info(delta_time);
+        draw_debug_info(delta_time, cursor);
+        cursor.draw();
 
 #if MULTITHREAD_RENDER != 0
         wait_all_render_threads();

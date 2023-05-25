@@ -30,6 +30,7 @@ GameMessage get_game_state() {
         serialization_traits<std::vector<Bush>>::serialize(oss, Bushes);
         serialization_traits<std::vector<Log>>::serialize(oss, Logs);
         serialization_traits<std::vector<effect>>::serialize(oss, Effects);
+        serialization_traits<std::vector<Bullet>>::serialize(oss, Bullets);
     }
 
     GameMessage result;
@@ -71,6 +72,8 @@ public:
     tcp::socket socket;  // сокет клиента
 
     const int client_id;  // уникальный id клиента
+
+    //----------------------------------------------------------------------
 
     Input input;  // инпут игрока
 
@@ -255,8 +258,10 @@ private:
             if (!ec) {
                 // обработаем полученное сообщение
                 cnt_peek_message_from_client++;
-                ASSERT(read_message.body_length() == sizeof(ButtonsState), "wtf???");
+                ASSERT(read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "wtf???");
                 std::memcpy(&input.current, read_message.body(), sizeof(ButtonsState));
+                Dot &cursor_dir = Players[find_player_index(client_id)].cursor_dir;
+                std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
 
                 do_read_header();  // продолжим цепочку чтения сообщений
             } else {

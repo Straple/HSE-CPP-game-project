@@ -101,38 +101,9 @@ struct Bullet : abstract_game_object {
                 // simulate hit
                 {
                     add_hit_effect(pos);
-
                     player.hp -= damage;
-
                     player.dp += dir * speed / 10;
                 }
-
-                //                if (Enemies[i].hp <= 0) {
-                //                    add_death_effect(Enemies[i].get_hitbox().circle.pos);
-                //
-                //                    if (randomness(20)) {
-                //                        Loot_hearts.push_back(
-                //                                Heart(Enemies[i].get_hitbox().circle.pos, dir)
-                //                        );
-                //                    } else {
-                //                        if (randomness(50)) {
-                //                            for (int count = 0; count < 4; count++) {
-                //                                Loot_coins.push_back(Coin(
-                //                                        Enemies[i].get_hitbox().circle.pos, dir
-                //                                ));
-                //                            }
-                //                        } else {
-                //                            for (int count = 0; count < 5; count++) {
-                //                                Loot_coins.push_back(Coin(
-                //                                        Enemies[i].get_hitbox().circle.pos, dir
-                //                                ));
-                //                            }
-                //                        }
-                //                    }
-                //
-                //                    Enemies.erase(Enemies.begin() + i);
-                //                    i--;
-                //                }
                 return true;
             }
         }

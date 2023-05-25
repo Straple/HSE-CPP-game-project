@@ -27,6 +27,7 @@ void set_game_state(GameMessage &message) {
         Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
         Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
         Effects = serialization_traits<std::vector<effect>>::deserialize(iss);
+        Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
     }
 }
 
@@ -40,7 +41,7 @@ public:
     Client(boost::asio::io_context &io_context, const tcp::resolver::results_type &endpoints, WindowHandler &window_handler)
         : io_context(io_context),
           socket(io_context),
-          timer(io_context, boost::posix_time::milliseconds(1)),
+          timer(io_context, boost::posix_time::milliseconds(5)),
           time_tick_prev_frame(get_ticks()),
           window_handler(window_handler) {
         do_connect(endpoints);
@@ -58,26 +59,25 @@ public:
         socket.close();
     }
 
-    void send_buttons_state_to_server() {
-        write_message_frame_id = frame_id;
-        sending_chain_is_run = true;
+    void send_input_to_server() {
+        int index = find_player_index(client_id);
+        // не за чем отправлять свой инпут, когда мы не получили первое игровое состояние
+        if(index != -1) {
+            write_message_frame_id = frame_id;
+            sending_chain_is_run = true;
 
-        GameMessage message;
-        message.body_length(sizeof(ButtonsState));
-        message.encode_header();
-        std::memcpy(message.body(), reinterpret_cast<char *>(&window_handler.input), message.body_length());
-        write(message);
+            GameMessage message;
+            message.body_length(sizeof(ButtonsState) + sizeof(Dot));
+            message.encode_header();
+            std::memcpy(message.body(), reinterpret_cast<char *>(&window_handler.input), sizeof(ButtonsState));
+
+            Dot cursor_pos = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+            std::memcpy(message.body() + sizeof(ButtonsState), &cursor_pos, sizeof(Dot));
+            write(message);
+        }
     }
 
     void simulate_game_frame() {
-        // std::cout << find_player_index(client_id) << ' ' << Players.size() << std::endl;
-        // мы еще не получили состояние игры, со своим персонажем
-        if (find_player_index(client_id) == -1) {
-            // продлеваем таймер следующего кадра
-            timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(10));
-            timer.async_wait(boost::bind(&Client::simulate_game_frame, this));
-            return;
-        }
         frame_id++;
 
         efloat delta_time;
@@ -97,7 +97,12 @@ public:
 
         window_handler.simulate_frame(delta_time);
 
-        global_variables::camera.simulate(Players[find_player_index(client_id)].pos, delta_time);
+        int index = find_player_index(client_id);
+        // если в игровом состоянии есть наш персонаж
+        if (index != -1) {
+            Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+            global_variables::camera.simulate(Players[index].pos, delta_time);
+        }
 
         draw_object(frame_read_count_snapshot, Dot(), 0.5, RED);
 
@@ -105,7 +110,7 @@ public:
 
         if (!sending_chain_is_run) {
             // восстановим цепочку отправок сообщений инпута на сервер
-            send_buttons_state_to_server();
+            send_input_to_server();
         }
 
         if (!global_variables::running) {
@@ -113,7 +118,7 @@ public:
         }
 
         // продлеваем таймер следующего кадра
-        timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(10));
+        timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(5));
         timer.async_wait(boost::bind(&Client::simulate_game_frame, this));
     }
 
@@ -152,7 +157,6 @@ private:
 
                     // теперь мы можем начать играть
                     simulate_game_frame();
-                    send_buttons_state_to_server();
                 } else {
                     frame_read_count_accum++;
                     set_game_state(read_message);
@@ -173,7 +177,7 @@ private:
                 sending_chain_is_run = false;
 
                 if (write_message_frame_id != frame_id) {
-                    send_buttons_state_to_server();
+                    send_input_to_server();
                 } else {
                     // мы прервали цепочку отправок инпута на сервер
                     // мы должны ее восстановить, когда обработаем новый игровой кадр
