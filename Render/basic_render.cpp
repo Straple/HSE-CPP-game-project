@@ -43,7 +43,7 @@ void fill(uint32_t *dest, uint32_t val32, unsigned int len) {
     for (__m128i *ptr = reinterpret_cast<__m128i *>(dest),
                  *end = reinterpret_cast<__m128i *>(dest + len);
          ptr != end; ptr++) {
-        _mm_store_si128(ptr, val128);
+        _mm_storeu_si128(ptr, val128);
     }
 
 #else
@@ -121,7 +121,7 @@ void draw_pixels_impl(
                      ptr = reinterpret_cast<__m128i *>(row),
                     *end = reinterpret_cast<__m128i *>(row + len - len % 4);
                  ptr < end; ptr++) {
-                const __m128i dest_pixels = _mm_load_si128(ptr);
+                const __m128i dest_pixels = _mm_loadu_si128(ptr);
 
                 const __m128i dest_lo16 = _mm_unpacklo_epi8(dest_pixels, zero);
                 const __m128i dest_hi16 = _mm_unpackhi_epi8(dest_pixels, zero);
@@ -137,7 +137,7 @@ void draw_pixels_impl(
                 const __m128i result_dest =
                     _mm_packus_epi16(result_lo16, result_hi16);
 
-                _mm_store_si128(ptr, _mm_add_epi8(result_dest, pre_color));
+                _mm_storeu_si128(ptr, _mm_add_epi8(result_dest, pre_color));
             }
 
             draw_pixels_row_trivial_impl(row + len - len % 4, len % 4, color);
@@ -150,7 +150,7 @@ void draw_pixels_impl(
     }
 }
 
-#include "Render/multi_threaded_render.cpp"
+#include "multi_threaded_render.cpp"
 
 // рисует в пикселях [x0, x1)*[y0, y1)
 // x0, x1 <= width
