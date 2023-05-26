@@ -1,11 +1,6 @@
-#include <cstdlib>
-#include <iostream>
-#include <memory>
-#include <set>
-#include <utility>
-//----------------------------------------------------------------------
 #define BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
-//#define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
+// #define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
@@ -14,6 +9,12 @@
 #include "../main_header.hpp"
 //----------------------------------------------------------------------
 #include "game_message.hpp"
+//----------------------------------------------------------------------
+#include <cstdlib>
+#include <iostream>
+#include <memory>
+#include <set>
+#include <utility>
 
 //----------------------------------------------------------------------
 
@@ -142,7 +143,7 @@ public:
         }
 
         // продлеваем таймер следующей симуляции
-        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(5));
+        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(50));
         timer_for_simulate_game.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
     }
 
@@ -280,7 +281,9 @@ private:
 
                 if (!error_code) {
                     // обработаем полученное сообщение
-                    ASSERT(read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "wtf???");
+                    ASSERT(
+                        read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "is not input from client"
+                    );
 
                     std::memcpy(&input.current, read_message.body(), sizeof(ButtonsState));
 
@@ -366,7 +369,8 @@ private:
                 auto remote_endpoint = socket.remote_endpoint();
                 auto local_endpoint = socket.local_endpoint();
 
-                std::cout << "Connected " << remote_endpoint << " --> " << local_endpoint << " message: \"" << error_code.message() << "\"\n\n";
+                std::cout << "Connected " << remote_endpoint << " --> " << local_endpoint << " message: \""
+                          << error_code.message() << "\"\n\n";
                 std::cout.flush();
             }
             // если нет ошибок сокета
@@ -391,13 +395,13 @@ private:
 //----------------------------------------------------------------------
 
 int main() {
-    setlocale(LC_ALL, "ru-RU");
+    SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
     test_room.read("level.txt");
 
     try {
         boost::asio::io_context io_context;
-        tcp::endpoint endpoint(tcp::v4(), std::atoi("4"));
+        tcp::endpoint endpoint(tcp::v4(), std::atoi("5005"));
         Server server(io_context, endpoint);
         io_context.run();
     } catch (std::exception &e) {

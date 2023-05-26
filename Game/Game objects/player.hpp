@@ -169,8 +169,7 @@ struct Player : abstract_game_object {
             // текущая анимация+
             auto current_anim = Player_anim_tree::get_anim(ddp.normalize(), anim_type);
 
-            if (anim_type.get_num() !=
-                current_anim.get_num()) {  // у нас сменились анимации
+            if (anim_type.get_num() != current_anim.get_num()) {  // у нас сменились анимации
 
                 anim_type = current_anim;
 
@@ -188,9 +187,7 @@ struct Player : abstract_game_object {
         draw_sprite(pos + Dot(-8, 3), size, SP_MEDIUM_SHADOW);
 
         if (invulnerable_accum + 0.5 < invulnerable_cooldown) {
-            anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
-                return Color(0xffffff, 128);
-            });
+            anim.draw(pos + delta_draw_pos, size, [&](const Color &color) { return Color(0xffffff, 128); });
         } else {
             anim.draw(pos + delta_draw_pos, size);
         }
@@ -212,7 +209,7 @@ struct Player : abstract_game_object {
         return std::make_unique<CollisionBox>(pos + Dot(-7, 20), pos + Dot(7, -5));
     }
 
-    [[nodiscard]] std::unique_ptr<Collision> get_collision() const {
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
         return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 };

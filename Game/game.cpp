@@ -5,7 +5,7 @@ void simulate_player(const Input &input, efloat delta_time, int client_id) {
 
     int index = find_player_index(client_id);
     if (index == -1) {
-        return; // TODO: или ассерт
+        return;  // TODO: или ассерт
     }
 
     // накопление вектора движения
@@ -15,8 +15,8 @@ void simulate_player(const Input &input, efloat delta_time, int client_id) {
 
     Players[index].simulate(delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S), PRESSED(BUTTON_SPACE));
 
-    if (PRESSED(BUTTON_MOUSE_L) && !Players[index].is_paralyzed &&
-        !Players[index].is_jumped && Players[index].coins > 0) {
+    if (PRESSED(BUTTON_MOUSE_L) && !Players[index].is_paralyzed && !Players[index].is_jumped &&
+        Players[index].coins > 0 && Players[index].weapon.may_shot()) {
         Players[index].weapon.shot(Players[index].pos, Players[index].cursor_dir + Players[index].pos);
         Players[index].coins--;
     }
@@ -28,6 +28,29 @@ void simulate_game(efloat delta_time) {
     test_room.simulate(delta_time);
 }
 
-void draw_game() {
+void draw_game(int client_id) {
     test_room.draw();
+
+    // draw UI
+    {
+        int index = find_player_index(client_id);
+        auto &player = Players[index];
+        // draw hp
+        for (int i = 0; i < player.hp; i++) {
+            draw_sprite(
+                Dot(-global_variables::arena_half_size.x, global_variables::arena_half_size.y) * 0.95 +
+                    global_variables::camera.pos + Dot(i, 0) * 7,
+                0.5, SP_HEART
+            );
+        }
+
+        // draw coins
+        for (int i = 0; i < player.coins; i++) {
+            draw_sprite(
+                Dot(-global_variables::arena_half_size.x, global_variables::arena_half_size.y) * 0.8 +
+                    global_variables::camera.pos + Dot(-14 - i * 2 + Players[0].coins * 2, 0),
+                0.5, SP_COIN
+            );
+        }
+    }
 }

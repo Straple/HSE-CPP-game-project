@@ -410,32 +410,6 @@ struct Room {
             //     draw_sprite(pos, size, sprite);
             // }
         }
-
-        // draw UI
-        /*{
-            // draw hp
-            for (int i = 0; i < Players[0].hp; i++) {
-                draw_sprite(
-                    Dot(-global_variables::arena_half_size.x,
-                        global_variables::arena_half_size.y) *
-                            0.95 +
-                        global_variables::camera.pos + Dot(i, 0) * 7,
-                    0.5, SP_HEART
-                );
-            }
-
-            // draw coins
-            for (int i = 0; i < Players[0].coins; i++) {
-                draw_sprite(
-                    Dot(-global_variables::arena_half_size.x,
-                        global_variables::arena_half_size.y) *
-                            0.8 +
-                        global_variables::camera.pos +
-                        Dot(-14 - i * 2 + Players[0].coins * 2, 0),
-                    0.5, SP_COIN
-                );
-            }
-        }*/
     }
 };
 

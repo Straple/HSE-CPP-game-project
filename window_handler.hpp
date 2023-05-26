@@ -167,8 +167,8 @@ public:
     }
 
     // рисует игру, полезную для дебага информацию, курсор
-    void draw_frame(efloat delta_time) {
-        draw_game();
+    void draw_frame(efloat delta_time, int client_id) {
+        draw_game(client_id);
         draw_debug_info(delta_time, cursor);
         cursor.draw();
 

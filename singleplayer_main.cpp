@@ -38,7 +38,7 @@ int main() {
             Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
             global_variables::camera.simulate(Players[index].pos, delta_time);
 
-            window_handler.draw_frame(delta_time);
+            window_handler.draw_frame(delta_time, 0);
             window_handler.release_frame();
         }
 

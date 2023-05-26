@@ -16,8 +16,12 @@ struct Weapon {
         : cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
     }
 
+    bool may_shot(){
+        return cooldown_accum >= cooldown;
+    }
+
     void shot(Dot pos, Dot target) {
-        if (cooldown_accum >= cooldown) {
+        if (may_shot()) {
             cooldown_accum = 0;
             if (hand == Dot(-5, 15)) {
                 pos += Dot(7, -2);
