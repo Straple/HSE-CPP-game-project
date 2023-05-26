@@ -2,8 +2,8 @@
 #define GAME_LOOT_HPP
 
 #include "abstract_game_object.hpp"
-#include "player.hpp"
-#include "render.hpp"
+//#include "player.hpp"
+#include "../../render.hpp"
 
 struct Loot : abstract_game_object {
     efloat magnet_radius = 30;
@@ -33,7 +33,7 @@ struct Loot : abstract_game_object {
     void draw() const override = 0;
 
     void simulate(efloat delta_time) {
-        int index = find_nearest_player(pos);
+        /*int index = find_nearest_player(pos);
         Dot to = Players[index].pos;
 
         if ((to - pos).get_len() <= magnet_radius) {
@@ -41,7 +41,7 @@ struct Loot : abstract_game_object {
             simulate_move_to2d(pos, to, dp, ddp, delta_time);
         } else {
             simulate_move2d(pos, dp, Dot(), delta_time);
-        }
+        }*/
     }
 };
 

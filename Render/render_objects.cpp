@@ -1,4 +1,4 @@
-#include "Objects/collision.hpp"
+#include "../Objects/collision.hpp"
 
 void draw_collision(const CollisionCircle &collision, const Color color = Color(0x00ff00, 70)) {
     if (global_variables::debug_mode) {

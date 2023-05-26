@@ -1,20 +1,18 @@
 #include <cstdlib>
-#include <deque>
 #include <iostream>
-#include <list>
 #include <memory>
 #include <set>
 #include <utility>
 //----------------------------------------------------------------------
 #define BOOST_DATE_TIME_POSIX_TIME_STD_CONFIG
-#define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
+//#define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
 
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-//-------------------------
-#include "../window_handler.hpp"
-//-------------------------
+//----------------------------------------------------------------------
+#include "../main_header.hpp"
+//----------------------------------------------------------------------
 #include "game_message.hpp"
 
 //----------------------------------------------------------------------
@@ -54,10 +52,12 @@ public:
     void simulate(efloat delta_time) {
         simulate_player(input, delta_time, client_id);
         // текущий кадр инпута так и оставим, а вот предыдущий смениться текущим
+        // таким образом, мы будем считать, что игрок все еще нажимает на кнопку до тех пор,
+        // пока не получим информацию от него об обратном
         input.previous = input.current;
     }
 
-    //----------------------------------------------------------------------
+    //---------------------------------------------------------------------
 
     tcp::socket socket;  // сокет клиента
 
@@ -67,7 +67,13 @@ public:
 
     Input input;  // инпут игрока
 
-    int cnt_peek_message_from_client = 0;
+    //----------------------------------------------------------------------
+
+    // для серверной статистики и дебага
+
+    int count_of_write_messages = 0;
+
+    int count_of_read_messages = 0;
 };
 
 using AbstractClientPtr = std::shared_ptr<AbstractClient>;
@@ -80,12 +86,36 @@ using AbstractClientPtr = std::shared_ptr<AbstractClient>;
 class GameSession {
 public:
     explicit GameSession(boost::asio::io_context &io_context)
-        : timer(io_context, boost::posix_time::milliseconds(0)), time_tick_prev_frame(get_ticks()) {
+        : timer_for_simulate_game(io_context, boost::posix_time::milliseconds(0)),
+          timer_for_print_debug_info(io_context, boost::posix_time::milliseconds(0)),
+          time_tick_prev_frame(get_ticks()) {
+        print_debug_info();
         simulate_game_frame();
+    }
+
+    void print_debug_info() {
+        std::cout << "server fps: " << frame_count_accum << ' ' << "frame_id: " << frame_id << '\n';
+        if (!Clients.empty()) {
+            std::cout << "write | reade\n";
+        }
+        for (auto &client_ptr : Clients) {
+            std::cout << client_ptr->count_of_write_messages << ' ' << client_ptr->count_of_read_messages << '\n';
+            client_ptr->count_of_write_messages = 0;
+            client_ptr->count_of_read_messages = 0;
+        }
+        std::cout << '\n';
+        std::cout.flush();
+
+        frame_count_accum = 0;
+
+        // продлеваем таймер
+        timer_for_print_debug_info.expires_at(timer_for_print_debug_info.expires_at() + boost::posix_time::seconds(1));
+        timer_for_print_debug_info.async_wait(boost::bind(&GameSession::print_debug_info, this));
     }
 
     void simulate_game_frame() {
         frame_id++;
+        frame_count_accum++;
 
         efloat delta_time;
         // update time
@@ -93,24 +123,6 @@ public:
             u64 cur_time_tick = get_ticks();
             delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev_frame) / performance_frequency;
             time_tick_prev_frame = cur_time_tick;
-        }
-
-        // print debug info
-        {
-            frame_accum++;
-            frame_time_accum += delta_time;
-            if (frame_time_accum > 1) {
-                std::cout << "count of simulation fps: " << frame_accum << '\n';
-                std::cout << "frame id: " << frame_id << '\n';
-                for (auto &client_ptr : Clients) {
-                    std::cout << "count peek message from client: " << client_ptr->cnt_peek_message_from_client << '\n';
-                    client_ptr->cnt_peek_message_from_client = 0;  // сбросим информацию
-                }
-                std::cout << '\n';
-                std::cout.flush();
-                frame_time_accum = 0;
-                frame_accum = 0;
-            }
         }
 
         // симулируем игроков
@@ -130,29 +142,30 @@ public:
         }
 
         // продлеваем таймер следующей симуляции
-        timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(5));
-        timer.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
+        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(5));
+        timer_for_simulate_game.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
     }
 
     //----------------------------------------------------------------------
 
+    // добавляет клиента в игровую сессию
     void join(const AbstractClientPtr &client_ptr) {
         Clients.insert(client_ptr);  // НИКАКИХ STD::MOVE!!!
 
         auto remote_endpoint = client_ptr->socket.remote_endpoint();
-        std::cout << "Client <" << remote_endpoint << "> joined in session\n\n";
-        std::cout.flush();
+        std::cout << "Client <" << remote_endpoint << "> joined in session\n" << std::endl;
 
         // добавим персонажа в игру
         Players.push_back({});
         Players.back().client_id = client_ptr->client_id;
 
         // обновим игровой снапшот, так как мы получили нового игрока
-        // иначе будет уб: после join() ClientHandler отправит get_game_state() клиенту,
+        // иначе будет UB: после join() ClientHandler отправит get_game_state() клиенту,
         // а потом мы не обновив game_state_snapshot отправим его уже без этого игрока
         game_state_snapshot = get_game_state();
     }
 
+    // удаляет клиента из игровой сессии
     void leave(const AbstractClientPtr &client_ptr) {
         // если мы его еще не удалили
         // (из-за асинхронности куча, ожидающих выполнения действий, придут сюда из ClientHandler, чтобы уйти из сессии)
@@ -166,6 +179,9 @@ public:
             // также удалим персонажа из игры
             int index = find_player_index(client_ptr->client_id);
             Players.erase(Players.begin() + index);
+
+            // TODO: возможно тут стоит тоже сразу же пересчитать игровой мир
+            // так как например, если слайм ел игрока, а он вышел из игры, то кого он в итоге ест?
         }
     }
 
@@ -176,13 +192,16 @@ public:
     int frame_id = 0;  // id игрового кадра
 
 private:
+    //----------------------------------------------------------------------
     std::set<AbstractClientPtr> Clients;  // клиенты
 
-    boost::asio::deadline_timer timer;  // таймер для симуляций кадров
+    boost::asio::deadline_timer timer_for_simulate_game;
+
+    boost::asio::deadline_timer timer_for_print_debug_info;
 
     //----------------------------------------------------------------------
 
-    int frame_accum = 0;  // накопленное количество кадров
+    int frame_count_accum = 0;  // накопленное количество кадров
 
     efloat frame_time_accum = 0;  // накопленное время кадров
 
@@ -204,7 +223,7 @@ public:
     // начинает обработку и добавляет в игровую сессию
     void start() {
         session.join(shared_from_this());
-        do_read_header();
+        do_read_header();  // начинаем читать инпут у клиента
 
         // нам нужно передать клиенту его client_id, а также снапшот игрового состояния
         {
@@ -241,7 +260,7 @@ private:
             socket, boost::asio::buffer(read_message.data(), GameMessage::header_length),
             [this, self](boost::system::error_code error_code, std::size_t) {
                 if (!error_code && read_message.decode_header()) {
-                    // считали заголовок с размером
+                    // считали заголовок с размером тела
                     // теперь можем считать и тело
                     do_read_body();
                 } else {
@@ -257,11 +276,14 @@ private:
         boost::asio::async_read(
             socket, boost::asio::buffer(read_message.body(), read_message.body_length()),
             [this, self](boost::system::error_code error_code, std::size_t) {
+                count_of_read_messages++;
+
                 if (!error_code) {
                     // обработаем полученное сообщение
-                    cnt_peek_message_from_client++;
                     ASSERT(read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "wtf???");
+
                     std::memcpy(&input.current, read_message.body(), sizeof(ButtonsState));
+
                     Dot &cursor_dir = Players[find_player_index(client_id)].cursor_dir;
                     std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
 
@@ -279,6 +301,8 @@ private:
         boost::asio::async_write(
             socket, boost::asio::buffer(write_message.data(), write_message.length()),
             [this, self](boost::system::error_code error_code, std::size_t) {
+                count_of_write_messages++;
+
                 if (!error_code) {
                     // возьмем последний кадр и отправим его игроку
 
@@ -289,7 +313,7 @@ private:
 
                     sending_chain_is_run = false;
 
-                    // готов ли новый кадр
+                    // готов ли новый кадр?
                     if (write_message_frame_id < session.frame_id) {
                         // сообщим себе об этом и продолжим цепочку сообщений
                         inform_me_about_new_frame();
@@ -342,8 +366,7 @@ private:
                 auto remote_endpoint = socket.remote_endpoint();
                 auto local_endpoint = socket.local_endpoint();
 
-                std::cout << "Connected " << remote_endpoint << " --> " << local_endpoint << '\n';
-                std::cout << "message: " << error_code.message() << "\n\n";
+                std::cout << "Connected " << remote_endpoint << " --> " << local_endpoint << " message: \"" << error_code.message() << "\"\n\n";
                 std::cout.flush();
             }
             // если нет ошибок сокета

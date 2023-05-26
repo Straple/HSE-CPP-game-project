@@ -47,7 +47,7 @@ void simulate_move_to(efloat &p, efloat p_to, efloat &dp, efloat ddp, efloat del
     simulate_move(result, dp, ddp, delta_time);
 
     auto is_spoiled = [](efloat num) -> bool {
-        return isnan(num) || isinf(num);
+        return std::isnan(num) || std::isinf(num);
     };
 
     if (is_spoiled(result) || is_spoiled(dp) || is_spoiled(ddp) ||

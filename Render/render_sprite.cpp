@@ -108,7 +108,7 @@ void draw_sprite_static(
             pos.x - size / 2, pos.x + pixels.width() * size + size / 2,
             pos.y + size / 2, pos.y - pixels.height() * size - size / 2
         )) {
-        draw_sprite_matrix(pos, size, Sprites[sprite], func);
+        draw_sprite_matrix(pos, size, pixels, func);
     }
 }
 

@@ -1,7 +1,7 @@
 ﻿#ifndef GAME_EFFECT_HPP
 #define GAME_EFFECT_HPP
 
-#include "render.hpp"
+#include "../../render.hpp"
 
 struct effect {
     ADD_BYTE_SERIALIZATION();

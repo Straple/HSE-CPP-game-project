@@ -2,7 +2,7 @@
 #define GAME_LOG_HPP
 
 #include "abstract_game_object.hpp"
-#include "render.hpp"
+#include "../../render.hpp"
 
 struct Log : abstract_game_object {
     ADD_BYTE_SERIALIZATION();

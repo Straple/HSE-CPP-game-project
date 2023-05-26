@@ -1,9 +1,9 @@
 #ifndef GAME_CURSOR_HPP
 #define GAME_CURSOR_HPP
 
-#include "Objects/platform_common.hpp"
-#include "render.hpp"
-#include "sprites.hpp"
+#include "../../Objects/platform_common.hpp"
+#include "../../render.hpp"
+#include "../../sprites.hpp"
 
 struct Cursor {
     sprite_t sprite;

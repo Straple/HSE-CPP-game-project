@@ -2,7 +2,7 @@
 #define GAME_BUSH_HPP
 
 #include "abstract_game_object.hpp"
-#include "render.hpp"
+#include "../../render.hpp"
 
 struct Bush : abstract_game_object {
     ADD_BYTE_SERIALIZATION();

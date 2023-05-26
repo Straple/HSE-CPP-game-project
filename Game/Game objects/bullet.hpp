@@ -1,13 +1,13 @@
 #ifndef GAME_BULLET_HPP
 #define GAME_BULLET_HPP
 
+#include "heart&coin.hpp"
+//
+#include "../../render.hpp"
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
 #include "enemy_states.hpp"
 #include "game_utils.hpp"
-#include "heart&coin.hpp"
-#include "player.hpp"
-#include "render.hpp"
 
 enum class ShooterType {
     PLAYER,
@@ -46,8 +46,7 @@ struct Bullet : abstract_game_object {
             return false;
         }
         for (int i = 0; i < Enemies.size(); i++) {
-            if (get_collision()->trigger(*Enemies[i].get_hitbox()) &&
-                !Enemies[i].is_invulnerable()) {
+            if (get_collision()->trigger(*Enemies[i].get_hitbox()) && !Enemies[i].is_invulnerable()) {
                 // simulate hit
                 {
                     add_hit_effect(pos);
@@ -62,21 +61,15 @@ struct Bullet : abstract_game_object {
                     add_death_effect(Enemies[i].get_hitbox()->get_pos());
 
                     if (randomness(20)) {
-                        Loot_hearts.push_back(
-                            Heart(Enemies[i].get_hitbox()->get_pos(), dir)
-                        );
+                        Loot_hearts.push_back(Heart(Enemies[i].get_hitbox()->get_pos(), dir));
                     } else {
                         if (randomness(50)) {
                             for (int count = 0; count < 4; count++) {
-                                Loot_coins.push_back(Coin(
-                                    Enemies[i].get_hitbox()->get_pos(), dir
-                                ));
+                                Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), dir));
                             }
                         } else {
                             for (int count = 0; count < 5; count++) {
-                                Loot_coins.push_back(Coin(
-                                    Enemies[i].get_hitbox()->get_pos(), dir
-                                ));
+                                Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), dir));
                             }
                         }
                     }
@@ -96,8 +89,7 @@ struct Bullet : abstract_game_object {
             return false;
         }
         for (auto &player : Players) {
-            if (get_collision()->trigger(*player.get_hitbox()) &&
-                !player.is_invulnerable()) {
+            if (get_collision()->trigger(*player.get_hitbox()) && !player.is_invulnerable()) {
                 // simulate hit
                 {
                     add_hit_effect(pos);

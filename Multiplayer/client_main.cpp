@@ -68,10 +68,10 @@ public:
         // запишем ButtonsState
         std::memcpy(message.body(), &window_handler.input, sizeof(ButtonsState));
 
-        // запишем cursor_dir
+        // запишем cursor_dir (нужен для пушки и выстрелов от игрока)
         int index = find_player_index(client_id);
-        Dot cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-        std::memcpy(message.body() + sizeof(ButtonsState), &cursor_dir, sizeof(Dot));
+        // Dot cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+        std::memcpy(message.body() + sizeof(ButtonsState), &Players[index].cursor_dir, sizeof(Dot));
 
         // отправим на сервер
         write(message);
@@ -83,16 +83,9 @@ public:
         efloat delta_time;
         // update time
         {
-            u64 cur_time_tick = get_ticks();
+            uint64_t cur_time_tick = get_ticks();
             delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev_frame) / performance_frequency;
             time_tick_prev_frame = cur_time_tick;
-        }
-
-        frame_time_accum += delta_time;
-        if (frame_time_accum > 1) {
-            frame_read_count_snapshot = frame_read_count_accum;
-            frame_read_count_accum = 0;
-            frame_time_accum = 0;
         }
 
         // simulate frame
@@ -107,7 +100,6 @@ public:
         // draw frame
         {
             window_handler.draw_frame(delta_time);
-            draw_object(frame_read_count_snapshot, Dot(), 0.5, RED);
             window_handler.release_frame();
         }
 
@@ -120,7 +112,7 @@ public:
             close();
         }
 
-        // продлеваем таймер следующего кадра
+        // продлеваем таймер следующей симуляции
         timer.expires_at(timer.expires_at() + boost::posix_time::milliseconds(1));
         timer.async_wait(boost::bind(&Client::simulate_game_frame, this));
     }
@@ -145,7 +137,7 @@ private:
             socket, boost::asio::buffer(read_message.data(), GameMessage::header_length),
             [this](boost::system::error_code error_code, std::size_t) {
                 if (!error_code && read_message.decode_header()) {
-                    // считали заголовок с размером
+                    // считали заголовок с размером тела
                     // теперь можем считать и тело
                     do_read_body();
                 } else {
@@ -178,8 +170,6 @@ private:
 
                         simulate_game_frame();  // теперь мы можем начать играть
                     } else {
-                        frame_read_count_accum++;
-
                         // считали game_state
                         std::string game_state;
                         game_state.resize(read_message.body_length());
@@ -252,17 +242,11 @@ private:
 
     WindowHandler &window_handler;  // обработчик окна
 
-    boost::asio::deadline_timer timer;  // таймер для рендера кадров
+    boost::asio::deadline_timer timer;  // таймер для симуляции кадров
 
     //----------------------------------------------------------------
 
     u64 time_tick_prev_frame;  // время последнего кадра
-
-    efloat frame_time_accum = 0;  // накопленное время кадров
-
-    int frame_read_count_accum = 0;
-
-    int frame_read_count_snapshot = 0;
 };
 
 //----------------------------------------------------------------------

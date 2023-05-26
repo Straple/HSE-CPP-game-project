@@ -234,12 +234,6 @@ struct Room {
             if (level < 0) {
                 draw_sprite(pos, size, sprite);
             }
-            // Dot bottom_pos = pos - Dot(0, Sprites[sprite].height() * size);
-            // if (level < 0) {
-            //     draw_sprite(pos, size, sprite);
-            // } else if (level == 0 && Players[0].pos.y < bottom_pos.y) {
-            //     draw_sprite(pos, size, sprite);
-            // }
         }
 
         // top sort

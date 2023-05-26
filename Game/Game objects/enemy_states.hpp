@@ -1,7 +1,7 @@
 #ifndef GAME_ENEMY_STATES_HPP
 #define GAME_ENEMY_STATES_HPP
 
-#include "utils.hpp"
+#include "../../utils.hpp"
 
 struct enemy_state_for_trivial_enemy {
     int damage;

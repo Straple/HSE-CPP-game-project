@@ -2,7 +2,7 @@
 #define GAME_TABLE_HPP
 
 #include "abstract_game_object.hpp"
-#include "render.hpp"
+#include "../../render.hpp"
 
 struct Table : abstract_game_object {
     ADD_BYTE_SERIALIZATION();

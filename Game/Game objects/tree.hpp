@@ -3,7 +3,7 @@
 
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
-#include "render.hpp"
+#include "../../render.hpp"
 
 struct Tree : abstract_game_object {
     ADD_BYTE_SERIALIZATION();

@@ -3,7 +3,7 @@
 
 #include "bullet.hpp"
 #include "cursor.hpp"
-#include "render.hpp"
+#include "../../render.hpp"
 
 struct Weapon {
     efloat cooldown;
