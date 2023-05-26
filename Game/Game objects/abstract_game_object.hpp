@@ -1,9 +1,9 @@
 #ifndef ABSTRACT_GAME_OBJECT_HPP
 #define ABSTRACT_GAME_OBJECT_HPP
 
+#include "../../Serialize/serialize.hpp"
 #include "../../objects.hpp"
 #include "../../utils.hpp"
-#include "../../Serialize/serialize.hpp"
 
 struct abstract_game_object {
     // physics

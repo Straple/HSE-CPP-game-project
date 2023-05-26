@@ -1,14 +1,14 @@
 ﻿#ifndef GAME_ENGINE_RENDER_STATE_HPP
 #define GAME_ENGINE_RENDER_STATE_HPP
 
+#include "../utils.hpp"
+#include "Sprite/color.hpp"
+//-------------------------------------
 #include <windows.h>
 // windows.h defined min and max macros
 // this is bad
 #undef min
 #undef max
-
-#include "../utils.hpp"
-#include "Sprite/color.hpp"
 
 class RenderState {
     unsigned int m_height = 0, m_width = 0;

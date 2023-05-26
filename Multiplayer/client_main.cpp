@@ -3,13 +3,9 @@
 #include <boost/bind.hpp>
 using boost::asio::ip::tcp;
 //
-#include <cstdlib>
-#include <deque>
-#include <iostream>
-#include <thread>
-//
 #include "../window_handler.hpp"
 //
+#include <iostream>
 #include "game_message.hpp"
 
 //----------------------------------------------------------------------
@@ -88,6 +84,19 @@ public:
             time_tick_prev_frame = cur_time_tick;
         }
 
+        {
+            if (this_frame_from_server) {
+                this_frame_from_server = false;
+            } else {
+                count_of_non_server_frames_accum++;
+            }
+            accum_time_measurement += delta_time;
+            if (accum_time_measurement >= 1) {
+                accum_time_measurement = 0;
+                count_of_non_server_frames_snapshot = std::exchange(count_of_non_server_frames_accum, 0);
+            }
+        }
+
         // simulate frame
         {
             window_handler.update();
@@ -99,7 +108,14 @@ public:
 
         // draw frame
         {
-            window_handler.draw_frame(delta_time);
+            window_handler.draw_frame(delta_time, client_id);
+
+            if (global_variables::show_fps) {
+                draw_object(
+                    count_of_non_server_frames_snapshot, Dot(5, 20) - global_variables::arena_half_size, 0.5, GREEN
+                );
+            }
+
             window_handler.release_frame();
         }
 
@@ -153,6 +169,7 @@ private:
             socket, boost::asio::buffer(read_message.body(), read_message.body_length()),
             [this](boost::system::error_code error_code, std::size_t) {
                 if (!error_code) {
+                    this_frame_from_server = true;
                     if (client_id == -1) {
                         // это первый пакет от сервера
                         // он прислал нам наш client_id и игровой снапшот
@@ -192,8 +209,8 @@ private:
     void do_write() {
         boost::asio::async_write(
             socket, boost::asio::buffer(write_message.data(), write_message.length()),
-            [this](boost::system::error_code ec, std::size_t) {
-                if (!ec) {
+            [this](boost::system::error_code error_code, std::size_t) {
+                if (!error_code) {
                     sending_chain_is_run = false;
 
                     if (write_message_frame_id != frame_id) {
@@ -244,15 +261,28 @@ private:
 
     boost::asio::deadline_timer timer;  // таймер для симуляции кадров
 
+    uint64_t time_tick_prev_frame;  // время последнего кадра
+
     //----------------------------------------------------------------
 
-    u64 time_tick_prev_frame;  // время последнего кадра
+    // для дебага
+
+    double accum_time_measurement = 0;
+
+    // количество кадров, которые мы просимулировали без участия сервера
+    // (аккумулируем это значение для приятного вывода)
+    int count_of_non_server_frames_accum = 0;
+
+    int count_of_non_server_frames_snapshot = 0;
+
+    // этот кадр от сервера? если да, то текущее состояние игры мы получили от сервера
+    bool this_frame_from_server = false;
 };
 
 //----------------------------------------------------------------------
 
 int main() {
-    setlocale(LC_ALL, "ru-RU");
+    SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
     // initialize
     {
@@ -273,7 +303,7 @@ int main() {
         boost::asio::io_context io_context;
 
         tcp::resolver resolver(io_context);
-        auto endpoints = resolver.resolve("127.0.0.1", "4");
+        auto endpoints = resolver.resolve("127.0.0.1", "5005");
 
         Client client(io_context, endpoints, window_handler);
 
