@@ -51,11 +51,7 @@ public:
     }
 
     void simulate(efloat delta_time) {
-        simulate_player(input, delta_time, client_id);
-        // текущий кадр инпута так и оставим, а вот предыдущий смениться текущим
-        // таким образом, мы будем считать, что игрок все еще нажимает на кнопку до тех пор,
-        // пока не получим информацию от него об обратном
-        input.previous = input.current;
+        simulate_player(delta_time, client_id);
     }
 
     //---------------------------------------------------------------------
@@ -63,10 +59,6 @@ public:
     tcp::socket socket;  // сокет клиента
 
     const int client_id;  // уникальный id клиента
-
-    //----------------------------------------------------------------------
-
-    Input input;  // инпут игрока
 
     //----------------------------------------------------------------------
 
@@ -143,7 +135,7 @@ public:
         }
 
         // продлеваем таймер следующей симуляции
-        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(50));
+        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(16));
         timer_for_simulate_game.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
     }
 
@@ -194,7 +186,7 @@ public:
 
 private:
     //----------------------------------------------------------------------
-    std::set<AbstractClientPtr> Clients;  // клиенты
+    std::set<AbstractClientPtr> Clients;
 
     boost::asio::deadline_timer timer_for_simulate_game;
 
@@ -203,8 +195,6 @@ private:
     //----------------------------------------------------------------------
 
     int frame_count_accum = 0;  // накопленное количество кадров
-
-    efloat frame_time_accum = 0;  // накопленное время кадров
 
     u64 time_tick_prev_frame;  // время последнего кадра
 };
@@ -285,7 +275,8 @@ private:
                         read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "is not input from client"
                     );
 
-                    std::memcpy(&input.current, read_message.body(), sizeof(ButtonsState));
+                    int index = find_player_index(client_id);
+                    std::memcpy(&Players[index].input.current, read_message.body(), sizeof(ButtonsState));
 
                     Dot &cursor_dir = Players[find_player_index(client_id)].cursor_dir;
                     std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
@@ -404,7 +395,7 @@ int main() {
         tcp::endpoint endpoint(tcp::v4(), std::atoi("5005"));
         Server server(io_context, endpoint);
         io_context.run();
-    } catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << "\n";
+    } catch (std::exception &exception) {
+        std::cerr << "Exception: " << exception.what() << "\n";
     }
 }

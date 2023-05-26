@@ -1,12 +1,12 @@
 ﻿#include "Game objects/game_objects.hpp"
 
-void simulate_player(const Input &input, efloat delta_time, int client_id) {
+void simulate_player(efloat delta_time, int client_id) {
     ASSERT(client_id >= 0, "is incorrect client_id");
 
     int index = find_player_index(client_id);
-    if (index == -1) {
-        return;  // TODO: или ассерт
-    }
+    ASSERT(index != -1, "where this player?");
+
+    auto &input = Players[index].input;
 
     // накопление вектора движения
     auto accum_ddp = [&input](button_t left, button_t right, button_t top, button_t bottom) -> Dot {
@@ -20,6 +20,11 @@ void simulate_player(const Input &input, efloat delta_time, int client_id) {
         Players[index].weapon.shot(Players[index].pos, Players[index].cursor_dir + Players[index].pos);
         Players[index].coins--;
     }
+
+    // текущий кадр инпута так и оставим, а вот предыдущий смениться текущим
+    // таким образом, мы будем считать, что игрок все еще нажимает на кнопку до тех пор,
+    // пока не получим информацию от него об обратном
+    input.previous = input.current;
 }
 
 Room test_room;

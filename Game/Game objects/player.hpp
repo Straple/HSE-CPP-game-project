@@ -101,8 +101,10 @@ struct Player : abstract_game_object {
     animation anim = player_anims[0];
     Player_anim_tree::anim_and_dir_t anim_type;
 
-    // для пушки. направление от позиции игрока
+    // для пушки, направление от позиции игрока
     Dot cursor_dir;
+
+    Input input;
 
     [[nodiscard]] bool is_invulnerable() const {
         return invulnerable_accum < invulnerable_cooldown;
