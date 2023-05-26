@@ -62,11 +62,10 @@ public:
         message.encode_header();
 
         // запишем ButtonsState
-        std::memcpy(message.body(), &window_handler.input, sizeof(ButtonsState));
+        std::memcpy(message.body(), &window_handler.input.current, sizeof(ButtonsState));
 
         // запишем cursor_dir (нужен для пушки и выстрелов от игрока)
         int index = find_player_index(client_id);
-        // Dot cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
         std::memcpy(message.body() + sizeof(ButtonsState), &Players[index].cursor_dir, sizeof(Dot));
 
         // отправим на сервер
@@ -84,6 +83,34 @@ public:
             time_tick_prev_frame = cur_time_tick;
         }
 
+        // simulate frame
+        {
+            window_handler.update();
+
+            int index = find_player_index(client_id);
+            Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+            global_variables::camera.simulate(Players[index].pos, delta_time);
+        }
+
+        if (!this_frame_from_server) {
+            // этот фрейм уже не от сервера
+            // мы должны симулировать свою версию игры
+            //
+            // то есть мы пару кадров будем жить в своем собственном мире,
+            // а когда получим от сервера его версию игры, то переключимся на нее
+            // таким образом игра становиться более плавной и менее зависящей от сервера
+            // если долго не будут приходить пакеты от сервера, то клиент еще сможет играть
+
+            // симулируем игроков
+            for (auto &player : Players) {
+                simulate_player(delta_time, player.client_id);
+            }
+
+            // симулируем игру
+            simulate_game(delta_time);
+        }
+
+        // update debug info
         {
             if (this_frame_from_server) {
                 this_frame_from_server = false;
@@ -95,15 +122,6 @@ public:
                 accum_time_measurement = 0;
                 count_of_non_server_frames_snapshot = std::exchange(count_of_non_server_frames_accum, 0);
             }
-        }
-
-        // simulate frame
-        {
-            window_handler.update();
-
-            int index = find_player_index(client_id);
-            Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-            global_variables::camera.simulate(Players[index].pos, delta_time);
         }
 
         // draw frame
@@ -301,14 +319,12 @@ int main() {
 
     try {
         boost::asio::io_context io_context;
-
         tcp::resolver resolver(io_context);
+        /*"194.87.237.93" мой сервер*/
         auto endpoints = resolver.resolve("127.0.0.1", "5005");
-
         Client client(io_context, endpoints, window_handler);
-
         io_context.run();
-    } catch (std::exception &e) {
-        std::cerr << "Exception: " << e.what() << "\n";
+    } catch (std::exception &exception) {
+        std::cerr << "Exception: " << exception.what() << "\n";
     }
 }
