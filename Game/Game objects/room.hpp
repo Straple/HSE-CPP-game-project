@@ -180,7 +180,8 @@ struct Room {
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
-                    Slimes.emplace_back(pos);
+                    Bats.emplace_back(pos);
+                    //Slimes.emplace_back(pos);
                     //Slimes.emplace_back(pos);
                     //Slimes.emplace_back(pos);
                     //Slimes.emplace_back(pos);
@@ -214,7 +215,7 @@ struct Room {
             slime.simulate(delta_time, visitable_grid_dots);
         }
         for (auto &bat : Bats) {
-            bat.simulate(delta_time, Walls);
+            bat.simulate(delta_time, visitable_grid_dots);
         }
 
         // simulate bullets

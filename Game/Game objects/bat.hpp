@@ -18,6 +18,9 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
     animation anim = animation(SS_BAT, 0, 5, 1.0 / 7);
 
+    Dot move_dir_to_target;
+    efloat time_for_update_move_dir = 0;
+
     // наша цель
     // int target_client_id = -1;
 
@@ -52,7 +55,20 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 
-    void simulate(efloat delta_time, std::vector<CollisionBox> Collision_box) {
+    void simulate_move_to_player(Player &player, const std::set<grid_pos_t> &visitable_grid_dots) {
+        // чтобы летучая мышь была поверх игрока, а не под ним
+        Dot to = player.pos - Dot(0, 0.1);
+
+        if (!get_direction_to_shortest_path(
+                pos, to, move_dir_to_target,
+                [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
+                [&](const Dot &request) { return (to - request).get_len() < 10; }
+            )) {
+            // ASSERT(false, "oh ho, way not found");
+        }
+    }
+
+    void simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
         attack_accum += delta_time;
         paralyzed_accum += delta_time;
 
@@ -70,16 +86,25 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
             int target_client_id = find_best_player(pos);
             int index = find_player_index(target_client_id);
-            if(index == -1){
-                return; // нет игроков
+            if (index == -1) {
+                return;  // нет игроков
             }
 
             auto &player = Players[index];
 
-            // чтобы летучая мышь была поверх игрока, а не под ним
-            Dot to = player.pos - Dot(0, 0.1);
-
-            Dot move_dir;
+            time_for_update_move_dir -= delta_time;
+            if (time_for_update_move_dir < 0) {
+                if (randomness(30)) {
+                    time_for_update_move_dir = 0.3;
+                } else if (randomness(50)) {
+                    time_for_update_move_dir = 0.2;
+                } else {
+                    time_for_update_move_dir = 0.1;
+                }
+                simulate_move_to_player(player, visitable_grid_dots);
+            }
+            // move_dir уже нормализован в get_direction_to_shortest_path
+            simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
             /*if (!get_direction_to_shortest_path_Astar(
                     pos, to, move_dir,
@@ -105,8 +130,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
             // move_dir уже нормализован в get_direction_to_shortest_path
             simulate_move_to2d(pos, pos + move_dir, dp, move_dir.normalize() * ddp_speed, delta_time);*/
 
-            if (!player.is_invulnerable() && !player.is_jumped &&
-                (player.pos - pos).get_len() <= jump_radius &&
+            if (!player.is_invulnerable() && !player.is_jumped && (player.pos - pos).get_len() <= jump_radius &&
                 attack_accum >= attack_cooldown) {
                 // hit
                 attack_accum = 0;
@@ -136,6 +160,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
             draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), GREEN);
         }
     }
+
     std::vector<Dot> shortest_path;
     std::vector<Dot> grid;
 };

@@ -26,10 +26,10 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     bool is_devour = false;
     bool is_shooting = false;
 
-    int target_client_id = -1;
-
     Dot move_dir_to_target;
     efloat time_for_update_move_dir = 0;
+
+    int target_client_id = -1;
 
     Slime(const Dot &position = Dot()) {
         // abstract_game_object
@@ -77,7 +77,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         }
     }
 
-    void simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
+    void simulate(const efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
         paralyzed_accum += delta_time;
         shot_accum += delta_time;
         devour_accum += delta_time;
