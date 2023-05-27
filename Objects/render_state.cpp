@@ -28,6 +28,10 @@ void RenderState::resize(unsigned int new_width, unsigned int new_height) {
     }
 }
 
+Color *RenderState::data() {
+    return m_render_memory;
+}
+
 // вернет указатель на начало строки памяти экрана
 [[nodiscard]] Color *RenderState::operator[](unsigned int row) const {
     ASSERT(row < height(), "row is bad: " + to_string(row));

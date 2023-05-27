@@ -58,4 +58,11 @@ void draw_game(int client_id) {
             );
         }
     }
+
+    draw_object(cnt_call, Dot(), 1, RED);
+    draw_object(sum_len, Dot(0, -10), 1, RED);
+    draw_object(efloat(sum_len) / cnt_call, Dot(0, -20), 1, RED);
+
+    cnt_call = 0;
+    sum_len = 0;
 }

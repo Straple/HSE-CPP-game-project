@@ -30,6 +30,8 @@ public:
     // изменение размеров окна
     void resize(unsigned int new_width, unsigned int new_height);
 
+    Color *data();
+
     // вернет указатель на начало строки памяти экрана
     [[nodiscard]] Color *operator[](unsigned int row) const;
 

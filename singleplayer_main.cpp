@@ -31,10 +31,13 @@ int main() {
         // simulate frame
         {
             window_handler.update();
-            simulate_player(window_handler.input, delta_time, 0);
-            simulate_game(delta_time);
 
             int index = find_player_index(0);
+            Players[index].input = window_handler.input;
+
+            simulate_player(delta_time, 0);
+            simulate_game(delta_time);
+
             Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
             global_variables::camera.simulate(Players[index].pos, delta_time);
 
