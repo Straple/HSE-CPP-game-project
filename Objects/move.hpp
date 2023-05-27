@@ -147,25 +147,27 @@ grid_pos_t find_the_closest_to_grid(Dot pos, Dot to, visitable_t visitable) {
 // вернет true, если нашли такой путь, иначе false
 // если есть путь, то result_dir будет равен необходимому направлению движения
 //
-// visitable(Dot) -> bool
-// если вернет true, то эта точка доступна для посещения (например не мешают коллизии)
+// visitable(grid_pos_t) -> bool
+// если вернет true, то эта точка грида доступна для посещения (например не мешают коллизии)
 //
 // suitable(Dot) -> bool
 // если вернет true, то эта точка нам подходит и мы нашли путь
+
 template <typename visitable_t, typename suitable_t>
 bool get_direction_to_shortest_path_bfs(
-    const Dot from,
+    const Dot& from,
+    [[maybe_unused]] const Dot& to,
     Dot &result_dir,
     visitable_t visitable,
-    suitable_t suitable,
-    std::vector<Dot> &shortest_path,
-    std::vector<Dot> &grid
+    suitable_t suitable
+    //',std::vector<Dot> &shortest_path,
+    //std::vector<Dot> &grid
 ) {
     const static std::vector<grid_pos_t> steps = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     //{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-    shortest_path.clear();
-    grid.clear();
+    //shortest_path.clear();
+    //grid.clear();
 
     // стартовые точки грида
     std::vector<grid_pos_t> starting_points;
@@ -225,36 +227,36 @@ bool get_direction_to_shortest_path_bfs(
     if (find_answer) {
         // пока предыдущая точка не является стартовой
         while (find(starting_points.begin(), starting_points.end(), previous[answer_pos]) == starting_points.end()) {
-            shortest_path.push_back(cast_grid_coord_to_game_coord(answer_pos));
+            //shortest_path.push_back(cast_grid_coord_to_game_coord(answer_pos));
             answer_pos = previous[answer_pos];
         }
 
-        shortest_path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
-        reverse(shortest_path.begin(), shortest_path.end());
+        //shortest_path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
+        //reverse(shortest_path.begin(), shortest_path.end());
 
         result_dir = (cast_grid_coord_to_game_coord(answer_pos) - from).normalize();
     }
-    for (auto [grid_pos, d] : dist) {
-        grid.push_back(cast_grid_coord_to_game_coord(grid_pos));
-    }
+    //for (auto [grid_pos, d] : dist) {
+    //    grid.push_back(cast_grid_coord_to_game_coord(grid_pos));
+    //}
     return find_answer;
 }
 
 template <typename visitable_t, typename suitable_t>
-bool get_direction_to_shortest_path(
-    Dot from,
-    Dot to,
+bool get_direction_to_shortest_path_Astar(
+    const Dot& from,
+    const Dot& to,
     Dot &result_dir,
     visitable_t visitable,
-    suitable_t suitable,
-    std::vector<Dot> &shortest_path,
-    std::vector<Dot> &grid
+    suitable_t suitable
+    //,std::vector<Dot> &shortest_path,
+    //std::vector<Dot> &grid
 ) {
     const static std::vector<grid_pos_t> steps = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     //{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-    shortest_path.clear();
-    grid.clear();
+    //shortest_path.clear();
+    //grid.clear();
 
     // стартовые точек грида
     std::vector<grid_pos_t> starting_points;
@@ -325,19 +327,32 @@ bool get_direction_to_shortest_path(
     if (find_answer) {
         // пока предыдущая точка не является стартовой
         while (find(starting_points.begin(), starting_points.end(), previous[answer_pos]) == starting_points.end()) {
-            shortest_path.push_back(cast_grid_coord_to_game_coord(answer_pos));
+            //shortest_path.push_back(cast_grid_coord_to_game_coord(answer_pos));
             answer_pos = previous[answer_pos];
         }
 
-        shortest_path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
-        reverse(shortest_path.begin(), shortest_path.end());
+        //shortest_path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
+        //reverse(shortest_path.begin(), shortest_path.end());
 
         result_dir = (cast_grid_coord_to_game_coord(answer_pos) - from).normalize();
     }
-    for (auto [grid_pos, d] : dist) {
-        grid.push_back(cast_grid_coord_to_game_coord(grid_pos));
-    }
+    //for (auto [grid_pos, d] : dist) {
+    //    grid.push_back(cast_grid_coord_to_game_coord(grid_pos));
+    //}
     return find_answer;
+}
+
+template <typename visitable_t, typename suitable_t>
+bool get_direction_to_shortest_path(
+    const Dot& from,
+    const Dot& to,
+    Dot &result_dir,
+    visitable_t visitable,
+    suitable_t suitable
+    //,std::vector<Dot> &shortest_path,
+    //std::vector<Dot> &grid
+){
+    return get_direction_to_shortest_path_Astar(from, to, result_dir, visitable, suitable);
 }
 
 #endif  // GAME_ENGINE_MOVE_HPP

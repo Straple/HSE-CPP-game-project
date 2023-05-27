@@ -40,8 +40,9 @@ struct Room {
     efloat wave_cooldown = 2;
     efloat wave_cooldown_accum = 0;
 
-    void build_grid(){
-        grid_start = grid_start_dot;
+    void build_grid() {
+        grid_start = grid_start_dot;  // use this grid start position
+
         const static std::vector<grid_pos_t> steps = {{1, 0}, {-1, 0}, {0, 1},  {0, -1},
                                                       {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
         //{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
@@ -154,6 +155,8 @@ struct Room {
         for (auto [pos, name] : Interesting_dots) {
             file << pos << ' ' << name << '\n';
         }
+
+        ASSERT(false, "need to update");
     }
 
     void simulate(efloat delta_time) {
@@ -178,9 +181,9 @@ struct Room {
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
                     Slimes.emplace_back(pos);
-                    Slimes.emplace_back(pos);
-                    Slimes.emplace_back(pos);
-                    Slimes.emplace_back(pos);
+                    //Slimes.emplace_back(pos);
+                    //Slimes.emplace_back(pos);
+                    //Slimes.emplace_back(pos);
                     continue;
                     if (randomness(50)) {
                         Bats.emplace_back(pos);
@@ -286,7 +289,7 @@ struct Room {
             }
         }
 
-        simulate_game_collisions(Walls);
+        simulate_game_collisions(delta_time, Walls);
     }
 
     void draw() {
@@ -465,33 +468,18 @@ struct Room {
             if (level > 0) {
                 draw_sprite(pos, size, sprite);
             }
-            // Dot bottom_pos = pos - Dot(0, Sprites[sprite].height() * size);
-            // if (level > 0) {
-            //     draw_sprite(pos, size, sprite);
-            // } else if (level == 0 && Players[0].pos.y >= bottom_pos.y) {
-            //     draw_sprite(pos, size, sprite);
-            // }
         }
 
-        int total = 0;
-        for (int i = 0; i <= Slimes.size(); i++) {
-            if (i == Slimes.size()) {
-                draw_object(total, Dot(0, i * 5), 0.5, GREEN);
-            } else {
-                total += Slimes[i].grid.size();
-                draw_object(
-                    to_string(Slimes[i].grid.size()) + " " + to_string(Slimes[i].time_for_update_move_dir),
-                    Dot(0, i * 5), 0.5, RED
-                );
-            }
+        // draw grid
+        {
+            // draw grid start
+            draw_rect(grid_start_dot - global_variables::camera.pos, Dot(1, 1), YELLOW);
+
+            /*for(auto grid_pos : visitable_grid_dots){
+                Dot pos = grid_start_dot + step_size * Dot(grid_pos.first, grid_pos.second);
+                draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), YELLOW);
+            }*/
         }
-
-        draw_rect(grid_start_dot - global_variables::camera.pos, Dot(1, 1), YELLOW);
-
-        /*for(auto grid_pos : visitable_grid_dots){
-            Dot pos = grid_start_dot + step_size * Dot(grid_pos.first, grid_pos.second);
-            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), YELLOW);
-        }*/
     }
 };
 

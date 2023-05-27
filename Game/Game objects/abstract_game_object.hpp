@@ -27,9 +27,9 @@ struct abstract_game_object {
     // мягко выталкивает за пределы коллизии
     // это нужно, чтобы например слаймы в стае могли прижиматься друг к другу
     // выглядит красиво
-    void push_out_of_collision_soft(const Collision &collision) {
+    void push_out_of_collision_soft(const Collision &collision, efloat delta_time) {
         Dot need_delta_pos = (collision.bubble(*get_collision())->get_pos() - get_collision()->get_pos());
-        dp += 0.5 * need_delta_pos;
+        dp += delta_time * need_delta_pos * 100;
     }
 
     virtual void draw() const = 0;

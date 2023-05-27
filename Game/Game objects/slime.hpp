@@ -1,9 +1,6 @@
 ﻿#ifndef GAME_SLIME_HPP
 #define GAME_SLIME_HPP
 
-#include <queue>
-#include <unordered_map>
-#include <unordered_set>
 #include "../../render.hpp"
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
@@ -67,35 +64,20 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         return get_collision();
     }
 
-    std::vector<Dot> shortest_path, grid;
-
     void simulate_move_to_player(Player &player, const std::set<grid_pos_t> &visitable_grid_dots) {
         // чтобы слайм был поверх игрока, а не под ним
         Dot to = player.pos - Dot(0, 0.1);
 
         if (!get_direction_to_shortest_path(
-                pos, to ,move_dir_to_target,
-                [&](const grid_pos_t &request) {
-                    return visitable_grid_dots.count(request);
-                    /*Dot save_pos = pos;  // чтобы мы точно взяли коллизию слайма
-                    pos = request;
-
-                    auto request_collision = get_collision();
-
-                    bool answer = true;
-                    for (const auto &wall : Walls) {
-                        answer = answer && !wall.trigger(*request_collision);
-                    }
-                    pos = save_pos;
-                    return answer;*/
-                },
-                [&](const Dot &request) { return (to - request).get_len() < 10; }, shortest_path, grid
+                pos, to, move_dir_to_target,
+                [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
+                [&](const Dot &request) { return (to - request).get_len() < 10; }
             )) {
             // ASSERT(false, "oh ho, way not found");
         }
     }
 
-    void simulate(efloat delta_time, const std::set<grid_pos_t>& visitable_grid_dots) {
+    void simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
         paralyzed_accum += delta_time;
         shot_accum += delta_time;
         devour_accum += delta_time;
@@ -164,10 +146,9 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             // move_dir уже нормализован в get_direction_to_shortest_path
             simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
-            /*if (
+            if (
                 // игрока никто не ест
                 !player.is_paralyzed && shot_accum >= shot_cooldown
-
             ) {
                 anim = animation_shot;
                 is_shooting = true;
@@ -189,7 +170,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 pos = player.pos;  // прыгаем на игрока
 
                 anim = animation_devour;
-            }*/
+            }
         }
     }
 
@@ -217,15 +198,6 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         if (global_variables::show_locator) {
             draw_circle(Circle(pos - global_variables::camera.pos, jump_radius), Color(0xff0000, 50));
         }
-        for (const auto &pos : grid) {
-            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), BLUE);
-        }
-
-        for (const auto &pos : shortest_path) {
-            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), GREEN);
-        }
-
-        // draw_object(grid.size(), Dot(), 1, RED);
     }
 };
 
