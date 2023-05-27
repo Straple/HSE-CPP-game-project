@@ -18,7 +18,6 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
     animation anim = animation(SS_BAT, 0, 5, 1.0 / 7);
 
-    // TODO: вот это
     // наша цель
     // int target_client_id = -1;
 
@@ -53,7 +52,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 
-    void simulate(efloat delta_time) {
+    void simulate(efloat delta_time, std::vector<CollisionBox> Collision_box) {
         attack_accum += delta_time;
         paralyzed_accum += delta_time;
 
@@ -79,7 +78,30 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
             // чтобы летучая мышь была поверх игрока, а не под ним
             Dot to = player.pos - Dot(0, 0.1);
-            simulate_move_to2d(pos, to, dp, (to - pos).normalize() * ddp_speed, delta_time);
+            Dot move_dir;
+            if (!get_direction_to_shortest_path_Astar(
+                    pos, to, move_dir,
+                    [&](const Dot &request) {
+                        for (const auto &collision_box : Collision_box) {
+                            Dot save_pos = pos;  // чтобы мы точно взяли коллизию слайма
+                            pos = request;
+                            bool trigger = collision_box.trigger(*get_collision());
+                            pos = save_pos;
+
+                            if (trigger) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    },
+                    [&](const Dot &request) {
+                        return (to - request).get_len() < 10;
+                    }
+            )) {
+                // ASSERT(false, "oh ho, way not found");
+            }
+            // move_dir уже нормализован в get_direction_to_shortest_path
+            simulate_move_to2d(pos, pos + move_dir, dp, move_dir.normalize() * ddp_speed, delta_time);
 
             if (!player.is_invulnerable() && !player.is_jumped &&
                 (player.pos - pos).get_len() <= jump_radius &&
@@ -104,7 +126,16 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         draw_collision(*this);
         draw_hitbox(*this);
         draw_hp(*this);
+        for (const auto &pos : grid) {
+            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), BLUE);
+        }
+
+        for (const auto &pos : shortest_path) {
+            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), GREEN);
+        }
     }
+    std::vector<Dot> shortest_path;
+    std::vector<Dot> grid;
 };
 
 std::vector<Bat> Bats;

@@ -35,8 +35,9 @@ struct Table : abstract_game_object {
     }
 };
 
-std::vector<Table> Tables = {
-    Table(Dot(49, -80)),
-};
+//std::vector<Table> Tables = {
+//    Table(Dot(49, -80)),
+//};
+std::vector<Table> Tables;
 
 #endif  // GAME_TABLE_HPP
