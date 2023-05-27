@@ -27,20 +27,65 @@ struct Room {
     std::vector<drawing_objects> Draw_objects;
 
     // walls
-    std::vector<CollisionBox> Collision_boxes;
+    std::vector<CollisionBox> Walls;
 
     std::vector<interesting_dot> Interesting_dots;
+
+    std::set<grid_pos_t> visitable_grid_dots;
+
+    Dot grid_start_dot;
 
     bool player_spawned = false;
     int wave_number = 0;
     efloat wave_cooldown = 2;
     efloat wave_cooldown_accum = 0;
 
+    void build_grid(){
+        grid_start = grid_start_dot;
+        const static std::vector<grid_pos_t> steps = {{1, 0}, {-1, 0}, {0, 1},  {0, -1},
+                                                      {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
+        //{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
+
+        visitable_grid_dots.clear();
+        std::queue<grid_pos_t> queue;
+
+        queue.push({0, 0});
+
+        while (!queue.empty()) {
+            auto grid_pos = queue.front();
+            queue.pop();
+
+            for (const auto &step : steps) {
+                grid_pos_t grid_neighbour = {grid_pos.first + step.first, grid_pos.second + step.second};
+                Dot pos = grid_start_dot + step_size * Dot(grid_neighbour.first, grid_neighbour.second);
+                // мы еще не были в этой точке и можем ее посетить
+                if (!visitable_grid_dots.count(grid_neighbour)) {
+                    bool is_visitable = true;
+
+                    Slime slime_tester(pos);
+
+                    for (const auto &wall : Walls) {
+                        if (wall.trigger(*slime_tester.get_collision())) {
+                            is_visitable = false;
+                            break;
+                        }
+                    }
+
+                    if (is_visitable) {
+                        queue.push(grid_neighbour);
+                        visitable_grid_dots.insert(grid_neighbour);
+                    }
+                }
+            }
+        }
+    }
+
     void read(const std::string &filename) {
         std::ifstream file(filename);
         {
             std::string str;
             file >> str;  // SPRITES
+            ASSERT(str == "SPRITES", "failed read");
 
             int count;
             file >> count;
@@ -54,18 +99,19 @@ struct Room {
         {
             std::string str;
             file >> str;  // COLLISION_BOXES
+            ASSERT(str == "COLLISION_BOXES", "failed read");
 
             int count;
             file >> count;
-            Collision_boxes.assign(count, {});
-            for (auto &[p0, p1] : Collision_boxes) {
+            Walls.assign(count, {});
+            for (auto &[p0, p1] : Walls) {
                 file >> p0 >> p1;
             }
         }
-
         {
             std::string str;
             file >> str;  // INTERESTING_DOTS
+            ASSERT(str == "INTERESTING_DOTS", "failed read");
 
             int count;
             file >> count;
@@ -74,6 +120,17 @@ struct Room {
                 file >> pos >> name;
             }
         }
+
+        {
+            std::string str;
+            file >> str;  // GRID_START_DOT
+            ASSERT(str == "GRID_START_DOT", "failed read");
+            file >> grid_start_dot;
+        }
+
+        build_grid();
+
+        std::cout << visitable_grid_dots.size() << std::endl;
     }
 
     void write(const std::string &filename) {
@@ -87,8 +144,8 @@ struct Room {
         }
 
         file << "COLLISION_BOXES\n";
-        file << Collision_boxes.size() << '\n';
-        for (auto [p0, p1] : Collision_boxes) {
+        file << Walls.size() << '\n';
+        for (auto [p0, p1] : Walls) {
             file << p0 << ' ' << p1 << '\n';
         }
 
@@ -121,7 +178,10 @@ struct Room {
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
                     Slimes.emplace_back(pos);
-                    break;
+                    Slimes.emplace_back(pos);
+                    Slimes.emplace_back(pos);
+                    Slimes.emplace_back(pos);
+                    continue;
                     if (randomness(50)) {
                         Bats.emplace_back(pos);
                     } else {
@@ -148,10 +208,10 @@ struct Room {
         }
 
         for (auto &slime : Slimes) {
-            slime.simulate(delta_time, Collision_boxes);
+            slime.simulate(delta_time, visitable_grid_dots);
         }
         for (auto &bat : Bats) {
-            bat.simulate(delta_time, Collision_boxes);
+            bat.simulate(delta_time, Walls);
         }
 
         // simulate bullets
@@ -173,7 +233,7 @@ struct Room {
             // bullet hit wall
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
                 bool need_delete = false;
-                for (auto &collision_box : Collision_boxes) {
+                for (auto &collision_box : Walls) {
                     if (collision_box.trigger(Bullets[i].pos)) {
                         need_delete = true;
                     }
@@ -226,7 +286,7 @@ struct Room {
             }
         }
 
-        simulate_game_collisions(Collision_boxes);
+        simulate_game_collisions(Walls);
     }
 
     void draw() {
@@ -420,11 +480,18 @@ struct Room {
             } else {
                 total += Slimes[i].grid.size();
                 draw_object(
-                    to_string(Slimes[i].grid.size()) + " " + to_string(Slimes[i].time_for_update_move_dir), Dot(0, i * 5),
-                    0.5, RED
+                    to_string(Slimes[i].grid.size()) + " " + to_string(Slimes[i].time_for_update_move_dir),
+                    Dot(0, i * 5), 0.5, RED
                 );
             }
         }
+
+        draw_rect(grid_start_dot - global_variables::camera.pos, Dot(1, 1), YELLOW);
+
+        /*for(auto grid_pos : visitable_grid_dots){
+            Dot pos = grid_start_dot + step_size * Dot(grid_pos.first, grid_pos.second);
+            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), YELLOW);
+        }*/
     }
 };
 

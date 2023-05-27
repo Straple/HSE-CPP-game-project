@@ -69,26 +69,25 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
     std::vector<Dot> shortest_path, grid;
 
-    void simulate_move_to_player(Player &player, const std::vector<CollisionBox> &Collision_boxes) {
+    void simulate_move_to_player(Player &player, const std::set<grid_pos_t> &visitable_grid_dots) {
         // чтобы слайм был поверх игрока, а не под ним
         Dot to = player.pos - Dot(0, 0.1);
 
         if (!get_direction_to_shortest_path(
-                pos, to, move_dir_to_target,
-                [&](const Dot &request) {
-                    for (const auto &collision_box : Collision_boxes) {
-                        Dot save_pos = pos;  // чтобы мы точно взяли коллизию слайма
-                        pos = request;
-                        bool trigger = collision_box.trigger(*get_collision());
-                        pos = save_pos;
+                pos, to ,move_dir_to_target,
+                [&](const grid_pos_t &request) {
+                    return visitable_grid_dots.count(request);
+                    /*Dot save_pos = pos;  // чтобы мы точно взяли коллизию слайма
+                    pos = request;
 
-                        // bool trigger = CollisionCircle(request, collision_radius).trigger(collision_box);
+                    auto request_collision = get_collision();
 
-                        if (trigger) {
-                            return false;
-                        }
+                    bool answer = true;
+                    for (const auto &wall : Walls) {
+                        answer = answer && !wall.trigger(*request_collision);
                     }
-                    return true;
+                    pos = save_pos;
+                    return answer;*/
                 },
                 [&](const Dot &request) { return (to - request).get_len() < 10; }, shortest_path, grid
             )) {
@@ -96,7 +95,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         }
     }
 
-    void simulate(efloat delta_time, const std::vector<CollisionBox> &Collision_boxes) {
+    void simulate(efloat delta_time, const std::set<grid_pos_t>& visitable_grid_dots) {
         paralyzed_accum += delta_time;
         shot_accum += delta_time;
         devour_accum += delta_time;
@@ -160,7 +159,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 } else {
                     time_for_update_move_dir = 0.1;
                 }
-                simulate_move_to_player(player, Collision_boxes);
+                simulate_move_to_player(player, visitable_grid_dots);
             }
             // move_dir уже нормализован в get_direction_to_shortest_path
             simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);

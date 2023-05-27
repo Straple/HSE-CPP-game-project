@@ -104,8 +104,8 @@ Dot get_direction(direction_t dir) {
 
 //----------------------------------------------------------------------------------------------------------------------
 
-const static Dot grid_start(-75, 35);
-const static efloat step_size = 5;
+Dot grid_start(-75, 35);
+const  efloat step_size = 5;
 
 #include <cmath>
 #include <map>
@@ -119,7 +119,7 @@ Dot cast_grid_coord_to_game_coord(const grid_pos_t &grid_pos) {
     return grid_start + step_size * Dot(grid_pos.first, grid_pos.second);
 }
 
-template <typename visitable_t>
+/*template <typename visitable_t>
 grid_pos_t find_the_closest_to_grid(Dot pos, Dot to, visitable_t visitable) {
     pos -= grid_start;
     pos /= step_size;
@@ -141,7 +141,7 @@ grid_pos_t find_the_closest_to_grid(Dot pos, Dot to, visitable_t visitable) {
         }
     }
     return closest;
-}
+}*/
 
 // ищет путь из from в to
 // вернет true, если нашли такой путь, иначе false
@@ -182,7 +182,7 @@ bool get_direction_to_shortest_path_bfs(
 
         std::vector<grid_pos_t> optional = {{x1, y1}, {x2, y1}, {x1, y2}, {x2, y2}};
         for (auto opt_pos : optional) {
-            if (visitable(cast_grid_coord_to_game_coord(opt_pos))) {
+            if (visitable(opt_pos)) {
                 starting_points.push_back(opt_pos);
             }
         }
@@ -214,7 +214,7 @@ bool get_direction_to_shortest_path_bfs(
         for (const auto &step : steps) {
             grid_pos_t grid_neighbour = {grid_pos.first + step.first, grid_pos.second + step.second};
             // мы еще не были в этой точке и можем ее посетить
-            if (!dist.count(grid_neighbour) && visitable(cast_grid_coord_to_game_coord(grid_neighbour))) {
+            if (!dist.count(grid_neighbour) && visitable(grid_neighbour)) {
                 // посещаем
                 dist[grid_neighbour] = dist[grid_pos] + 1;
                 previous[grid_neighbour] = grid_pos;
@@ -271,13 +271,11 @@ bool get_direction_to_shortest_path(
 
         std::vector<grid_pos_t> optional = {{x1, y1}, {x2, y1}, {x1, y2}, {x2, y2}};
         for (auto opt_pos : optional) {
-            if (visitable(cast_grid_coord_to_game_coord(opt_pos))) {
+            if (visitable(opt_pos)) {
                 starting_points.push_back(opt_pos);
             }
         }
     }
-
-    auto get_heuristic = [&](Dot from, Dot to) { return (from - to).get_len(); };
 
     std::priority_queue<std::pair<efloat, grid_pos_t>, std::vector<std::pair<efloat, grid_pos_t>>, std::greater<>>
         queue;
@@ -313,12 +311,12 @@ bool get_direction_to_shortest_path(
 
         for (const auto &step : steps) {
             grid_pos_t grid_neighbour = {grid_pos.first + step.first, grid_pos.second + step.second};
-            if (!dist.count(grid_neighbour) && visitable(cast_grid_coord_to_game_coord(grid_neighbour))) {
+            if (!dist.count(grid_neighbour) && visitable(grid_neighbour)) {
                 // посещаем
                 dist[grid_neighbour] = dist[grid_pos] + step_size;
                 previous[grid_neighbour] = grid_pos;
                 queue.push(
-                    {dist[grid_neighbour] + get_heuristic(cast_grid_coord_to_game_coord(grid_neighbour), to),
+                    {dist[grid_neighbour] + (cast_grid_coord_to_game_coord(grid_neighbour) - to).get_len(),
                      grid_neighbour}
                 );
             }
