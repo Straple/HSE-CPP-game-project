@@ -15,12 +15,12 @@ struct Heart : Loot {
     }
 
     bool simulate_collection() override {
-        /*for (auto &player : Players) {
+        for (auto &player : Players) {
             if (collection_trigger(player.pos)) {
                 player.hp++;
                 return true;
             }
-        }*/
+        }
         return false;
     }
 
@@ -43,12 +43,12 @@ struct Coin : Loot {
     }
 
     bool simulate_collection() override {
-        /*for (auto &player : Players) {
+        for (auto &player : Players) {
             if (collection_trigger(player.pos)) {
                 player.coins++;
                 return true;
             }
-        }*/
+        }
         return false;
     }
 

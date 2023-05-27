@@ -119,7 +119,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
                 Dot bullet_pos = pos + Dot(0, 15);
                 Bullets.emplace_back(
-                    ShooterType::ENEMY, bullet_pos, Players[find_player_index(target_client_id)].pos, 1, 1000
+                    BulletHostType::ENEMY, bullet_pos, Players[find_player_index(target_client_id)].pos, 1, 1000
                 );
             }
         } else {

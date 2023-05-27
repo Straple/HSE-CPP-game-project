@@ -17,7 +17,9 @@ void simulate_player(efloat delta_time, int client_id) {
 
     if (PRESSED(BUTTON_MOUSE_L) && !Players[index].is_paralyzed && !Players[index].is_jumped &&
         Players[index].coins > 0 && Players[index].weapon.may_shot()) {
-        Players[index].weapon.shot(Players[index].pos, Players[index].cursor_dir + Players[index].pos);
+        Players[index].weapon.shot(
+            Players[index].pos, Players[index].cursor_dir + Players[index].pos, BulletHostType::PLAYER
+        );
         Players[index].coins--;
     }
 

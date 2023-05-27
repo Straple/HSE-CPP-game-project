@@ -78,9 +78,9 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
             anim.frame_update(delta_time);
 
             // чтобы летучая мышь не дергалась туда-сюда
-            if (dp.x < -30) {
+            if (dp.x < -15) {
                 anim.sprite_sheet = SS_BAT_INVERSE;
-            } else if (dp.x > 30) {
+            } else if (dp.x > 15) {
                 anim.sprite_sheet = SS_BAT;
             }
 

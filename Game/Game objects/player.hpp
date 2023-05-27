@@ -82,7 +82,7 @@ struct Player : abstract_game_object {
     int client_id;
 
     int hp = 3;
-    int coins = 10;
+    int coins = 100;
 
     efloat jump_cooldown;
     efloat jump_accum;
@@ -124,6 +124,8 @@ struct Player : abstract_game_object {
         // player
         jump_accum = jump_cooldown = 0;  // jump_accum = jump_cooldown = 0.5;
         invulnerable_accum = invulnerable_cooldown = 2;
+
+        weapon.cooldown = 0; // мы боги
     }
 
     void simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
@@ -195,7 +197,7 @@ struct Player : abstract_game_object {
         }
 
         if (!is_jumped) {
-            // weapon.draw(pos, cursor_dir + pos);
+            weapon.draw(pos, cursor_dir + pos);
         }
 
         draw_collision(*this);

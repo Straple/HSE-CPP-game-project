@@ -9,8 +9,10 @@
 #include "enemy_states.hpp"
 #include "game_utils.hpp"
 
-enum class ShooterType {
+enum class BulletHostType {
+    // эту пулю выпустил игрок
     PLAYER,
+    // эту пулю выпустил моб
     ENEMY,
 };
 
@@ -23,30 +25,30 @@ struct Bullet : abstract_game_object {
 
     int speed;
     Dot dir;  // направление полета пули
-    ShooterType host;
+    BulletHostType host;
     int damage;
 
     Bullet() = default;
 
-    Bullet(ShooterType h, Dot from, Dot to, int damage, int speed)
-        : host(h), dir((to - from).normalize()), damage(damage), speed(speed) {
+    Bullet(BulletHostType host, Dot from, Dot to, int damage, int speed)
+        : host(host), dir((to - from).normalize()), damage(damage), speed(speed) {
         pos = from;
         collision_radius = 2;
         delta_draw_pos = Dot(-10, 10);
     }
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
-        return std::make_unique<CollisionCircle>(Circle(pos, collision_radius));
+        return std::make_unique<CollisionCircle>(pos, collision_radius);
     }
 
     // вернет правду, если атака кого-то зацепила
     template <typename enemy_t>
-    bool simulate_attack(std::vector<enemy_t> &Enemies) {
-        if (host != ShooterType::PLAYER) {
+    bool simulate_attack_on_mob(std::vector<enemy_t> &Enemies) {
+        if (host == BulletHostType::ENEMY) {
             return false;
         }
         for (int i = 0; i < Enemies.size(); i++) {
-            if (get_collision()->trigger(*Enemies[i].get_hitbox()) && !Enemies[i].is_invulnerable()) {
+            if (!Enemies[i].is_invulnerable() && get_collision()->trigger(*Enemies[i].get_hitbox())) {
                 // simulate hit
                 {
                     add_hit_effect(pos);
@@ -83,13 +85,14 @@ struct Bullet : abstract_game_object {
         return false;
     }
 
+    // вернет правду, если атака кого-то зацепила
     template <typename Player_type>
     bool simulate_attack_on_player(std::vector<Player_type> &Players) {
-        if (host != ShooterType::ENEMY) {
+        if (host == BulletHostType::PLAYER) {
             return false;
         }
         for (auto &player : Players) {
-            if (get_collision()->trigger(*player.get_hitbox()) && !player.is_invulnerable()) {
+            if (!player.is_invulnerable() && get_collision()->trigger(*player.get_hitbox())) {
                 // simulate hit
                 {
                     add_hit_effect(pos);

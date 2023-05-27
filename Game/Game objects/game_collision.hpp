@@ -25,11 +25,17 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         for (auto &slime : Slimes) {
             slime.push_out_of_collision_hard(wall);
         }
+        for (auto &coin : Loot_coins) {
+            coin.push_out_of_collision_hard(wall);
+        }
+        for (auto &heart : Loot_hearts) {
+            heart.push_out_of_collision_hard(wall);
+        }
     }
 
     // сами с собой
     {
-        // player bubbling player
+        // player
         for (auto &player1 : Players) {
             if (!player1.is_paralyzed) {  // пока мы парализованы, мы не выталкиваемы
                 for (auto &player2 : Players) {
@@ -41,7 +47,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
             }
         }
 
-        // slime bubbling slime
+        // slime
         for (auto &slime1 : Slimes) {
             if (!slime1.is_devour) {  // пока слайм ест игрока, он не выталкиваем
                 for (auto &slime2 : Slimes) {
@@ -53,6 +59,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
             }
         }
 
+        // bat
         for (auto &bat1 : Bats) {
             for (auto &bat2 : Bats) {
                 // чтобы не выталкивать самих себя
@@ -62,7 +69,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
             }
         }
 
-        // coin bubbling coin
+        // coin
         for (auto &coin1 : Loot_coins) {
             for (auto &coin2 : Loot_coins) {
                 if (&coin1 != &coin2) {
@@ -70,9 +77,17 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
                 }
             }
         }
+
+        for (auto &heart1 : Loot_hearts) {
+            for (auto &heart2 : Loot_hearts) {
+                if (&heart1 != &heart2) {
+                    heart1.push_out_of_collision_soft(*heart2.get_collision(), delta_time);
+                }
+            }
+        }
     }
 
-    // игрок <-> слайм
+    // player <-> slime
     for (auto &player : Players) {
         for (auto &slime : Slimes) {
             if (!slime.is_devour) {  // пока слайм ест игрока, он не выталкиваем
@@ -84,12 +99,22 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
     }
 
+    // heart <-> coin
+    for (auto &heart : Loot_hearts) {
+        for (auto &coin : Loot_coins) {
+            heart.push_out_of_collision_soft(*coin.get_collision(), delta_time);
+            coin.push_out_of_collision_soft(*heart.get_collision(), delta_time);
+        }
+    }
+
     // слайм не может пройти через Bush, Table
     for (auto &slime : Slimes) {
         for (const auto &bush : Bushes) {
+            // TODO: maybe soft?
             slime.push_out_of_collision_hard(*bush.get_collision());
         }
         for (const auto &table : Tables) {
+            // TODO: maybe soft?
             slime.push_out_of_collision_hard(*table.get_collision());
         }
     }

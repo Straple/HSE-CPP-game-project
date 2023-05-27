@@ -180,12 +180,12 @@ struct Room {
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
-                    Bats.emplace_back(pos);
-                    //Slimes.emplace_back(pos);
-                    //Slimes.emplace_back(pos);
-                    //Slimes.emplace_back(pos);
-                    //Slimes.emplace_back(pos);
-                    continue;
+                    // Bats.emplace_back(pos);
+                    // Slimes.emplace_back(pos);
+                    // Slimes.emplace_back(pos);
+                    // Slimes.emplace_back(pos);
+                    // Slimes.emplace_back(pos);
+                    // continue;
                     if (randomness(50)) {
                         Bats.emplace_back(pos);
                     } else {
@@ -226,16 +226,15 @@ struct Room {
 
             // bullet hit enemies
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
-                if (Bullets[i].simulate_attack(Slimes) ||
-                    Bullets[i].simulate_attack(Bats)/* ||
-                    Bullets[i].simulate_attack_on_player(Players)*/) {
+                if (Bullets[i].simulate_attack_on_mob(Slimes) || Bullets[i].simulate_attack_on_mob(Bats) ||
+                    Bullets[i].simulate_attack_on_player(Players)) {
                     Bullets.erase(Bullets.begin() + i);
                     i--;
                 }
             }
 
             // bullet hit wall
-            for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
+            for (uint32_t i = 0; i < Bullets.size(); i++) {
                 bool need_delete = false;
                 for (auto &collision_box : Walls) {
                     if (collision_box.trigger(Bullets[i].pos)) {
