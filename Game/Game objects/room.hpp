@@ -120,6 +120,8 @@ struct Room {
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
+                    Slimes.emplace_back(pos);
+                    break;
                     if (randomness(50)) {
                         Bats.emplace_back(pos);
                     } else {
@@ -149,7 +151,7 @@ struct Room {
             slime.simulate(delta_time, Collision_boxes);
         }
         for (auto &bat : Bats) {
-            bat.simulate(delta_time);
+            bat.simulate(delta_time, Collision_boxes);
         }
 
         // simulate bullets
@@ -409,6 +411,19 @@ struct Room {
             // } else if (level == 0 && Players[0].pos.y >= bottom_pos.y) {
             //     draw_sprite(pos, size, sprite);
             // }
+        }
+
+        int total = 0;
+        for (int i = 0; i <= Slimes.size(); i++) {
+            if (i == Slimes.size()) {
+                draw_object(total, Dot(0, i * 5), 0.5, GREEN);
+            } else {
+                total += Slimes[i].grid.size();
+                draw_object(
+                    to_string(Slimes[i].grid.size()) + " " + to_string(Slimes[i].time_for_update_move_dir), Dot(0, i * 5),
+                    0.5, RED
+                );
+            }
         }
     }
 };

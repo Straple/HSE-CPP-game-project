@@ -195,7 +195,7 @@ struct Player : abstract_game_object {
         }
 
         if (!is_jumped) {
-            weapon.draw(pos, cursor_dir + pos);
+            // weapon.draw(pos, cursor_dir + pos);
         }
 
         draw_collision(*this);

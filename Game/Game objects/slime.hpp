@@ -16,10 +16,9 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
     inline const static u8 draw_alpha = 210;
     inline const static efloat frame_duration = 1.0 / 7;
-    inline const static animation
-            animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
-            animation_devour = animation(SS_SLIME, 25, 30, frame_duration),
-            animation_shot = animation(SS_SLIME, 55, 13, frame_duration);
+    inline const static animation animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
+                                  animation_devour = animation(SS_SLIME, 25, 30, frame_duration),
+                                  animation_shot = animation(SS_SLIME, 55, 13, frame_duration);
 
     int hp = 4;
     efloat devour_accum, devour_cooldown;
@@ -31,6 +30,9 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     bool is_shooting = false;
 
     int target_client_id = -1;
+
+    Dot move_dir_to_target;
+    efloat time_for_update_move_dir = 0;
 
     Slime(const Dot &position = Dot()) {
         // abstract_game_object
@@ -65,7 +67,36 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         return get_collision();
     }
 
-    void simulate(efloat delta_time, std::vector<CollisionBox> Collision_box) {
+    std::vector<Dot> shortest_path, grid;
+
+    void simulate_move_to_player(Player &player, const std::vector<CollisionBox> &Collision_boxes) {
+        // чтобы слайм был поверх игрока, а не под ним
+        Dot to = player.pos - Dot(0, 0.1);
+
+        if (!get_direction_to_shortest_path(
+                pos, to, move_dir_to_target,
+                [&](const Dot &request) {
+                    for (const auto &collision_box : Collision_boxes) {
+                        Dot save_pos = pos;  // чтобы мы точно взяли коллизию слайма
+                        pos = request;
+                        bool trigger = collision_box.trigger(*get_collision());
+                        pos = save_pos;
+
+                        // bool trigger = CollisionCircle(request, collision_radius).trigger(collision_box);
+
+                        if (trigger) {
+                            return false;
+                        }
+                    }
+                    return true;
+                },
+                [&](const Dot &request) { return (to - request).get_len() < 10; }, shortest_path, grid
+            )) {
+            // ASSERT(false, "oh ho, way not found");
+        }
+    }
+
+    void simulate(efloat delta_time, const std::vector<CollisionBox> &Collision_boxes) {
         paralyzed_accum += delta_time;
         shot_accum += delta_time;
         devour_accum += delta_time;
@@ -106,50 +137,39 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 anim.frame_cur_count = get_random_engine()() % 24;
 
                 Dot bullet_pos = pos + Dot(0, 15);
-                Bullets.emplace_back(ShooterType::ENEMY, bullet_pos, Players[find_player_index(target_client_id)].pos, 1, 1000);
+                Bullets.emplace_back(
+                    ShooterType::ENEMY, bullet_pos, Players[find_player_index(target_client_id)].pos, 1, 1000
+                );
             }
         } else {
             anim.frame_update(delta_time);
 
             target_client_id = find_best_player(pos);
             int index = find_player_index(target_client_id);
-            if(index == -1){
-                return; // нет игроков
+            if (index == -1) {
+                return;  // нет игроков
             }
             auto &player = Players[index];
 
-            // чтобы слайм был поверх игрока, а не под ним
-            Dot to = player.pos - Dot(0, 0.1);
-            Dot move_dir;
-            if (!get_direction_to_shortest_path_Astar(
-                    pos, to, move_dir,
-                    [&](const Dot &request) {
-                        for (const auto &collision_box : Collision_box) {
-                            Dot save_pos = pos;  // чтобы мы точно взяли коллизию слайма
-                            pos = request;
-                            bool trigger = collision_box.trigger(*get_collision());
-                            pos = save_pos;
-
-                            if (trigger) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    },
-                    [&](const Dot &request) {
-                        return (to - request).get_len() < 10;
-                    }
-            )) {
-                // ASSERT(false, "oh ho, way not found");
+            time_for_update_move_dir -= delta_time;
+            if (time_for_update_move_dir < 0) {
+                if (randomness(30)) {
+                    time_for_update_move_dir = 0.3;
+                } else if (randomness(50)) {
+                    time_for_update_move_dir = 0.2;
+                } else {
+                    time_for_update_move_dir = 0.1;
+                }
+                simulate_move_to_player(player, Collision_boxes);
             }
             // move_dir уже нормализован в get_direction_to_shortest_path
-            simulate_move_to2d(pos, pos + move_dir, dp, move_dir.normalize() * ddp_speed, delta_time);
+            simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
-            if (
+            /*if (
                 // игрока никто не ест
-                    !player.is_paralyzed && shot_accum >= shot_cooldown
+                !player.is_paralyzed && shot_accum >= shot_cooldown
 
-                    ) {
+            ) {
                 anim = animation_shot;
                 is_shooting = true;
             } else if (
@@ -170,7 +190,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 pos = player.pos;  // прыгаем на игрока
 
                 anim = animation_devour;
-            }
+            }*/
         }
     }
 
@@ -186,7 +206,8 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             draw_sprite(pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW, shadow_color_func());
 
             anim.draw(pos + delta_draw_pos, size, [&](Color color) {
-                return paralyzed_accum < paralyzed_cooldown ? Color(0xffffff, 128) : Color(color.operator unsigned int(), draw_alpha);
+                return paralyzed_accum < paralyzed_cooldown ? Color(0xffffff, 128)
+                                                            : Color(color.operator unsigned int(), draw_alpha);
             });
         }
 
@@ -195,21 +216,18 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         draw_hp(*this);
 
         if (global_variables::show_locator) {
-            draw_circle(
-                    Circle(pos - global_variables::camera.pos, jump_radius),
-                    Color(0xff0000, 50)
-            );
+            draw_circle(Circle(pos - global_variables::camera.pos, jump_radius), Color(0xff0000, 50));
         }
-//        for (const auto &pos : grid) {
-//            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), BLUE);
-//        }
-//
-//        for (const auto &pos : shortest_path) {
-//            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), GREEN);
-//        }
+        for (const auto &pos : grid) {
+            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), BLUE);
+        }
+
+        for (const auto &pos : shortest_path) {
+            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), GREEN);
+        }
+
+        // draw_object(grid.size(), Dot(), 1, RED);
     }
-//    std::vector<Dot> shortest_path;
-//    std::vector<Dot> grid;
 };
 
 std::vector<Slime> Slimes;

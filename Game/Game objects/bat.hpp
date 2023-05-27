@@ -78,8 +78,10 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
 
             // чтобы летучая мышь была поверх игрока, а не под ним
             Dot to = player.pos - Dot(0, 0.1);
+
             Dot move_dir;
-            if (!get_direction_to_shortest_path_Astar(
+
+            /*if (!get_direction_to_shortest_path_Astar(
                     pos, to, move_dir,
                     [&](const Dot &request) {
                         for (const auto &collision_box : Collision_box) {
@@ -101,7 +103,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
                 // ASSERT(false, "oh ho, way not found");
             }
             // move_dir уже нормализован в get_direction_to_shortest_path
-            simulate_move_to2d(pos, pos + move_dir, dp, move_dir.normalize() * ddp_speed, delta_time);
+            simulate_move_to2d(pos, pos + move_dir, dp, move_dir.normalize() * ddp_speed, delta_time);*/
 
             if (!player.is_invulnerable() && !player.is_jumped &&
                 (player.pos - pos).get_len() <= jump_radius &&
