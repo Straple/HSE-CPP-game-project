@@ -7,8 +7,8 @@ int main() {
     {
         std::cout << "performance_frequency: " << performance_frequency << std::endl;
 
-        // ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
-        // ShowCursor(global_variables::show_cursor);
+        ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
+        ShowCursor(global_variables::show_cursor);
 
         read_sprites();
         read_spritesheets();

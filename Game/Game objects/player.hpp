@@ -252,7 +252,20 @@ int find_nearest_player(Dot pos) {
 // вернет client_id, а не index, для более безопасной работы
 int find_best_player(Dot pos) {
     // TODO: улучшить логику
-    return find_nearest_player(pos);
+    // return find_nearest_player(pos);
+
+    if (Players.empty()) {
+        return -1;
+    }
+
+    int best = -1;
+    for (int index = 0; index < Players.size(); index++) {
+        // не очень интересно бить того, кто парализован
+        if (!Players[index].is_paralyzed && (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len())) {
+            best = index;
+        }
+    }
+    return Players[best].client_id;
 }
 
 #endif  // GAME_PLAYER_HPP

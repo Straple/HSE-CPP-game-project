@@ -97,6 +97,7 @@ struct Bullet : abstract_game_object {
                     player.hp -= damage;
                     player.dp += dir * speed / 10;
                 }
+                player.set_invulnerable();
                 return true;
             }
         }
