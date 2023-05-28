@@ -62,17 +62,15 @@ struct Bullet : abstract_game_object {
                 if (Enemies[i].hp <= 0) {
                     add_death_effect(Enemies[i].get_hitbox()->get_pos());
 
-                    if (randomness(20)) {
+                    if (randomness(40)) {
                         Loot_hearts.push_back(Heart(Enemies[i].get_hitbox()->get_pos(), dir));
+                    } else if (randomness(50)) {
+                        for (int count = 0; count < 4; count++) {
+                            Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), dir));
+                        }
                     } else {
-                        if (randomness(50)) {
-                            for (int count = 0; count < 4; count++) {
-                                Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), dir));
-                            }
-                        } else {
-                            for (int count = 0; count < 5; count++) {
-                                Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), dir));
-                            }
+                        for (int count = 0; count < 8; count++) {
+                            Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), dir));
                         }
                     }
 

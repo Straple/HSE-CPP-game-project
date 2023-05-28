@@ -14,7 +14,7 @@ struct Loot : abstract_game_object {
         pos = position;
         dp = dir * 200;
 
-        collision_radius = 5;
+        collision_radius = 4;
         size = 1;
         delta_draw_pos = Dot(10, 10) * size;
     }

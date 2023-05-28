@@ -19,8 +19,10 @@ void set_game_state(const std::string &game_state) {
     Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
     Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
     Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
-    Effects = serialization_traits<std::vector<effect>>::deserialize(iss);
+    Effects = serialization_traits<std::vector<Effect>>::deserialize(iss);
     Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
+    Loot_coins = serialization_traits<std::vector<Coin>>::deserialize(iss);
+    Loot_hearts = serialization_traits<std::vector<Heart>>::deserialize(iss);
 }
 
 //----------------------------------------------------------------------

@@ -90,6 +90,10 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             if (anim.frame_update(delta_time)) {
                 is_devour = false;
                 anim = animation_idle;
+                // чтобы разнообразить кучу слаймов, которые будут иметь одновременные
+                // анимации
+                anim.frame_cur_count = get_random_engine()() % 24;
+
                 devour_accum = 0;
 
                 // так как мы ели игрока, то почему бы нам не получить доп хп

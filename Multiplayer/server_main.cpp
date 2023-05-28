@@ -28,8 +28,11 @@ std::string get_game_state() {
     serialization_traits<std::vector<Tree>>::serialize(oss, Trees);
     serialization_traits<std::vector<Bush>>::serialize(oss, Bushes);
     serialization_traits<std::vector<Log>>::serialize(oss, Logs);
-    serialization_traits<std::vector<effect>>::serialize(oss, Effects);
+    serialization_traits<std::vector<Effect>>::serialize(oss, Effects);
     serialization_traits<std::vector<Bullet>>::serialize(oss, Bullets);
+    serialization_traits<std::vector<Coin>>::serialize(oss, Loot_coins);
+    serialization_traits<std::vector<Heart>>::serialize(oss, Loot_hearts);
+
     return oss.str();
 }
 

@@ -1,16 +1,15 @@
 #ifndef GAME_LOOT_HEART_HPP
 #define GAME_LOOT_HEART_HPP
 
-#include "loot.hpp"
 #include "../../render.hpp"
+#include "loot.hpp"
 
 struct Heart : Loot {
     ADD_BYTE_SERIALIZATION();
 
     Heart() = default;
 
-    Heart(Dot position, Dot dir)
-        : Loot(position, dir) {
+    Heart(Dot position, Dot dir) : Loot(position, dir) {
         size = 0.4;
     }
 
@@ -25,7 +24,7 @@ struct Heart : Loot {
     }
 
     void draw() const override {
-        draw_sprite(pos + Dot(10, 10) * 0.25 - Dot(4.25, 0.5), size, SP_HEART);
+        draw_sprite(pos + Dot(-2.5, 2.5), size, SP_HEART);
         draw_collision(*this);
     }
 };
@@ -37,8 +36,7 @@ struct Coin : Loot {
 
     Coin() = default;
 
-    Coin(Dot position, Dot dir)
-        : Loot(position, dir) {
+    Coin(Dot position, Dot dir) : Loot(position, dir) {
         size = 0.4;
     }
 
@@ -53,7 +51,7 @@ struct Coin : Loot {
     }
 
     void draw() const override {
-        draw_sprite(pos + Dot(10, 10) * 0.25 - Dot(4.25, 0.5), size, SP_COIN);
+        draw_sprite(pos + Dot(-3, 3), size, SP_COIN);
         draw_collision(*this);
     }
 };

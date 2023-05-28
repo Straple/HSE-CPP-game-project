@@ -74,7 +74,7 @@ enum sprite_t {
     // количеством элементов в sprite_t
 };
 
-enum spritesheet_t {
+enum spritesheet_t : u8{
     SS_PLAYER,
 
     // enemies
