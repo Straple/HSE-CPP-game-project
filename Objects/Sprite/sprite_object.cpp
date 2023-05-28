@@ -27,7 +27,7 @@ Sprite read_sprite_from_png(const std::string &path) {
 // распарсить спрайт на кадры
 Spritesheet::Spritesheet(const Sprite &sprite, int frame_len_x) {
     ASSERT(
-        frame_len_x > 0 && frame_len_x < sprite.width() &&
+        frame_len_x > 0 && frame_len_x <= sprite.width() &&
             sprite.width() % frame_len_x == 0,
         "bad frame_len_x"
     );
