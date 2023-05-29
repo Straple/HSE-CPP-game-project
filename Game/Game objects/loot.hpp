@@ -34,6 +34,12 @@ struct Loot : abstract_game_object {
 
     void simulate(efloat delta_time) {
         int index = find_nearest_player(pos);
+
+
+        if (index == -1) {
+            // Нет игроков
+            return;
+        }
         Dot to = Players[index].pos;
 
         if ((to - pos).get_len() <= magnet_radius) {

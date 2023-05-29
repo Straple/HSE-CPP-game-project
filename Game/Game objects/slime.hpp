@@ -124,6 +124,9 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 player.hp -= damage;
                 player.set_invulnerable();
                 add_hit_effect(player.pos);
+                if (player.hp <= 0) {
+                    player.die();
+                }
             }
         } else if (is_shooting) {
             int index = find_player_index(target_client_id);
@@ -149,9 +152,8 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             }
         } else {
             anim.frame_update(delta_time);
-
             // если у нас нет цели, то найдем ее
-            if (find_player_index(target_client_id) == -1 ||
+            if (find_player_index(target_client_id) == -1 ||Players[find_player_index(target_client_id)].is_dead||
                 // или мы уже долго гонялись за ним. может есть кто лучше?
                 target_change_accum > 5) {
                 target_client_id = find_best_player(pos);

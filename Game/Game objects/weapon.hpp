@@ -21,7 +21,9 @@ struct Weapon {
     }
 
     void shot(Dot pos, Dot target, BulletHostType bullet_host) {
-        if (may_shot()) {
+        if (!may_shot()) {
+            return;
+        }
             cooldown_accum = 0;
             if (hand == Dot(-5, 15)) {
                 pos += Dot(7, -2);
@@ -33,7 +35,7 @@ struct Weapon {
             dir = dir.normalize();
             dir += Circle(Dot(), 0.1).get_random_dot();
             Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 1, 1000);
-        }
+        
     }
 
     void simulate(efloat delta_time, Dot target) {
