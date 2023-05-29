@@ -250,11 +250,16 @@ int find_nearest_player(Dot pos) {
     }
     int best = -1;
     for (int index = 0; index < Players.size(); index++) {
-        if (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
+        if (Players[index].is_dead) {
+            continue;
+        }
+        if ( best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
             best = index;
         }
     }
-    ASSERT(best != -1, "hey!!!");
+    if (best == -1) {
+        return -1;
+    }
     return Players[best].client_id;
 }
 

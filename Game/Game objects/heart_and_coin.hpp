@@ -14,6 +14,7 @@ struct Heart : Loot {
 
     bool simulate_collection() override {
         for (auto &player : Players) {
+
             if (collection_trigger(player.pos)) {
                 if (player.hp == 0) {
                     player.reborn();
@@ -33,8 +34,7 @@ struct Heart : Loot {
     }
 };
 
-extern std::vector<Heart> Loot_hearts;
-
+//extern std::vector<Heart> Loot_hearts;
 struct Coin : Loot {
     ADD_BYTE_SERIALIZATION();
 
@@ -46,6 +46,9 @@ struct Coin : Loot {
 
     bool simulate_collection() override {
         for (auto &player : Players) {
+            if (player.is_dead) {
+                continue;
+            }
             if (collection_trigger(player.pos)) {
                 player.coins++;
                 return true;
@@ -60,6 +63,6 @@ struct Coin : Loot {
     }
 };
 
-extern std::vector<Coin> Loot_coins;
+//extern std::vector<Coin> Loot_coins;
 
 #endif  // GAME_LOOT_HEART_HPP
