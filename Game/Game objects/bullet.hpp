@@ -1,7 +1,7 @@
 #ifndef GAME_BULLET_HPP
 #define GAME_BULLET_HPP
 
-#include "heart&coin.hpp"
+#include "forward_heart_and_coin.hpp"
 //
 #include "../../render.hpp"
 #include "abstract_game_object.hpp"
