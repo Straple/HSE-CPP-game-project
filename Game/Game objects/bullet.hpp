@@ -96,7 +96,6 @@ struct Bullet : abstract_game_object {
                     add_hit_effect(pos);
                     player.hp -= damage;
                     if (player.hp <= 0) {
-                        player.hp = 0;
                         player.die();
                     }
                     player.dp += dir * speed / 10;

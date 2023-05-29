@@ -106,6 +106,7 @@ struct Player : abstract_game_object {
 
     Input input;
     void die() {
+        hp = 0; //чтобы в долги по хп не уходить если урона больше чем хп
         is_dead = true;
         //Сразу сделаем методом, чтобы сюда занести анимации и тд
     }
