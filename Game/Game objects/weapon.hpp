@@ -21,7 +21,9 @@ struct Weapon {
     }
 
     void shot(Dot pos, Dot target, BulletHostType bullet_host, sprite_t sprite) {
-        if (may_shot()) {
+        if (!may_shot()) {
+            return;
+        }
             cooldown_accum = 0;
             if (hand == Dot(-5, 15)) {
                 pos += Dot(7, -2);
@@ -33,7 +35,7 @@ struct Weapon {
             dir = dir.normalize();
             dir += Circle(Dot(), 0.1).get_random_dot();
             Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 1, 1000, sprite);
-        }
+
     }
 
     void simulate(efloat delta_time, Dot target) {
@@ -74,7 +76,7 @@ struct Weapon {
             new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
             dulo = new_dulo;
         }
-        draw_spritesheet(pos + hand, 0.03, SS_GOLDEN_GUN, ind);
+        draw_spritesheet(pos + hand, 1, SS_GOLDEN_GUN, ind);
     }
 };
 

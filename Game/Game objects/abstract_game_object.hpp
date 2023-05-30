@@ -4,10 +4,9 @@
 #include "../../Serialize/serialize.hpp"
 #include "../../objects.hpp"
 #include "../../utils.hpp"
+#include "abstract_object.hpp"
 
-struct abstract_game_object {
-    // physics
-    Dot pos;
+struct AbstractGameObject : AbstractObject {
     Dot dp;
     efloat collision_radius = 0;
 
@@ -32,9 +31,7 @@ struct abstract_game_object {
         dp += delta_time * need_delta_pos * 100;
     }
 
-    virtual void draw() const = 0;
-
-    virtual ~abstract_game_object() = default;
+    virtual ~AbstractGameObject() = default;
 };
 
 #endif  // ABSTRACT_GAME_OBJECT_HPP

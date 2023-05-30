@@ -1,7 +1,7 @@
 #ifndef GAME_BULLET_HPP
 #define GAME_BULLET_HPP
 
-#include "heart&coin.hpp"
+#include "forward_heart_and_coin.hpp"
 //
 #include "../../render.hpp"
 #include "abstract_game_object.hpp"
@@ -16,7 +16,7 @@ enum class BulletHostType {
     ENEMY,
 };
 
-struct Bullet : abstract_game_object {
+struct Bullet : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     // Добавим позже поле формы пули, чтобы можно было
@@ -95,8 +95,12 @@ struct Bullet : abstract_game_object {
                 {
                     add_hit_effect(pos);
                     player.hp -= damage;
+                    if (player.hp <= 0) {
+                        player.die();
+                    }
                     player.dp += dir * speed / 10;
                 }
+                player.set_invulnerable();
                 return true;
             }
         }

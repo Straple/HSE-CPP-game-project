@@ -8,7 +8,7 @@
 #include "game_utils.hpp"
 #include "player.hpp"
 
-struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
+struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
     ADD_BYTE_SERIALIZATION();
 
     inline const static u8 draw_alpha = 210;
@@ -29,6 +29,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
     Dot move_dir_to_target;
     efloat time_for_update_move_dir = 0;
 
+    efloat target_change_accum = 5;
     int target_client_id = -1;
 
     Slime(const Dot &position = Dot()) {
@@ -94,17 +95,32 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         paralyzed_accum += delta_time;
         shot_accum += delta_time;
         devour_accum += delta_time;
+        target_change_accum += delta_time;
 
         // мы парализованы и отлетаем от удара
         if (paralyzed_accum < paralyzed_cooldown) {
             simulate_move2d(pos, dp, Dot(), delta_time);
         } else if (is_devour) {  // мы едим игрока
+
+            int index = find_player_index(target_client_id);
+
+            if (index == -1) {
+                // этот клиент вышел из игры
+
+                is_devour = false;
+                anim = animation_idle;
+                anim.frame_cur_count = get_random_engine()() % 24;
+
+                devour_accum = 0;
+                return;
+            }
+
+            auto &player = Players[index];
+
             // анимация атаки закончилась
             if (anim.frame_update(delta_time)) {
                 is_devour = false;
                 anim = animation_idle;
-                // чтобы разнообразить кучу слаймов, которые будут иметь одновременные
-                // анимации
                 anim.frame_cur_count = get_random_engine()() % 24;
 
                 devour_accum = 0;
@@ -112,9 +128,6 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 // так как мы ели игрока, то почему бы нам не получить доп хп
                 hp += 2;
             }
-
-            int index = find_player_index(target_client_id);
-            auto &player = Players[index];
 
             // шарик лопнул
             if ((anim.frame_cur_count > 25 || !is_devour) && player.is_paralyzed) {
@@ -124,8 +137,21 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 player.hp -= damage;
                 player.set_invulnerable();
                 add_hit_effect(player.pos);
+                if (player.hp <= 0) {
+                    player.die();
+                }
             }
         } else if (is_shooting) {
+            int index = find_player_index(target_client_id);
+            if (index == -1) {
+                // этот клиент вышел из игры
+                shot_accum = 0;
+                is_shooting = false;
+                anim = animation_idle;
+                anim.frame_cur_count = get_random_engine()() % 24;
+                return;
+            }
+
             if (anim.frame_update(delta_time)) {
                 shot_accum = 0;
                 is_shooting = false;
@@ -134,15 +160,19 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 // анимации
                 anim.frame_cur_count = get_random_engine()() % 24;
 
-                Dot bullet_pos = pos+Dot(0, 15);
-                Bullets.emplace_back(
-                    BulletHostType::ENEMY, bullet_pos, Players[find_player_index(target_client_id)].pos, 1, 1000, SP_SLIME_BULLET
-                );
+                Dot bullet_pos = pos + Dot(0, 15);
+                Bullets.emplace_back(BulletHostType::ENEMY, bullet_pos, Players[index].pos, 1, 1000, SP_SLIME_BULLET);
             }
         } else {
             anim.frame_update(delta_time);
+            // если у нас нет цели, то найдем ее
+            if (find_player_index(target_client_id) == -1 || Players[find_player_index(target_client_id)].is_dead ||
+                // или мы уже долго гонялись за ним. может есть кто лучше?
+                target_change_accum > 5) {
+                target_client_id = find_best_player(pos);
+                target_change_accum = 0;
+            }
 
-            target_client_id = find_best_player(pos);
             int index = find_player_index(target_client_id);
             if (index == -1) {
                 return;  // нет игроков
@@ -152,11 +182,11 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
             time_for_update_move_dir -= delta_time;
             if (time_for_update_move_dir < 0) {
                 if (randomness(30)) {
-                    time_for_update_move_dir = 0.3;
+                    time_for_update_move_dir = 0.35;
                 } else if (randomness(50)) {
                     time_for_update_move_dir = 0.2;
                 } else {
-                    time_for_update_move_dir = 0.1;
+                    time_for_update_move_dir = 0.15;
                 }
                 simulate_move_to_player(player, visitable_grid_dots);
             }
@@ -170,7 +200,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 anim = animation_shot;
                 is_shooting = true;
             } else if (
-                // игрока никто не ест
+                    // игрока никто не ест
                     !player.is_paralyzed &&
                     // игрок не прыгает
                     !player.is_jumped &&

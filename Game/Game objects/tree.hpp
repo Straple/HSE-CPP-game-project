@@ -1,11 +1,11 @@
 ﻿#ifndef GAME_TREE_HPP
 #define GAME_TREE_HPP
 
+#include "../../render.hpp"
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
-#include "../../render.hpp"
 
-struct Tree : abstract_game_object {
+struct Tree : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     int hp = 200;

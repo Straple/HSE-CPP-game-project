@@ -8,7 +8,7 @@
 #include "game_utils.hpp"
 #include "player.hpp"
 
-struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
+struct Bat : AbstractGameObject, enemy_state_for_trivial_enemy {
     ADD_BYTE_SERIALIZATION();
 
     int hp = 3;
@@ -21,8 +21,8 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
     Dot move_dir_to_target;
     efloat time_for_update_move_dir = 0;
 
-    // наша цель
-    // int target_client_id = -1;
+    efloat target_change_accum = 5;
+    int target_client_id = -1;
 
     Bat(const Dot &position = Dot()) {
         // abstract_game_object
@@ -71,6 +71,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
     void simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
         attack_accum += delta_time;
         paralyzed_accum += delta_time;
+        target_change_accum += delta_time;
 
         if (paralyzed_accum < paralyzed_cooldown) {
             simulate_move2d(pos, dp, Dot(), delta_time);
@@ -84,7 +85,14 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
                 anim.sprite_sheet = SS_BAT;
             }
 
-            int target_client_id = find_best_player(pos);
+            // если у нас нет цели, то найдем ее
+            if (find_player_index(target_client_id) == -1 || Players[find_player_index(target_client_id)].is_dead ||
+                // или мы уже долго гонялись за ним. может есть кто лучше?
+                target_change_accum > 5) {
+                target_client_id = find_best_player(pos);
+                target_change_accum = 0;
+            }
+
             int index = find_player_index(target_client_id);
             if (index == -1) {
                 return;  // нет игроков
@@ -95,49 +103,28 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
             time_for_update_move_dir -= delta_time;
             if (time_for_update_move_dir < 0) {
                 if (randomness(30)) {
-                    time_for_update_move_dir = 0.3;
+                    time_for_update_move_dir = 0.35;
                 } else if (randomness(50)) {
                     time_for_update_move_dir = 0.2;
                 } else {
-                    time_for_update_move_dir = 0.1;
+                    time_for_update_move_dir = 0.15;
                 }
                 simulate_move_to_player(player, visitable_grid_dots);
             }
             // move_dir уже нормализован в get_direction_to_shortest_path
             simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
-            /*if (!get_direction_to_shortest_path_Astar(
-                    pos, to, move_dir,
-                    [&](const Dot &request) {
-                        for (const auto &collision_box : Collision_box) {
-                            Dot save_pos = pos;  // чтобы мы точно взяли коллизию слайма
-                            pos = request;
-                            bool trigger = collision_box.trigger(*get_collision());
-                            pos = save_pos;
-
-                            if (trigger) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    },
-                    [&](const Dot &request) {
-                        return (to - request).get_len() < 10;
-                    }
-            )) {
-                // ASSERT(false, "oh ho, way not found");
-            }
-            // move_dir уже нормализован в get_direction_to_shortest_path
-            simulate_move_to2d(pos, pos + move_dir, dp, move_dir.normalize() * ddp_speed, delta_time);*/
-
-            if (!player.is_invulnerable() && !player.is_jumped && (player.pos - pos).get_len() <= jump_radius &&
-                attack_accum >= attack_cooldown) {
+            if (!player.is_paralyzed && !player.is_invulnerable() && !player.is_jumped &&
+                (player.pos - pos).get_len() <= jump_radius && attack_accum >= attack_cooldown) {
                 // hit
                 attack_accum = 0;
                 pos = player.pos;  // прыгаем на игрока
                 player.hp -= damage;
                 player.set_invulnerable();
                 add_hit_effect(player.pos);
+                if (player.hp <= 0) {
+                    player.die();
+                }
             }
         }
     }
@@ -152,17 +139,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
         draw_collision(*this);
         draw_hitbox(*this);
         draw_hp(*this);
-        for (const auto &pos : grid) {
-            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), BLUE);
-        }
-
-        for (const auto &pos : shortest_path) {
-            draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), GREEN);
-        }
     }
-
-    std::vector<Dot> shortest_path;
-    std::vector<Dot> grid;
 };
 
 std::vector<Bat> Bats;

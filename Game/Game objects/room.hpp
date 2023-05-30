@@ -225,6 +225,7 @@ struct Room {
                 i--;
             }
         }
+
         // simulate bullets
         {
             for (auto &bullet : Bullets) {
@@ -234,12 +235,11 @@ struct Room {
             // bullet hit enemies
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
                 if (Bullets[i].simulate_attack_on_mob(Slimes) || Bullets[i].simulate_attack_on_mob(Bats) ||
-                Bullets[i].simulate_attack_on_mob(Bombers) || Bullets[i].simulate_attack_on_player(Players)) {
+                    Bullets[i].simulate_attack_on_mob(Bombers) || Bullets[i].simulate_attack_on_player(Players)) {
                     Bullets.erase(Bullets.begin() + i);
                     i--;
                 }
             }
-
             // bullet hit wall
             for (uint32_t i = 0; i < Bullets.size(); i++) {
                 bool need_delete = false;
@@ -310,171 +310,45 @@ struct Room {
 
         // top sort
         {
-            struct top_sort_object {
-                enum type_object {
-                    TO_UNDEFINED,
-
-                    TO_PLAYER,
-                    TO_SLIME,
-                    TO_BAT,
-                    TO_HEART,
-                    TO_COIN,
-                    TO_BUSH,
-                    TO_TABLE,
-                    TO_BOMBER,
-                };
-
-                type_object type;
-                const void *ptr;
-
-                top_sort_object() {
-                    type = TO_UNDEFINED;
-                    ptr = nullptr;
-                }
-
-                explicit top_sort_object(const Player &player) {
-                    type = TO_PLAYER;
-                    ptr = reinterpret_cast<const void *>(&player);
-                }
-
-                explicit top_sort_object(const Bat &player) {
-                    type = TO_BAT;
-                    ptr = reinterpret_cast<const void *>(&player);
-                }
-
-                explicit top_sort_object(const Slime &slime) {
-                    type = TO_SLIME;
-                    ptr = reinterpret_cast<const void *>(&slime);
-                }
-
-                explicit top_sort_object(const Heart &heart) {
-                    type = TO_HEART;
-                    ptr = reinterpret_cast<const void *>(&heart);
-                }
-
-                explicit top_sort_object(const Coin &coin) {
-                    type = TO_COIN;
-                    ptr = reinterpret_cast<const void *>(&coin);
-                }
-
-                explicit top_sort_object(const Bush &bush) {
-                    type = TO_BUSH;
-                    ptr = reinterpret_cast<const void *>(&bush);
-                }
-
-                explicit top_sort_object(const Table &table) {
-                    type = TO_TABLE;
-                    ptr = reinterpret_cast<const void *>(&table);
-                }
-
-                explicit top_sort_object(const Bomber &bomber) {
-                    type = TO_BOMBER;
-                    ptr = reinterpret_cast<const void*>(&bomber);
-                }
-
-                [[nodiscard]] efloat get_y() const {
-                    switch (type) {
-                        case TO_PLAYER: {
-                            return reinterpret_cast<const Player *>(ptr)->pos.y;
-                        }
-                        case TO_SLIME: {
-                            return reinterpret_cast<const Slime *>(ptr)->pos.y;
-                        }
-                        case TO_BAT: {
-                            return reinterpret_cast<const Bat *>(ptr)->pos.y;
-                        }
-                        case TO_HEART: {
-                            return reinterpret_cast<const Heart *>(ptr)->pos.y;
-                        }
-                        case TO_COIN: {
-                            return reinterpret_cast<const Coin *>(ptr)->pos.y;
-                        }
-                        case TO_BUSH: {
-                            return reinterpret_cast<const Bush *>(ptr)->pos.y;
-                        }
-                        case TO_TABLE: {
-                            return reinterpret_cast<const Table *>(ptr)->pos.y;
-                        }
-                        case TO_BOMBER: {
-                            return reinterpret_cast<const Bomber *>(ptr)->pos.y;
-                        }
-                        default:
-                            ASSERT(false, "undefined object type");
-                    }
-                    return 0;
-                }
-
-                void draw() const {
-                    switch (type) {
-                        case TO_PLAYER: {
-                            reinterpret_cast<const Player *>(ptr)->draw();
-                        } break;
-                        case TO_SLIME: {
-                            reinterpret_cast<const Slime *>(ptr)->draw();
-                        } break;
-                        case TO_BAT: {
-                            reinterpret_cast<const Bat *>(ptr)->draw();
-                        } break;
-                        case TO_HEART: {
-                            reinterpret_cast<const Heart *>(ptr)->draw();
-                        } break;
-                        case TO_COIN: {
-                            reinterpret_cast<const Coin *>(ptr)->draw();
-                        } break;
-                        case TO_BUSH: {
-                            reinterpret_cast<const Bush *>(ptr)->draw();
-                        } break;
-                        case TO_TABLE: {
-                            reinterpret_cast<const Table *>(ptr)->draw();
-                        } break;
-                        case TO_BOMBER: {
-                            reinterpret_cast<const Bomber*>(ptr)->draw();
-                        } break;
-                        default: {
-                            ASSERT(false, "undefind object type");
-                        }
-                    }
-                }
-
-                bool operator<(const top_sort_object &Rhs) const {
-                    return get_y() > Rhs.get_y();
-                }
-            };
-
-            std::vector<top_sort_object> Objects;
+            std::vector<AbstractObject *> Objects;
 
             for (auto &heart : Loot_hearts) {
-                Objects.emplace_back(heart);
+                Objects.emplace_back(&heart);
             }
             for (auto &coin : Loot_coins) {
-                Objects.emplace_back(coin);
+                Objects.emplace_back(&coin);
             }
-
             for (auto &bush : Bushes) {
-                Objects.emplace_back(bush);
+                Objects.emplace_back(&bush);
             }
             for (auto &table : Tables) {
-                Objects.emplace_back(table);
+                Objects.emplace_back(&table);
             }
-
             for (auto &player : Players) {
-                Objects.emplace_back(player);
+                Objects.emplace_back(&player);
             }
             for (auto &slime : Slimes) {
-                Objects.emplace_back(slime);
+                Objects.emplace_back(&slime);
             }
             for (auto &bat : Bats) {
-                Objects.emplace_back(bat);
+                Objects.emplace_back(&bat);
             }
             for (auto &bomber: Bombers) {
                 if (!bomber.is_booming) {
                     Objects.emplace_back(bomber);
                 }
             }
-            std::stable_sort(Objects.begin(), Objects.end());
+            for (auto &effect : Effects) {
+                if (effect.anim.sprite_sheet == SS_FLOWER_EFFECT) {
+                    Objects.emplace_back(&effect);
+                }
+            }
+            std::stable_sort(Objects.begin(), Objects.end(), [](AbstractObject *lhs, AbstractObject *rhs) {
+                return lhs->pos.y > rhs->pos.y;
+            });
 
             for (auto &obj : Objects) {
-                obj.draw();
+                obj->draw();
             }
         }
 
@@ -484,8 +358,10 @@ struct Room {
         }
 
         // draw effects
-        for (auto &Effect : Effects) {
-            Effect.draw();
+        for (auto &effect : Effects) {
+            if (effect.anim.sprite_sheet != SS_FLOWER_EFFECT) {
+                // effect.draw();
+            }
         }
 
         for (auto [pos, size, sprite, level] : Draw_objects) {
@@ -493,7 +369,6 @@ struct Room {
                 draw_sprite(pos, size, sprite);
             }
         }
-
         for (auto &bomber: Bombers) {
             if (bomber.is_booming) {
                 bomber.draw();

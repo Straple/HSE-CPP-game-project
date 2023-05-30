@@ -22,25 +22,14 @@ struct button {
     button() {
     }
 
-    button(
-        std::string text,
-        Dot pos,
-        efloat size,
-        Color color,
-        Color focus_color
-    )
-        : text(text),
-          pos(pos),
-          color(color),
-          focus_color(focus_color),
-          size(size) {
+    button(std::string text, Dot pos, efloat size, Color color, Color focus_color)
+        : text(text), pos(pos), color(color), focus_color(focus_color), size(size) {
         // create collision box
         {
             int len = text_len_in_pixels(text.c_str());
 
             coll.p0 = Dot(pos.x, pos.y);
-            coll.p1 =
-                Dot(pos.x + size * len - size, coll.p1.y = pos.y - size * 6);
+            coll.p1 = Dot(pos.x + size * len - size, coll.p1.y = pos.y - size * 6);
         }
     }
 

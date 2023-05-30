@@ -72,7 +72,7 @@ struct Player_anim_tree {
     }
 };
 
-struct Player : abstract_game_object {
+struct Player : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     inline static const efloat ddp_speed = 700;
@@ -91,7 +91,7 @@ struct Player : abstract_game_object {
     bool is_jumped = false;
     // парализован слаймом
     bool is_paralyzed = false;
-
+    bool is_dead = false;
     efloat invulnerable_cooldown;
     efloat invulnerable_accum;
 
@@ -105,6 +105,17 @@ struct Player : abstract_game_object {
     Dot cursor_dir;
 
     Input input;
+
+    void die() {
+        hp = 0;  // чтобы в долги по хп не уходить если урона больше чем хп
+        is_dead = true;
+        // Сразу сделаем методом, чтобы сюда занести анимации и тд
+    }
+
+    void reborn() {
+        is_dead = false;
+        // Аналогично, можно не только для возрождения но и для появления/телепортации использовать
+    }
 
     [[nodiscard]] bool is_invulnerable() const {
         return invulnerable_accum < invulnerable_cooldown;
@@ -125,7 +136,7 @@ struct Player : abstract_game_object {
         jump_accum = jump_cooldown = 0;  // jump_accum = jump_cooldown = 0.5;
         invulnerable_accum = invulnerable_cooldown = 2;
 
-        weapon.cooldown = 0; // мы боги
+        weapon.cooldown = 0;  // мы боги
     }
 
     void simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
@@ -159,11 +170,14 @@ struct Player : abstract_game_object {
             }
             dp = jump_dir * jump_speed;
         } else {
-            jump_accum += delta_time;
-            invulnerable_accum += delta_time;
+            if (!is_dead) {
+                jump_accum += delta_time;
+                invulnerable_accum += delta_time;
 
-            weapon.simulate(delta_time, cursor_dir + pos);
-
+                weapon.simulate(delta_time, cursor_dir + pos);
+            } else {
+                invulnerable_accum = 0;
+            }
             // simulate move
             {
                 ddp *= ddp_speed;
@@ -196,7 +210,7 @@ struct Player : abstract_game_object {
             anim.draw(pos + delta_draw_pos, size);
         }
 
-        if (!is_jumped) {
+        if (!is_jumped && !is_dead) {
             weapon.draw(pos, cursor_dir + pos);
         }
 
@@ -239,11 +253,16 @@ int find_nearest_player(Dot pos) {
     }
     int best = -1;
     for (int index = 0; index < Players.size(); index++) {
+        if (Players[index].is_dead) {
+            continue;
+        }
         if (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
             best = index;
         }
     }
-    ASSERT(best != -1, "hey!!!");
+    if (best == -1) {
+        return -1;
+    }
     return Players[best].client_id;
 }
 
@@ -251,8 +270,21 @@ int find_nearest_player(Dot pos) {
 // мы должны найти лучшую для него цель
 // вернет client_id, а не index, для более безопасной работы
 int find_best_player(Dot pos) {
-    // TODO: улучшить логику
-    return find_nearest_player(pos);
+    // return find_nearest_player(pos);
+
+    if (Players.empty()) {
+        return -1;
+    }
+
+    int best = -1;
+    for (int index = 0; index < Players.size(); index++) {
+        // не очень интересно бить того, кто парализован
+        if (!Players[index].is_paralyzed && !Players[index].is_dead &&
+            (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len())) {
+            best = index;
+        }
+    }
+    return Players[best].client_id;
 }
 
 #endif  // GAME_PLAYER_HPP

@@ -1,5 +1,5 @@
-#ifndef GAME_LOOT_HEART_HPP
-#define GAME_LOOT_HEART_HPP
+#ifndef GAME_LOOT_HEART_AND_COIN_HPP
+#define GAME_LOOT_HEART_AND_COIN_HPP
 
 #include "../../render.hpp"
 #include "loot.hpp"
@@ -16,7 +16,12 @@ struct Heart : Loot {
     bool simulate_collection() override {
         for (auto &player : Players) {
             if (collection_trigger(player.pos)) {
+                if (player.hp == 0) {
+                    player.reborn();
+                    player.set_invulnerable();
+                }
                 player.hp++;
+
                 return true;
             }
         }
@@ -29,8 +34,7 @@ struct Heart : Loot {
     }
 };
 
-std::vector<Heart> Loot_hearts;
-
+// extern std::vector<Heart> Loot_hearts;
 struct Coin : Loot {
     ADD_BYTE_SERIALIZATION();
 
@@ -42,6 +46,9 @@ struct Coin : Loot {
 
     bool simulate_collection() override {
         for (auto &player : Players) {
+            if (player.is_dead) {
+                continue;
+            }
             if (collection_trigger(player.pos)) {
                 player.coins++;
                 return true;
@@ -56,6 +63,6 @@ struct Coin : Loot {
     }
 };
 
-std::vector<Coin> Loot_coins;
+// extern std::vector<Coin> Loot_coins;
 
 #endif  // GAME_LOOT_HEART_HPP
