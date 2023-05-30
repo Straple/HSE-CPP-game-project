@@ -76,7 +76,7 @@ struct Weapon {
             new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
             dulo = new_dulo;
         }
-        draw_spritesheet(pos + hand, 0.03, SS_GOLDEN_GUN, ind);
+        draw_spritesheet(pos + hand, 1, SS_GOLDEN_GUN, ind);
     }
 };
 

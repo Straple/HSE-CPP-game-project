@@ -270,7 +270,6 @@ int find_nearest_player(Dot pos) {
 // мы должны найти лучшую для него цель
 // вернет client_id, а не index, для более безопасной работы
 int find_best_player(Dot pos) {
-    // TODO: улучшить логику
     // return find_nearest_player(pos);
 
     if (Players.empty()) {
