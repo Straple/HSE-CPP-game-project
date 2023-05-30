@@ -77,7 +77,20 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
         }
     }
 
-    void simulate(const efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
+    bool is_reachable(Dot from, Dot to, std::vector<CollisionBox>&Walls) {
+        Dot dir = (to - from).normalize();
+        while ((to - from).get_len() >= 2) {
+            for (auto&wall: Walls) {
+                if (wall.trigger(from)) {
+                    return false;
+                }
+            }
+            from += dir;
+        }
+        return true;
+    }
+
+    void simulate(const efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots, std::vector<CollisionBox>& Walls) {
         paralyzed_accum += delta_time;
         shot_accum += delta_time;
         devour_accum += delta_time;
@@ -121,9 +134,9 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
                 // анимации
                 anim.frame_cur_count = get_random_engine()() % 24;
 
-                Dot bullet_pos = pos + Dot(0, 15);
+                Dot bullet_pos = pos+Dot(0, 15);
                 Bullets.emplace_back(
-                    BulletHostType::ENEMY, bullet_pos, Players[find_player_index(target_client_id)].pos, 1, 1000
+                    BulletHostType::ENEMY, bullet_pos, Players[find_player_index(target_client_id)].pos, 1, 1000, SP_SLIME_BULLET
                 );
             }
         } else {
@@ -152,7 +165,7 @@ struct Slime : abstract_game_object, enemy_state_for_trivial_enemy {
 
             if (
                 // игрока никто не ест
-                !player.is_paralyzed && shot_accum >= shot_cooldown
+                !player.is_paralyzed && shot_accum >= shot_cooldown && is_reachable(pos + Dot(0, 15), player.pos, Walls)
             ) {
                 anim = animation_shot;
                 is_shooting = true;

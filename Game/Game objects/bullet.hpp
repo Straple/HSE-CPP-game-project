@@ -27,11 +27,11 @@ struct Bullet : abstract_game_object {
     Dot dir;  // направление полета пули
     BulletHostType host;
     int damage;
-
+    sprite_t sprite;
     Bullet() = default;
 
-    Bullet(BulletHostType host, Dot from, Dot to, int damage, int speed)
-        : host(host), dir((to - from).normalize()), damage(damage), speed(speed) {
+    Bullet(BulletHostType host, Dot from, Dot to, int damage, int speed, sprite_t sp)
+        : host(host), dir((to - from).normalize()), damage(damage), speed(speed), sprite(sp) {
         pos = from;
         collision_radius = 2;
         delta_draw_pos = Dot(-10, 10);
@@ -109,7 +109,7 @@ struct Bullet : abstract_game_object {
     }
 
     void draw() const override {
-        draw_sprite(pos + Dot(-2, 2), 0.4, SP_COIN);
+        draw_sprite(pos + Dot(-2, 2), 0.4, sprite);
         draw_collision(*this);
     }
 };

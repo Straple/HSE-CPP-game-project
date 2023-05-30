@@ -69,6 +69,9 @@ enum sprite_t {
 
     SP_KEK,
 
+    //bullets
+    SP_SLIME_BULLET,
+
     SP_COUNT,
     // НИЖЕ SP_COUNT ничего не должно быть, потому что SP_COUNT является
     // количеством элементов в sprite_t
@@ -85,7 +88,7 @@ enum spritesheet_t : u8{
     SS_SLIME,
 
     // effects
-
+    SS_BOOM,
     SS_HIT_EFFECT,
     SS_DEATH_EFFECT,
     SS_PORTAL_EFFECT,
@@ -161,6 +164,8 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_HEART);
         foo(SP_COIN);
         foo(SP_KEK);
+        // bullets
+        foo(SP_SLIME_BULLET);
     }
 #undef foo
 
@@ -270,6 +275,10 @@ void read_sprites() {
         read(SP_HEART, "UI\\heart.png");
         read(SP_COIN, "UI\\coin.png");
     }
+    // bullets
+    {
+        read(SP_SLIME_BULLET, "Enemies\\slime_bullet.png");
+    }
 
 #undef read
 
@@ -300,13 +309,14 @@ void read_spritesheets() {
         read(SS_BAT, "Enemies\\bat.png", 16);
         read(SS_BAT_INVERSE, "Enemies\\bat_inverse.png", 16);
 
-        read(SS_SLIME, "Enemies\\slime.png", 64);
+        read(SS_SLIME, "Enemies\\slime_new_ss.png", 64);
     }
 
     // effects
     {
         read(SS_HIT_EFFECT, "Effects\\hit_effect.png", 24);
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
+        read(SS_BOOM, "Effects\\10.png", 128)
     }
     // weapons
     { read(SS_GOLDEN_GUN, "Weapons\\golden_gun_big.png", 800); }

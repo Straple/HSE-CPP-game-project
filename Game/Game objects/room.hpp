@@ -187,7 +187,8 @@ struct Room {
                     // Slimes.emplace_back(pos);
                     // continue;
                     if (randomness(50)) {
-                        Bats.emplace_back(pos);
+//                        Bats.emplace_back(pos);
+                        Bombers.emplace_back(pos);
                     } else {
                         Slimes.emplace_back(pos);
                     }
@@ -212,12 +213,18 @@ struct Room {
         }
 
         for (auto &slime : Slimes) {
-            slime.simulate(delta_time, visitable_grid_dots);
+            slime.simulate(delta_time, visitable_grid_dots, Walls);
         }
         for (auto &bat : Bats) {
             bat.simulate(delta_time, visitable_grid_dots);
         }
-
+        for (int i = 0; i < static_cast<int>(Bombers.size()); i++) {
+            Bombers[i].simulate(delta_time, visitable_grid_dots);
+            if (Bombers[i].is_deleted) {
+                Bombers.erase(Bombers.begin() + i);
+                i--;
+            }
+        }
         // simulate bullets
         {
             for (auto &bullet : Bullets) {
@@ -227,7 +234,7 @@ struct Room {
             // bullet hit enemies
             for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
                 if (Bullets[i].simulate_attack_on_mob(Slimes) || Bullets[i].simulate_attack_on_mob(Bats) ||
-                    Bullets[i].simulate_attack_on_player(Players)) {
+                Bullets[i].simulate_attack_on_mob(Bombers) || Bullets[i].simulate_attack_on_player(Players)) {
                     Bullets.erase(Bullets.begin() + i);
                     i--;
                 }
@@ -314,6 +321,7 @@ struct Room {
                     TO_COIN,
                     TO_BUSH,
                     TO_TABLE,
+                    TO_BOMBER,
                 };
 
                 type_object type;
@@ -359,6 +367,11 @@ struct Room {
                     ptr = reinterpret_cast<const void *>(&table);
                 }
 
+                explicit top_sort_object(const Bomber &bomber) {
+                    type = TO_BOMBER;
+                    ptr = reinterpret_cast<const void*>(&bomber);
+                }
+
                 [[nodiscard]] efloat get_y() const {
                     switch (type) {
                         case TO_PLAYER: {
@@ -381,6 +394,9 @@ struct Room {
                         }
                         case TO_TABLE: {
                             return reinterpret_cast<const Table *>(ptr)->pos.y;
+                        }
+                        case TO_BOMBER: {
+                            return reinterpret_cast<const Bomber *>(ptr)->pos.y;
                         }
                         default:
                             ASSERT(false, "undefined object type");
@@ -410,6 +426,9 @@ struct Room {
                         } break;
                         case TO_TABLE: {
                             reinterpret_cast<const Table *>(ptr)->draw();
+                        } break;
+                        case TO_BOMBER: {
+                            reinterpret_cast<const Bomber*>(ptr)->draw();
                         } break;
                         default: {
                             ASSERT(false, "undefind object type");
@@ -447,6 +466,11 @@ struct Room {
             for (auto &bat : Bats) {
                 Objects.emplace_back(bat);
             }
+            for (auto &bomber: Bombers) {
+                if (!bomber.is_booming) {
+                    Objects.emplace_back(bomber);
+                }
+            }
             std::stable_sort(Objects.begin(), Objects.end());
 
             for (auto &obj : Objects) {
@@ -467,6 +491,12 @@ struct Room {
         for (auto [pos, size, sprite, level] : Draw_objects) {
             if (level > 0) {
                 draw_sprite(pos, size, sprite);
+            }
+        }
+
+        for (auto &bomber: Bombers) {
+            if (bomber.is_booming) {
+                bomber.draw();
             }
         }
 
