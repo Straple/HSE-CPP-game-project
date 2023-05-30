@@ -37,7 +37,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
     {
         // player
         for (auto &player1 : Players) {
-            if (!player1.is_paralyzed&&!player1.is_dead) {  // пока мы парализованы или мертвы, мы не выталкиваемы
+            if (!player1.is_paralyzed && !player1.is_dead) {  // пока мы парализованы или мертвы, мы не выталкиваемы
                 for (auto &player2 : Players) {
                     // чтобы не выталкивать самих себя
                     if (&player1 != &player2) {

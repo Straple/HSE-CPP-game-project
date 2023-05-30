@@ -1,11 +1,9 @@
 #include "collision.hpp"
 
-CollisionCircle::CollisionCircle(const Circle &circle)
-    : circle(circle) {
+CollisionCircle::CollisionCircle(const Circle &circle) : circle(circle) {
 }
 
-CollisionCircle::CollisionCircle(Dot pos, efloat radius)
-    : circle(pos, radius) {
+CollisionCircle::CollisionCircle(Dot pos, efloat radius) : circle(pos, radius) {
 }
 
 Dot CollisionCircle::get_pos() const {
@@ -47,7 +45,8 @@ Dot CollisionCircle::bubble(Dot pos) const {
 }
 
 CollisionCircle CollisionCircle::bubble(const CollisionCircle &other) const {
-    return {CollisionCircle(circle.pos, circle.radius + other.circle.radius).bubble(other.circle.pos), other.circle.radius};
+    return {
+        CollisionCircle(circle.pos, circle.radius + other.circle.radius).bubble(other.circle.pos), other.circle.radius};
 }
 
 CollisionBox CollisionCircle::bubble(const CollisionBox &other) const {
@@ -69,8 +68,7 @@ std::unique_ptr<Collision> CollisionCircle::bubble(const Collision &other) const
 //==CollisionBox==//
 //================//
 
-CollisionBox::CollisionBox(const Dot &new_p0, const Dot &new_p1)
-    : p0(new_p0), p1(new_p1) {
+CollisionBox::CollisionBox(const Dot &new_p0, const Dot &new_p1) : p0(new_p0), p1(new_p1) {
     ASSERT(p0.x <= p1.x && p1.y <= p0.y, "bad points");
 }
 
@@ -88,8 +86,7 @@ bool CollisionBox::trigger(const CollisionCircle &other) const {
     const Dot pos = other.circle.pos;
     return CollisionBox(p0 + Dot(-radius, 0), p1 + Dot(radius, 0)).trigger(pos) ||
            CollisionBox(p0 + Dot(0, radius), p1 + Dot(0, -radius)).trigger(pos) ||
-           CollisionCircle(p0, radius).trigger(pos) ||
-           CollisionCircle(p1, radius).trigger(pos) ||
+           CollisionCircle(p0, radius).trigger(pos) || CollisionCircle(p1, radius).trigger(pos) ||
            CollisionCircle(Dot(p0.x, p1.y), radius).trigger(pos) ||
            CollisionCircle(Dot(p1.x, p0.y), radius).trigger(pos);
 }

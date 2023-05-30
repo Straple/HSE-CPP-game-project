@@ -72,7 +72,7 @@ struct Player_anim_tree {
     }
 };
 
-struct Player : abstract_game_object {
+struct Player : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     inline static const efloat ddp_speed = 700;

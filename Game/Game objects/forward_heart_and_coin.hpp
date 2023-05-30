@@ -6,4 +6,4 @@ struct Heart;
 std::vector<Coin> Loot_coins;
 std::vector<Heart> Loot_hearts;
 
-#endif // GAME_FORWARD_HEART_AND_COIN_HPP
+#endif  // GAME_FORWARD_HEART_AND_COIN_HPP

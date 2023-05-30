@@ -8,7 +8,7 @@
 #include "game_utils.hpp"
 #include "player.hpp"
 
-struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
+struct Bat : AbstractGameObject, enemy_state_for_trivial_enemy {
     ADD_BYTE_SERIALIZATION();
 
     int hp = 3;
@@ -86,7 +86,7 @@ struct Bat : abstract_game_object, enemy_state_for_trivial_enemy {
             }
 
             // если у нас нет цели, то найдем ее
-            if (find_player_index(target_client_id) == -1 || Players[find_player_index(target_client_id)].is_dead||
+            if (find_player_index(target_client_id) == -1 || Players[find_player_index(target_client_id)].is_dead ||
                 // или мы уже долго гонялись за ним. может есть кто лучше?
                 target_change_accum > 5) {
                 target_client_id = find_best_player(pos);

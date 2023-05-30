@@ -1,11 +1,11 @@
 #ifndef GAME_LOOT_HPP
 #define GAME_LOOT_HPP
 
+#include "../../render.hpp"
 #include "abstract_game_object.hpp"
 #include "player.hpp"
-#include "../../render.hpp"
 
-struct Loot : abstract_game_object {
+struct Loot : AbstractGameObject {
     efloat magnet_radius = 30;
 
     Loot() = default;
@@ -34,7 +34,6 @@ struct Loot : abstract_game_object {
 
     void simulate(efloat delta_time) {
         int index = find_nearest_player(pos);
-
 
         if (index == -1) {
             // Нет игроков

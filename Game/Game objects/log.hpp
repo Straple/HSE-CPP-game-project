@@ -1,10 +1,10 @@
 ﻿#ifndef GAME_LOG_HPP
 #define GAME_LOG_HPP
 
-#include "abstract_game_object.hpp"
 #include "../../render.hpp"
+#include "abstract_game_object.hpp"
 
-struct Log : abstract_game_object {
+struct Log : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     Log() = default;

@@ -15,8 +15,12 @@ void simulate_player(efloat delta_time, int client_id) {
 
     Players[index].simulate(delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S), PRESSED(BUTTON_SPACE));
 
+    if (PRESSED(BUTTON_MOUSE_L)) {
+        add_flower_dome_effect(Players[index].cursor_dir + Players[index].pos);
+    }
+
     if (PRESSED(BUTTON_MOUSE_L) && !Players[index].is_paralyzed && !Players[index].is_jumped &&
-        Players[index].coins > 0 && Players[index].weapon.may_shot()&& !Players[index].is_dead) {
+        Players[index].coins > 0 && Players[index].weapon.may_shot() && !Players[index].is_dead) {
         Players[index].weapon.shot(
             Players[index].pos, Players[index].cursor_dir + Players[index].pos, BulletHostType::PLAYER
         );
@@ -60,4 +64,6 @@ void draw_game(int client_id) {
             );
         }
     }
+
+    // draw_circle(Circle(Players[0].cursor_dir + Players[0].pos -global_variables::camera.pos, 30), GREEN);
 }

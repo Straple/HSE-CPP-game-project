@@ -88,6 +88,7 @@ enum spritesheet_t : u8{
 
     SS_HIT_EFFECT,
     SS_DEATH_EFFECT,
+    SS_FLOWER_EFFECT,
     SS_PORTAL_EFFECT,
 
     // weapons
@@ -307,6 +308,7 @@ void read_spritesheets() {
     {
         read(SS_HIT_EFFECT, "Effects\\hit_effect.png", 24);
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
+        read(SS_FLOWER_EFFECT, "Effects\\flower_effect.png", 32);
     }
     // weapons
     { read(SS_GOLDEN_GUN, "Weapons\\golden_gun_big.png", 800); }

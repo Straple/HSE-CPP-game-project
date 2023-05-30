@@ -18,9 +18,7 @@ struct Cursor {
     bool is_down = false;
 
     Cursor(sprite_t sprite, sprite_t focus_sprite, efloat size)
-        : sprite(sprite),
-          focus_sprite(focus_sprite),
-          size(size) {
+        : sprite(sprite), focus_sprite(focus_sprite), size(size) {
     }
 
     void simulate(const Input &input) {

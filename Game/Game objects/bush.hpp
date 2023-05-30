@@ -1,19 +1,19 @@
 ﻿#ifndef GAME_BUSH_HPP
 #define GAME_BUSH_HPP
 
-#include "abstract_game_object.hpp"
 #include "../../render.hpp"
+#include "abstract_game_object.hpp"
 
-struct Bush : abstract_game_object {
+struct Bush : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     Bush() = default;
 
-    explicit Bush(const Dot &new_pos) {
+    explicit Bush(const Dot &position) {
         size = 1;
         delta_draw_pos = Dot(-16, 20) * size;
         collision_radius = 10;
-        pos = new_pos;
+        pos = position;
     }
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
@@ -29,7 +29,7 @@ struct Bush : abstract_game_object {
 };
 
 std::vector<Bush> Bushes = {
-    //Bush(Dot(49, -106)),
+    // Bush(Dot(49, -106)),
 };
 
 #endif  // GAME_BUSH_HPP

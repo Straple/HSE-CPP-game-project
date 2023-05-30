@@ -7,7 +7,7 @@
 #include "abstract_game_object.hpp"
 #include "effect.hpp"
 #include "enemy_states.hpp"
-#include "game_utils.hpp"     
+#include "game_utils.hpp"
 
 enum class BulletHostType {
     // эту пулю выпустил игрок
@@ -16,7 +16,7 @@ enum class BulletHostType {
     ENEMY,
 };
 
-struct Bullet : abstract_game_object {
+struct Bullet : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     // Добавим позже поле формы пули, чтобы можно было

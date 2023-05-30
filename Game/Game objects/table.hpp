@@ -1,10 +1,10 @@
 #ifndef GAME_TABLE_HPP
 #define GAME_TABLE_HPP
 
-#include "abstract_game_object.hpp"
 #include "../../render.hpp"
+#include "abstract_game_object.hpp"
 
-struct Table : abstract_game_object {
+struct Table : AbstractGameObject {
     ADD_BYTE_SERIALIZATION();
 
     Table() = default;
@@ -35,9 +35,9 @@ struct Table : abstract_game_object {
     }
 };
 
-//std::vector<Table> Tables = {
-//    Table(Dot(49, -80)),
-//};
+// std::vector<Table> Tables = {
+//     Table(Dot(49, -80)),
+// };
 std::vector<Table> Tables;
 
 #endif  // GAME_TABLE_HPP

@@ -2,6 +2,7 @@
 #define GAME_OBJECTS_HPP
 
 // game utils
+#include "abstract_object.hpp"
 #include "game_utils.hpp"
 
 // UI
@@ -11,8 +12,8 @@
 // world objects
 #include "bush.hpp"
 #include "log.hpp"
-#include "tree.hpp"
 #include "table.hpp"
+#include "tree.hpp"
 
 // effects
 #include "effect.hpp"
