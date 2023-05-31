@@ -1,7 +1,6 @@
 #include "dot.hpp"
 
-Dot::Dot(efloat x, efloat y)
-    : x(x), y(y) {
+Dot::Dot(efloat x, efloat y) : x(x), y(y) {
 }
 
 Dot Dot::operator-() const {
@@ -36,10 +35,10 @@ efloat Dot::get_quare_len() const {
     return x * x + y * y;
 }
 
-// VERY SLOW!!!
-// зато очень точно
 efloat Dot::get_len() const {
-    return hypot(x, y);
+    // hypot в ~4 раза медленней, но точнее
+    // return hypot(x, y);
+    return std::sqrt(x * x + y * y);
 }
 
 Dot Dot::normalize() const {
@@ -145,4 +144,3 @@ efloat get_very_good_angle(const Dot &a, const Dot &b) {
     }
     return res;
 }
-
