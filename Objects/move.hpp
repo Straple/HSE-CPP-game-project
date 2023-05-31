@@ -119,6 +119,13 @@ Dot cast_grid_coord_to_game_coord(const grid_pos_t &grid_pos) {
     return grid_start + step_size * Dot(grid_pos.first, grid_pos.second);
 }
 
+grid_pos_t cast_game_coord_to_grid_coord(Dot pos) {
+    pos -= grid_start;
+    pos /= step_size;
+
+    return std::make_pair<int, int>(std::round(pos.x), std::round(pos.y));
+}
+
 std::vector<grid_pos_t> build_optional_grid_dots(Dot pos) {
     pos -= grid_start;
     pos /= step_size;
@@ -140,30 +147,6 @@ std::vector<grid_pos_t> build_optional_grid_dots(Dot pos) {
         return {{x1, y1}, {x2, y1}, {x1, y2}, {x2, y2}};
     }
 }
-
-/*template <typename visitable_t>
-grid_pos_t find_the_closest_to_grid(Dot pos, Dot to, visitable_t visitable) {
-    pos -= grid_start;
-    pos /= step_size;
-
-    int x1 = std::floor(pos.x);
-    int x2 = std::ceil(pos.x);
-    int y1 = std::floor(pos.y);
-    int y2 = std::ceil(pos.y);
-
-    const std::vector<grid_pos_t> options = {{x1, y1}, {x2, y1}, {x1, y2}, {x2, y2}};
-
-    efloat min_delta = INFINITY;
-    grid_pos_t closest;
-    for (auto &opt : options) {
-        Dot opt_pos = cast_grid_coord_to_game_coord(opt);
-        if (visitable(opt_pos) && (to - opt_pos).get_len() < min_delta) {
-            min_delta = (to - opt_pos).get_len();
-            closest = opt;
-        }
-    }
-    return closest;
-}*/
 
 // ищет путь из from в to
 // вернет true, если нашли такой путь, иначе false
@@ -215,7 +198,7 @@ bool get_direction_to_shortest_path_bfs(
     bool find_answer = false;
     grid_pos_t answer_pos;
 
-    for(uint32_t top = 0; top < queue.size(); top++){
+    for (uint32_t top = 0; top < queue.size(); top++) {
         auto grid_pos = queue[top];
 
         if (suitable(cast_grid_coord_to_game_coord(grid_pos))) {

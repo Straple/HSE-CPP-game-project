@@ -16,7 +16,7 @@ int main() {
         test_room.read("level.txt");
 
         // создадим персонажа
-        Players.push_back({});
+        Players.emplace_back(Dot(25, -100));
         Players.back().client_id = 0;
     }
 

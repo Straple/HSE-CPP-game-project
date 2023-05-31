@@ -180,10 +180,6 @@ struct Room {
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
-                    // Bombers.emplace_back(pos);
-                    // Bombers.emplace_back(pos);
-                    // Bombers.emplace_back(pos);
-                    // continue;
                     if (randomness(40)) {
                         Bombers.emplace_back(pos);
                     } else if (randomness(30)) {

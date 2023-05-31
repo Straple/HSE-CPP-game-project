@@ -39,8 +39,26 @@ struct Mob : AbstractPhysicalObject {
                 [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
                 [&](const Dot &request) { return (to - request).get_len() < 10; }
             )) {
-            // TODO: можно телепортировать его куда-то, в грид
             // ASSERT(false, "oh ho, way not found");
+            // телепортируем моба в ближайщую точку грида
+            std::cout << "Teleported Mob to visitable grid" << std::endl;
+
+            grid_pos_t cur_grid_pos = cast_game_coord_to_grid_coord(pos);
+
+            grid_pos_t best_grid_pos;
+            int best_dist = 1e9;
+
+            for (auto &visitable_grid_pos : visitable_grid_dots) {
+                int cur_dist = std::abs(cur_grid_pos.first - visitable_grid_pos.first) +
+                               std::abs(cur_grid_pos.second - visitable_grid_pos.second);
+                if (cur_dist < best_dist) {
+                    best_dist = cur_dist;
+                    best_grid_pos = visitable_grid_pos;
+                }
+            }
+
+            ASSERT(best_dist != 1e9, "why is 1e9?");
+            pos = cast_grid_coord_to_game_coord(best_grid_pos);
         }
     }
 
