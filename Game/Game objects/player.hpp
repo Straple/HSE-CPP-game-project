@@ -7,25 +7,25 @@
 #include "weapon.hpp"
 
 const static animation player_anims[] = {
-    animation(SS_PLAYER, 0, 6, 0.1),   // run right
-    animation(SS_PLAYER, 6, 6, 0.1),   // run up
-    animation(SS_PLAYER, 12, 6, 0.1),  // run left
-    animation(SS_PLAYER, 18, 6, 0.1),  // run down
+    animation(SS_PLAYER_BODY, 0, 6, 0.1),   // run right
+    animation(SS_PLAYER_BODY, 6, 6, 0.1),   // run up
+    animation(SS_PLAYER_BODY, 12, 6, 0.1),  // run left
+    animation(SS_PLAYER_BODY, 18, 6, 0.1),  // run down
 
-    animation(SS_PLAYER, 24, 4, 0.12),  // attack right
-    animation(SS_PLAYER, 28, 4, 0.12),  // attack up
-    animation(SS_PLAYER, 32, 4, 0.12),  // attack left
-    animation(SS_PLAYER, 36, 4, 0.12),  // attack down
+    animation(SS_PLAYER_BODY, 24, 4, 0.12),  // attack right
+    animation(SS_PLAYER_BODY, 28, 4, 0.12),  // attack up
+    animation(SS_PLAYER_BODY, 32, 4, 0.12),  // attack left
+    animation(SS_PLAYER_BODY, 36, 4, 0.12),  // attack down
 
-    animation(SS_PLAYER, 40, 5, 0.1),  // roll right
-    animation(SS_PLAYER, 45, 5, 0.1),  // roll up
-    animation(SS_PLAYER, 50, 5, 0.1),  // roll left
-    animation(SS_PLAYER, 55, 5, 0.1),  // roll down
+    animation(SS_PLAYER_BODY, 40, 5, 0.1),  // roll right
+    animation(SS_PLAYER_BODY, 45, 5, 0.1),  // roll up
+    animation(SS_PLAYER_BODY, 50, 5, 0.1),  // roll left
+    animation(SS_PLAYER_BODY, 55, 5, 0.1),  // roll down
 
-    animation(SS_PLAYER, 0, 1, 0.1),   // idle right
-    animation(SS_PLAYER, 6, 1, 0.1),   // idle up
-    animation(SS_PLAYER, 12, 1, 0.1),  // idle left
-    animation(SS_PLAYER, 18, 1, 0.1),  // idle down
+    animation(SS_PLAYER_BODY, 0, 1, 0.1),   // idle right
+    animation(SS_PLAYER_BODY, 6, 1, 0.1),   // idle up
+    animation(SS_PLAYER_BODY, 12, 1, 0.1),  // idle left
+    animation(SS_PLAYER_BODY, 18, 1, 0.1),  // idle down
 };
 
 // дерево анимаций игрока
@@ -86,6 +86,40 @@ struct Player : AbstractPhysicalObject {
     inline static const efloat jump_cooldown = 0;
     inline static const efloat invulnerable_cooldown = 2;
 
+    inline static const std::vector<Color> customization_colors = {
+        // white
+        Color(0xffffff, 0xff),
+        Color(0x9d9d9d, 0xff),
+
+        // gray
+        Color(0x7d7d7d, 0xff),
+        Color(0x575757, 0xff),
+
+        // yellow
+        Color(0xf7e05a, 0xff),
+        Color(0xad9d3f, 0xff),
+
+        // brown
+        Color(0xcd6b1d, 0xff),
+        Color(0x8f4b14, 0xff),
+
+        // pink
+        Color(0xff6975, 0xff),
+        Color(0xb24952, 0xff),
+
+        // crimson
+        Color(0xa80934, 0xff),
+        Color(0x671638, 0xff),
+
+        // blue
+        Color(0x31a2f2, 0xff),
+        Color(0x2271a9, 0xff),
+
+        // purple
+        Color(0xaf55dd, 0xff),
+        Color(0x7a3b9B, 0xff),
+    };
+
     efloat jump_accum = 0;
     efloat invulnerable_accum = 0;
 
@@ -105,6 +139,12 @@ struct Player : AbstractPhysicalObject {
 
     // уникальный id клиента
     int client_id;
+
+    // id кастомизированного цвета у плаща
+    int cloack_color_id = 5;
+    // id кастомизированного цвета у футболки
+    int t_shirt_color_id = 6;
+    bool now_is_customization = false;
 
     int hp = 10;
     int coins = 100;
@@ -207,10 +247,27 @@ struct Player : AbstractPhysicalObject {
         if (invulnerable_accum > 0 || is_dead()) {
             anim.draw(pos + delta_draw_pos, size, [&](const Color &color) { return Color(0xffffff, 128); });
         } else {
+            anim.sprite_sheet = SS_PLAYER_CLOACK;
+            anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
+                if (color == WHITE) {
+                    return customization_colors[2 * cloack_color_id];
+                } else {
+                    return customization_colors[2 * cloack_color_id + 1];
+                }
+            });
+            anim.sprite_sheet = SS_PLAYER_T_SHIRT;
+            anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
+                if (color == WHITE) {
+                    return customization_colors[2 * t_shirt_color_id];
+                } else {
+                    return customization_colors[2 * t_shirt_color_id + 1];
+                }
+            });
+            anim.sprite_sheet = SS_PLAYER_BODY;
             anim.draw(pos + delta_draw_pos, size);
         }
 
-        if (!is_jumped && !is_dead()) {
+        if (!now_is_customization && !is_jumped && !is_dead()) {
             weapon.draw(pos, cursor_dir + pos);
         }
 

@@ -3,7 +3,7 @@ struct animation {
     efloat frame_duration{};  // продолжительность кадра
     efloat frame_time_accum = 0;  // время накопления продолжительности кадра
 
-    spritesheet_t sprite_sheet = spritesheet_t::SS_COUNT;  // лист спрайтов
+    mutable spritesheet_t sprite_sheet = spritesheet_t::SS_COUNT;  // лист спрайтов
     u8 frame_begin{};  // начало кадра в листе спрайтов
     u8 frame_count{};  // количество кадров в анимации
     u8 frame_cur_count = 0;  // счетчик текущего кадра с 0

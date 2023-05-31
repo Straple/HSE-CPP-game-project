@@ -78,7 +78,9 @@ enum sprite_t : u8 {
 };
 
 enum spritesheet_t : u8 {
-    SS_PLAYER,
+    SS_PLAYER_CLOACK,
+    SS_PLAYER_BODY,
+    SS_PLAYER_T_SHIRT,
 
     // enemies
 
@@ -286,7 +288,9 @@ void read_spritesheets() {
 
     // player
     {
-        read(SS_PLAYER, "Player\\player.png", 64);
+        read(SS_PLAYER_CLOACK, "Player\\player_cloack.png", 64);
+        read(SS_PLAYER_BODY, "Player\\player_body.png", 64);
+        read(SS_PLAYER_T_SHIRT, "Player\\player_t_shirt.png", 64);
         // read(SP_PLAYER_CLOSED_EYES, "Player\\player_closed_eyes.png");
     }
 

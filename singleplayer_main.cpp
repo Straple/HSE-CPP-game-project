@@ -27,6 +27,8 @@ int main() {
 
     efloat delta_time = 0;
 
+    Player save_player_for_customization;
+
     while (global_variables::running) {
         // simulate frame
         {
@@ -34,12 +36,34 @@ int main() {
 
             int index = find_player_index(0);
             Players[index].input = window_handler.input;
+            auto &input = Players[index].input;
 
-            simulate_player(delta_time, 0);
-            simulate_game(delta_time);
+            if (PRESSED(BUTTON_G)) {
+                if (game_mode == GM_GAME) {
+                    game_mode = GM_CUSTOMIZATION;
+                    save_player_for_customization = Players[index];
+                    Players[index].now_is_customization = true;
+                } else if (game_mode = GM_CUSTOMIZATION) {
+                    game_mode = GM_GAME;
+                    save_player_for_customization.t_shirt_color_id = Players[index].t_shirt_color_id;
+                    save_player_for_customization.cloack_color_id = Players[index].cloack_color_id;
+                    Players[index] = save_player_for_customization;
+                } else {
+                    ASSERT(false, "game_mode = ?");
+                }
+            }
 
-            Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-            global_variables::camera.simulate(Players[index].pos, delta_time);
+            if (game_mode == GM_CUSTOMIZATION) {
+                simulate_player(delta_time, 0);
+                global_variables::camera.simulate(Players[index].pos, delta_time);
+            } else {
+                simulate_player(delta_time, 0);
+                simulate_game(delta_time);
+
+                Players[index].cursor_dir =
+                    window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
+                global_variables::camera.simulate(Players[index].pos, delta_time);
+            }
 
             window_handler.draw_frame(delta_time, 0);
             window_handler.release_frame();
