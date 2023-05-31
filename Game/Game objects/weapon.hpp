@@ -49,33 +49,35 @@ struct Weapon {
         int ind = angle / 15;
 
         if (0 <= ind && ind <= 5) {
-            hand = Dot(-5, 15);
-            dulo = Dot(8, 3);
+            hand = Dot(-10, 18);
+            dulo = Dot(14, 8);
             Dot new_dulo{};
             new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind)) - dulo.y * sin((15 / 57.2957795) * (-ind));
             new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind)) + dulo.y * cos((15 / 57.2957795) * (-ind));
             dulo = new_dulo;
         } else if (ind == 6) {
-            hand = Dot(-15, 15);
+            hand = Dot(-20, 18);
             dulo = Dot(2, -8);
-        }
-
-        else if (20 > ind && ind >= 7) {
-            hand = Dot(-15, 15);
+        } else if (20 > ind && ind >= 7) {
+            hand = Dot(-20, 18);
             dulo = Dot(-1.75, -8);
             Dot new_dulo{};
-            new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind - 6))) - dulo.y * sin((15 / 57.2957795) * (-(ind - 6)));
-            new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind - 6))) + dulo.y * cos((15 / 57.2957795) * (-(ind - 6)));
+            new_dulo.x =
+                dulo.x * cos((15 / 57.2957795) * (-(ind - 6))) - dulo.y * sin((15 / 57.2957795) * (-(ind - 6)));
+            new_dulo.y =
+                dulo.x * sin((15 / 57.2957795) * (-(ind - 6))) + dulo.y * cos((15 / 57.2957795) * (-(ind - 6)));
             dulo = new_dulo;
         } else if (ind >= 20) {
-            hand = Dot(-5, 15);
+            hand = Dot(-10, 18);
             dulo = Dot(8, 3);
             Dot new_dulo{};
-            new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind + 2)) - dulo.y * sin((15 / 57.2957795) * (-ind + 2));
-            new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
+            new_dulo.x =
+                dulo.x * cos((15 / 57.2957795) * (-ind + 2)) - dulo.y * sin((15 / 57.2957795) * (-ind + 2));
+            new_dulo.y =
+                dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
             dulo = new_dulo;
         }
-        draw_spritesheet(pos + hand, 1, SS_GOLDEN_GUN, ind);
+        draw_spritesheet(pos + hand, 0.7, SS_GOLDEN_GUN, ind);
     }
 };
 
