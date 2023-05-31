@@ -69,7 +69,7 @@ enum sprite_t {
 
     SP_KEK,
 
-    //bullets
+    // bullets
     SP_SLIME_BULLET,
 
     SP_COUNT,
@@ -77,7 +77,7 @@ enum sprite_t {
     // количеством элементов в sprite_t
 };
 
-enum spritesheet_t : u8{
+enum spritesheet_t : u8 {
     SS_PLAYER,
 
     // enemies
@@ -191,12 +191,12 @@ void read_sprites() {
 
     std::cout << "read_sprites:\n";
 
-#define read(type, path)                                                       \
-    {                                                                          \
-        Timer time;                                                            \
-        Sprites[type] = read_sprite_from_png(std::string("Sprites\\") + path); \
-        std::cout << #type << " " << time << " " << Sprites[type].height()     \
-                  << 'x' << Sprites[type].width() << std::endl;                \
+#define read(type, path)                                                                                   \
+    {                                                                                                      \
+        Timer time;                                                                                        \
+        Sprites[type] = read_sprite_from_png(std::string("Sprites\\") + path);                             \
+        std::cout << #type << " " << time << " " << Sprites[type].height() << 'x' << Sprites[type].width() \
+                  << std::endl;                                                                            \
     }
 
     read(SP_KEK, "kek.png");
@@ -241,22 +241,10 @@ void read_sprites() {
         read(SP_WALL_TOP_LEFT, "World\\Wall\\wall_top_left_fill.png");
         read(SP_WALL_TOP_RIGHT, "World\\Wall\\wall_top_right_fill.png");
 
-        read(
-            SP_WALL_BOTTOM_LEFT_INSIDE,
-            "World\\Wall\\wall_bottom_left_inside_fill.png"
-        );
-        read(
-            SP_WALL_BOTTOM_RIGHT_INSIDE,
-            "World\\Wall\\wall_bottom_right_inside_fill.png"
-        );
-        read(
-            SP_WALL_TOP_LEFT_INSIDE,
-            "World\\Wall\\wall_top_left_inside_fill.png"
-        );
-        read(
-            SP_WALL_TOP_RIGHT_INSIDE,
-            "World\\Wall\\wall_top_right_inside_fill.png"
-        );
+        read(SP_WALL_BOTTOM_LEFT_INSIDE, "World\\Wall\\wall_bottom_left_inside_fill.png");
+        read(SP_WALL_BOTTOM_RIGHT_INSIDE, "World\\Wall\\wall_bottom_right_inside_fill.png");
+        read(SP_WALL_TOP_LEFT_INSIDE, "World\\Wall\\wall_top_left_inside_fill.png");
+        read(SP_WALL_TOP_RIGHT_INSIDE, "World\\Wall\\wall_top_right_inside_fill.png");
     }
 
     // Shadows
@@ -277,9 +265,7 @@ void read_sprites() {
         read(SP_COIN, "UI\\coin.png");
     }
     // bullets
-    {
-        read(SP_SLIME_BULLET, "Enemies\\slime_bullet.png");
-    }
+    { read(SP_SLIME_BULLET, "Enemies\\slime_bullet.png"); }
 
 #undef read
 
@@ -290,13 +276,12 @@ void read_spritesheets() {
     Timer finish_time;
     std::cout << "read_spritesheets:\n";
 
-#define read(type, path, frame_len_x)                                          \
-    {                                                                          \
-        Timer time;                                                            \
-        auto sprite = read_sprite_from_png(std::string("Sprites\\") + (path)); \
-        Spritesheets[type] = Spritesheet(sprite, frame_len_x);                 \
-        std::cout << #type << " " << time << " " << sprite.height() << 'x'     \
-                  << sprite.width() << std::endl;                              \
+#define read(type, path, frame_len_x)                                                                      \
+    {                                                                                                      \
+        Timer time;                                                                                        \
+        auto sprite = read_sprite_from_png(std::string("Sprites\\") + (path));                             \
+        Spritesheets[type] = Spritesheet(sprite, frame_len_x);                                             \
+        std::cout << #type << " " << time << " " << sprite.height() << 'x' << sprite.width() << std::endl; \
     }
 
     // player
@@ -317,7 +302,7 @@ void read_spritesheets() {
     {
         read(SS_HIT_EFFECT, "Effects\\hit_effect.png", 24);
         read(SS_DEATH_EFFECT, "Effects\\death_effect.png", 32);
-        read(SS_BOOM, "Effects\\10.png", 128)
+        read(SS_BOOM, "Effects\\boom_effect.png", 128);
         read(SS_FLOWER_EFFECT, "Effects\\flower_effect.png", 32);
     }
     // weapons

@@ -25,6 +25,9 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         for (auto &slime : Slimes) {
             slime.push_out_of_collision_hard(wall);
         }
+        for (auto &bomber : Bombers) {
+            bomber.push_out_of_collision_hard(wall);
+        }
         for (auto &coin : Loot_coins) {
             coin.push_out_of_collision_hard(wall);
         }
@@ -55,6 +58,16 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
                     if (&slime1 != &slime2) {
                         slime1.push_out_of_collision_soft(*slime2.get_collision(), delta_time);
                     }
+                }
+            }
+        }
+
+        // bomber
+        for (auto &bomber1 : Bombers) {
+            for (auto &bomber2 : Bombers) {
+                // чтобы не выталкивать самих себя
+                if (&bomber1 != &bomber2) {
+                    bomber1.push_out_of_collision_soft(*bomber2.get_collision(), delta_time);
                 }
             }
         }

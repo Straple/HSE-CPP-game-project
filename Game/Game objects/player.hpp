@@ -81,7 +81,7 @@ struct Player : AbstractGameObject {
     // уникальный id клиента
     int client_id;
 
-    int hp = 3;
+    int hp = 30;
     int coins = 100;
 
     efloat jump_cooldown;

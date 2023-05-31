@@ -1,7 +1,5 @@
-
 #ifndef BULLETPROOF_BOMBER_HPP
 #define BULLETPROOF_BOMBER_HPP
-
 
 #include "../../render.hpp"
 #include "abstract_game_object.hpp"
@@ -16,15 +14,14 @@ struct Bomber : AbstractGameObject, enemy_state_for_trivial_enemy {
     inline const static u8 draw_alpha = 250;
     inline const static efloat frame_duration = 1.0 / 7;
     inline const static animation animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
-            animation_devour = animation(SS_SLIME, 25, 30, frame_duration),
-            animation_boom = animation(SS_BOOM, 0, 18, frame_duration/2);
+                                  animation_devour = animation(SS_SLIME, 25, 30, frame_duration),
+                                  animation_boom = animation(SS_BOOM, 0, 18, frame_duration / 2);
 
     int hp = 4;
     efloat devour_accum, devour_cooldown;
     efloat shot_accum, shot_cooldown;
     efloat paralyzed_accum;
     animation anim = animation_idle;
-
 
     bool is_booming = false;
     bool is_deleted = false;
@@ -47,7 +44,6 @@ struct Bomber : AbstractGameObject, enemy_state_for_trivial_enemy {
         paralyzed_accum = paralyzed_cooldown = 0.3;
 
         // attack_cooldown = 3;
-
 
         // чтобы разнообразить кучу слаймов, которые будут иметь одновременные
         // анимации
@@ -74,7 +70,7 @@ struct Bomber : AbstractGameObject, enemy_state_for_trivial_enemy {
                 pos, to, move_dir_to_target,
                 [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
                 [&](const Dot &request) { return (to - request).get_len() < 10; }
-        )) {
+            )) {
             // ASSERT(false, "oh ho, way not found");
         }
     }
@@ -159,7 +155,7 @@ struct Bomber : AbstractGameObject, enemy_state_for_trivial_enemy {
                                                             : Color(color.operator unsigned int(), draw_alpha);
             });
         }
-        draw_rect(pos-global_variables::camera.pos + Dot(0,15), Dot(0.5,0.5), GREEN);
+        draw_rect(pos - global_variables::camera.pos + Dot(0, 15), Dot(0.5, 0.5), GREEN);
         draw_collision(*this);
         draw_hitbox(*this);
         draw_hp(*this);
@@ -172,6 +168,4 @@ struct Bomber : AbstractGameObject, enemy_state_for_trivial_enemy {
 
 std::vector<Bomber> Bombers;
 
-
-
-#endif //BULLETPROOF_BOMBER_H
+#endif  // BULLETPROOF_BOMBER_HPP
