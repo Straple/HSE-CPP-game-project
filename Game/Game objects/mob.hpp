@@ -5,14 +5,15 @@
 #include "player.hpp"
 
 struct Mob : AbstractPhysicalObject {
-    // cooldowns
+private:
     inline const static efloat target_change_cooldown = 5;
-    inline const static efloat paralyzed_cooldown = 0.3;
-
-    // accums
-    efloat paralyzed_accum = 0;
     efloat target_change_accum = 0;
     efloat update_move_dir_accum = 0;
+
+public:
+    inline const static efloat paralyzed_cooldown = 0.3;
+
+    efloat paralyzed_accum = 0;
 
     Dot move_dir_to_target;
 
