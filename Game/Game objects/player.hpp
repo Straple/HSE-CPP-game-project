@@ -86,20 +86,12 @@ struct Player : AbstractPhysicalObject {
     inline static const efloat jump_cooldown = 0;
     inline static const efloat invulnerable_cooldown = 2;
 
-    // уникальный id клиента
-    int client_id;
-
-    int hp = 10;
-    int coins = 100;
-
     efloat jump_accum = 0;
     efloat invulnerable_accum = 0;
 
     Weapon weapon;
 
-    // animations
     animation anim = player_anims[0];
-    Player_anim_tree::anim_and_dir_t anim_type;
 
     // для пушки, направление от позиции игрока
     Dot cursor_dir;
@@ -108,6 +100,14 @@ struct Player : AbstractPhysicalObject {
 
     bool is_jumped = false;     // прыгает
     bool is_paralyzed = false;  // парализован слаймом
+
+    Player_anim_tree::anim_and_dir_t anim_type;
+
+    // уникальный id клиента
+    int client_id;
+
+    int hp = 10;
+    int coins = 100;
 
     Player(const Dot &position = Dot()) {
         pos = position;
