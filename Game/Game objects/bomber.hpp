@@ -53,7 +53,6 @@ struct Bomber : Mob {
 
     void simulate(const efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
         paralyzed_accum -= delta_time;
-        target_change_accum -= delta_time;
 
         // мы парализованы и отлетаем от удара
         if (paralyzed_accum > 0) {
@@ -66,7 +65,7 @@ struct Bomber : Mob {
         } else {
             anim.frame_update(delta_time);
 
-            update_target();
+            update_target(delta_time);
 
             int index = find_player_index(target_client_id);
             if (index == -1) {

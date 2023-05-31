@@ -46,14 +46,15 @@ struct Mob : AbstractPhysicalObject {
         }
     }
 
-    void update_target() {
+    void update_target(efloat delta_time) {
+        target_change_accum -= delta_time;
         int index = find_player_index(target_client_id);
         if (
             // если у нас нет цели
             index == -1 ||
             // или цель кокнулась
             Players[index].is_dead() ||
-            // или мы уже долго гонялись за ним
+            // или мы уже долго гонялись за ней
             target_change_accum <= 0) {
             target_client_id = find_best_player(pos);
             target_change_accum = target_change_cooldown;

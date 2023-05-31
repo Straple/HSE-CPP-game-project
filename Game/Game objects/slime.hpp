@@ -80,7 +80,6 @@ struct Slime : Mob {
         paralyzed_accum -= delta_time;
         shot_accum -= delta_time;
         devour_accum -= delta_time;
-        target_change_accum -= delta_time;
 
         // мы парализованы и отлетаем от удара
         if (paralyzed_accum > 0) {
@@ -149,7 +148,7 @@ struct Slime : Mob {
         } else {
             anim.frame_update(delta_time);
 
-            update_target();
+            update_target(delta_time);
 
             int index = find_player_index(target_client_id);
             if (index == -1) {

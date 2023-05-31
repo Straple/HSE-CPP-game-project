@@ -51,7 +51,6 @@ struct Bat : Mob {
     void simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
         attack_accum -= delta_time;
         paralyzed_accum -= delta_time;
-        target_change_accum -= delta_time;
 
         if (paralyzed_accum > 0) {
             simulate_move2d(pos, dp, Dot(), delta_time);
@@ -65,7 +64,7 @@ struct Bat : Mob {
                 anim.sprite_sheet = SS_BAT;
             }
 
-            update_target();
+            update_target(delta_time);
 
             int index = find_player_index(target_client_id);
             if (index == -1) {
