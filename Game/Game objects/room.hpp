@@ -335,7 +335,7 @@ struct Room {
             }
             for (auto &bomber: Bombers) {
                 if (!bomber.is_booming) {
-                    Objects.emplace_back(bomber);
+                    Objects.emplace_back(&bomber);
                 }
             }
             for (auto &effect : Effects) {
