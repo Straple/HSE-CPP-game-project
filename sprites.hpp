@@ -7,7 +7,7 @@
 // for Sprite and Spritesheet
 #include "Objects/Sprite/sprite_object.hpp"
 
-enum sprite_t {
+enum sprite_t : u8 {
 
     // world
 

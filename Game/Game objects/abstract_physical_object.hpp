@@ -6,13 +6,8 @@
 #include "../../utils.hpp"
 #include "abstract_object.hpp"
 
-struct AbstractGameObject : AbstractObject {
+struct AbstractPhysicalObject : AbstractObject {
     Dot dp;
-    efloat collision_radius = 0;
-
-    // visibility
-    efloat size = 0;
-    Dot delta_draw_pos;
 
     [[nodiscard]] virtual std::unique_ptr<Collision> get_collision() const = 0;
 
@@ -31,7 +26,7 @@ struct AbstractGameObject : AbstractObject {
         dp += delta_time * need_delta_pos * 100;
     }
 
-    virtual ~AbstractGameObject() = default;
+    virtual ~AbstractPhysicalObject() = default;
 };
 
 #endif  // ABSTRACT_GAME_OBJECT_HPP

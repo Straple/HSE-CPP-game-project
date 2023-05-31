@@ -2,17 +2,18 @@
 #define GAME_TABLE_HPP
 
 #include "../../render.hpp"
-#include "abstract_game_object.hpp"
+#include "abstract_physical_object.hpp"
 
-struct Table : AbstractGameObject {
+struct Table : AbstractPhysicalObject {
     ADD_BYTE_SERIALIZATION();
+
+    // visible
+    inline const static efloat size = 1;
+    inline const static Dot delta_draw_pos = Dot(-10, 30);
 
     Table() = default;
 
     explicit Table(const Dot new_pos) {
-        size = 1;
-        delta_draw_pos = Dot(-10, 30);
-        collision_radius = 10;
         pos = new_pos;
     }
 
@@ -35,9 +36,6 @@ struct Table : AbstractGameObject {
     }
 };
 
-// std::vector<Table> Tables = {
-//     Table(Dot(49, -80)),
-// };
 std::vector<Table> Tables;
 
 #endif  // GAME_TABLE_HPP

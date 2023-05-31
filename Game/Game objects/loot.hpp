@@ -2,21 +2,21 @@
 #define GAME_LOOT_HPP
 
 #include "../../render.hpp"
-#include "abstract_game_object.hpp"
+#include "abstract_physical_object.hpp"
 #include "player.hpp"
 
-struct Loot : AbstractGameObject {
-    efloat magnet_radius = 30;
+struct Loot : AbstractPhysicalObject {
+    // visible
+    inline const static efloat size = 0.4;
+    // physics
+    inline const static efloat magnet_radius = 30;
+    inline const static efloat collision_radius = 4;
 
     Loot() = default;
 
     Loot(Dot position, Dot dir) {
         pos = position;
         dp = dir * 200;
-
-        collision_radius = 4;
-        size = 1;
-        delta_draw_pos = Dot(10, 10) * size;
     }
 
     // коллизия подбора предмета

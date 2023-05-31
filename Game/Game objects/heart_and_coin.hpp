@@ -1,7 +1,6 @@
 #ifndef GAME_LOOT_HEART_AND_COIN_HPP
 #define GAME_LOOT_HEART_AND_COIN_HPP
 
-#include "../../render.hpp"
 #include "loot.hpp"
 
 struct Heart : Loot {
@@ -10,18 +9,17 @@ struct Heart : Loot {
     Heart() = default;
 
     Heart(Dot position, Dot dir) : Loot(position, dir) {
-        size = 0.4;
     }
 
     bool simulate_collection() override {
         for (auto &player : Players) {
             if (collection_trigger(player.pos)) {
-                if (player.hp == 0) {
+                if (player.is_dead()) {
                     player.reborn();
-                    player.set_invulnerable();
                 }
-                player.hp++;
-
+                else{
+                    player.hp++;
+                }
                 return true;
             }
         }
@@ -34,22 +32,17 @@ struct Heart : Loot {
     }
 };
 
-// extern std::vector<Heart> Loot_hearts;
 struct Coin : Loot {
     ADD_BYTE_SERIALIZATION();
 
     Coin() = default;
 
     Coin(Dot position, Dot dir) : Loot(position, dir) {
-        size = 0.4;
     }
 
     bool simulate_collection() override {
         for (auto &player : Players) {
-            if (player.is_dead) {
-                continue;
-            }
-            if (collection_trigger(player.pos)) {
+            if (!player.is_dead() && collection_trigger(player.pos)) {
                 player.coins++;
                 return true;
             }
@@ -63,6 +56,4 @@ struct Coin : Loot {
     }
 };
 
-// extern std::vector<Coin> Loot_coins;
-
-#endif  // GAME_LOOT_HEART_HPP
+#endif  // GAME_LOOT_HEART_AND_COIN_HPP

@@ -2,49 +2,42 @@
 #define GAME_BAT_HPP
 
 #include "../../render.hpp"
-#include "abstract_game_object.hpp"
+#include "abstract_physical_object.hpp"
 #include "effect.hpp"
-#include "enemy_states.hpp"
 #include "game_utils.hpp"
+#include "mob.hpp"
 #include "player.hpp"
 
-struct Bat : AbstractGameObject, enemy_state_for_trivial_enemy {
+struct Bat : Mob {
     ADD_BYTE_SERIALIZATION();
+
+    // visible
+    inline const static efloat size = 0.8;
+    inline const static Dot delta_draw_pos = Dot(-8, 26) * size;
+    // physics
+    inline const static efloat collision_radius = 7;
+    inline const static efloat jump_radius = 8;
+    inline const static efloat ddp_speed = 600;
+    // cooldowns
+    inline const static efloat attack_cooldown = 4;
+    // others
+    inline const static int damage = 1;
 
     int hp = 3;
 
-    efloat attack_accum;
-    efloat paralyzed_accum;
+    efloat attack_accum = 0;
 
     animation anim = animation(SS_BAT, 0, 5, 1.0 / 7);
 
-    Dot move_dir_to_target;
-    efloat time_for_update_move_dir = 0;
-
-    efloat target_change_accum = 5;
-    int target_client_id = -1;
-
     Bat(const Dot &position = Dot()) {
-        // abstract_game_object
         pos = position;
-        size = 0.8;
-        collision_radius = 7;
-        delta_draw_pos = Dot(-8, 26) * size;
-
-        // enemy_state_for_trivial_enemy
-        damage = 1;
-        jump_radius = 8;
-        ddp_speed = 600;
-        paralyzed_accum = paralyzed_cooldown = 0.3;
-        attack_accum = attack_cooldown = 3;
-
         // чтобы разнообразить кучу летучих мышей, которые будут иметь
         // одновременные анимации
         anim.frame_cur_count = get_random_engine()() % 5;
     }
 
     [[nodiscard]] bool is_invulnerable() const {
-        return paralyzed_accum < paralyzed_cooldown;
+        return paralyzed_accum > 0;
     }
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
@@ -55,25 +48,12 @@ struct Bat : AbstractGameObject, enemy_state_for_trivial_enemy {
         return std::make_unique<CollisionCircle>(pos + Dot(0, 13), 5);
     }
 
-    void simulate_move_to_player(Player &player, const std::set<grid_pos_t> &visitable_grid_dots) {
-        // чтобы летучая мышь была поверх игрока, а не под ним
-        Dot to = player.pos - Dot(0, 0.1);
-
-        if (!get_direction_to_shortest_path(
-                pos, to, move_dir_to_target,
-                [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
-                [&](const Dot &request) { return (to - request).get_len() < 10; }
-            )) {
-            // ASSERT(false, "oh ho, way not found");
-        }
-    }
-
     void simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots) {
-        attack_accum += delta_time;
-        paralyzed_accum += delta_time;
-        target_change_accum += delta_time;
+        attack_accum -= delta_time;
+        paralyzed_accum -= delta_time;
+        target_change_accum -= delta_time;
 
-        if (paralyzed_accum < paralyzed_cooldown) {
+        if (paralyzed_accum > 0) {
             simulate_move2d(pos, dp, Dot(), delta_time);
         } else {
             anim.frame_update(delta_time);
@@ -85,13 +65,7 @@ struct Bat : AbstractGameObject, enemy_state_for_trivial_enemy {
                 anim.sprite_sheet = SS_BAT;
             }
 
-            // если у нас нет цели, то найдем ее
-            if (find_player_index(target_client_id) == -1 || Players[find_player_index(target_client_id)].is_dead ||
-                // или мы уже долго гонялись за ним. может есть кто лучше?
-                target_change_accum > 5) {
-                target_client_id = find_best_player(pos);
-                target_change_accum = 0;
-            }
+            update_target();
 
             int index = find_player_index(target_client_id);
             if (index == -1) {
@@ -100,24 +74,23 @@ struct Bat : AbstractGameObject, enemy_state_for_trivial_enemy {
 
             auto &player = Players[index];
 
-            time_for_update_move_dir -= delta_time;
-            if (time_for_update_move_dir < 0) {
-                if (randomness(30)) {
-                    time_for_update_move_dir = 0.35;
-                } else if (randomness(50)) {
-                    time_for_update_move_dir = 0.2;
-                } else {
-                    time_for_update_move_dir = 0.15;
-                }
-                simulate_move_to_player(player, visitable_grid_dots);
-            }
+            update_move_dir(delta_time, player.pos, visitable_grid_dots);
             // move_dir уже нормализован в get_direction_to_shortest_path
             simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
-            if (!player.is_paralyzed && !player.is_invulnerable() && !player.is_jumped &&
-                (player.pos - pos).get_len() <= jump_radius && attack_accum >= attack_cooldown) {
+            if (
+                // игрока никто не ест
+                !player.is_paralyzed &&
+                // игрок не прыгает
+                !player.is_jumped &&
+                // игрок не неуязвим
+                !player.is_invulnerable() &&
+                // мы близко к игроку
+                (player.pos - pos).get_len() <= jump_radius &&
+                // перезарядка атаки прошла
+                attack_accum <= 0) {
                 // hit
-                attack_accum = 0;
+                attack_accum = attack_cooldown;
                 pos = player.pos;  // прыгаем на игрока
                 player.hp -= damage;
                 player.set_invulnerable();
@@ -133,7 +106,7 @@ struct Bat : AbstractGameObject, enemy_state_for_trivial_enemy {
         draw_sprite(pos + Dot(-5, 0) * size, size, SP_SMALL_SHADOW);
 
         anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
-            return paralyzed_accum < paralyzed_cooldown ? Color(0xffffff, 128) : color;
+            return paralyzed_accum > 0 ? Color(0xffffff, 128) : color;
         });
 
         draw_collision(*this);

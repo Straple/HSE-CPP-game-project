@@ -2,7 +2,7 @@
 #define GAME_PLAYER_HPP
 
 #include "../../render.hpp"
-#include "abstract_game_object.hpp"
+#include "abstract_physical_object.hpp"
 #include "game_utils.hpp"
 #include "weapon.hpp"
 
@@ -72,28 +72,28 @@ struct Player_anim_tree {
     }
 };
 
-struct Player : AbstractGameObject {
+struct Player : AbstractPhysicalObject {
     ADD_BYTE_SERIALIZATION();
 
+    // visible
+    inline static const efloat size = 1;
+    inline static const Dot delta_draw_pos = Dot(-31, 40) * size;
+    // physics
+    inline static const efloat collision_radius = 6;
     inline static const efloat ddp_speed = 700;
     inline static const efloat jump_speed = 110;
+    // cooldowns
+    inline static const efloat jump_cooldown = 0;
+    inline static const efloat invulnerable_cooldown = 2;
 
     // уникальный id клиента
     int client_id;
 
-    int hp = 30;
+    int hp = 10;
     int coins = 100;
 
-    efloat jump_cooldown;
-    efloat jump_accum;
-
-    // прыгает
-    bool is_jumped = false;
-    // парализован слаймом
-    bool is_paralyzed = false;
-    bool is_dead = false;
-    efloat invulnerable_cooldown;
-    efloat invulnerable_accum;
+    efloat jump_accum = 0;
+    efloat invulnerable_accum = 0;
 
     Weapon weapon;
 
@@ -106,40 +106,43 @@ struct Player : AbstractGameObject {
 
     Input input;
 
-    void die() {
-        hp = 0;  // чтобы в долги по хп не уходить если урона больше чем хп
-        is_dead = true;
-        // Сразу сделаем методом, чтобы сюда занести анимации и тд
-    }
+    bool is_jumped = false;     // прыгает
+    bool is_paralyzed = false;  // парализован слаймом
 
-    void reborn() {
-        is_dead = false;
-        // Аналогично, можно не только для возрождения но и для появления/телепортации использовать
-    }
-
-    [[nodiscard]] bool is_invulnerable() const {
-        return invulnerable_accum < invulnerable_cooldown;
-    }
-
-    void set_invulnerable() {
-        invulnerable_accum = 0;
-    }
-
-    Player(Dot position = Dot()) {
-        // abstract_game_object
+    Player(const Dot &position = Dot()) {
         pos = position;
-        size = 1;
-        collision_radius = 6;
-        delta_draw_pos = Dot(-31, 40) * size;
-
-        // player
-        jump_accum = jump_cooldown = 0;  // jump_accum = jump_cooldown = 0.5;
-        invulnerable_accum = invulnerable_cooldown = 2;
 
         weapon.cooldown = 0;  // мы боги
     }
 
+    [[nodiscard]] bool is_dead() const {
+        return hp <= 0;
+    }
+
+    void die() {
+        hp = 0;
+        set_invulnerable();
+        add_death_effect(pos);
+        // Сразу сделаем методом, чтобы сюда занести анимации и тд
+    }
+
+    void reborn() {
+        // Аналогично, можно не только для возрождения но и для появления/телепортации использовать
+        set_invulnerable();
+        hp = 1;
+    }
+
+    [[nodiscard]] bool is_invulnerable() const {
+        return invulnerable_accum > 0;
+    }
+
+    void set_invulnerable() {
+        invulnerable_accum = invulnerable_cooldown;
+    }
+
     void simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
+        jump_accum -= delta_time;
+
         if (is_paralyzed) {
             // игрока ест слайм
             anim_type.anim = Player_anim_tree::IDLE;
@@ -150,13 +153,13 @@ struct Player : AbstractGameObject {
 
             if (anim.frame_update(delta_time)) {
                 is_jumped = false;
-                jump_accum = 0;
+                jump_accum = jump_cooldown;
 
                 anim_type.anim = Player_anim_tree::IDLE;
 
                 anim = player_anims[anim_type.get_num()];
             }
-        } else if (pressed_jump /* && jump_accum >= jump_cooldown*/) {
+        } else if (pressed_jump && jump_accum <= 0) {
             is_jumped = true;
 
             anim_type.anim = Player_anim_tree::ROLL;
@@ -170,14 +173,11 @@ struct Player : AbstractGameObject {
             }
             dp = jump_dir * jump_speed;
         } else {
-            if (!is_dead) {
-                jump_accum += delta_time;
-                invulnerable_accum += delta_time;
-
+            if (!is_dead()) {
+                invulnerable_accum -= delta_time;
                 weapon.simulate(delta_time, cursor_dir + pos);
-            } else {
-                invulnerable_accum = 0;
             }
+
             // simulate move
             {
                 ddp *= ddp_speed;
@@ -204,13 +204,13 @@ struct Player : AbstractGameObject {
     void draw() const override {
         draw_sprite(pos + Dot(-8, 3), size, SP_MEDIUM_SHADOW);
 
-        if (invulnerable_accum + 0.5 < invulnerable_cooldown) {
+        if (invulnerable_accum > 0 || is_dead()) {
             anim.draw(pos + delta_draw_pos, size, [&](const Color &color) { return Color(0xffffff, 128); });
         } else {
             anim.draw(pos + delta_draw_pos, size);
         }
 
-        if (!is_jumped && !is_dead) {
+        if (!is_jumped && !is_dead()) {
             weapon.draw(pos, cursor_dir + pos);
         }
 
@@ -253,7 +253,7 @@ int find_nearest_player(Dot pos) {
     }
     int best = -1;
     for (int index = 0; index < Players.size(); index++) {
-        if (Players[index].is_dead) {
+        if (Players[index].is_dead() || Players[index].is_paralyzed) {
             continue;
         }
         if (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
@@ -278,9 +278,10 @@ int find_best_player(Dot pos) {
 
     int best = -1;
     for (int index = 0; index < Players.size(); index++) {
-        // не очень интересно бить того, кто парализован
-        if (!Players[index].is_paralyzed && !Players[index].is_dead &&
-            (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len())) {
+        if (Players[index].is_dead() || Players[index].is_paralyzed) {
+            continue;
+        }
+        if (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
             best = index;
         }
     }

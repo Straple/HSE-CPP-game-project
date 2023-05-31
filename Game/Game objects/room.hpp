@@ -173,22 +173,21 @@ struct Room {
             }
         }*/
 
-        if (Slimes.size() + Bats.size() == 0) {
+        if (Slimes.size() + Bats.size() + Bombers.size() == 0) {
             // new wave
 
             std::cout << "New wave!" << std::endl;
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
-                    // Bats.emplace_back(pos);
-                    // Slimes.emplace_back(pos);
-                    // Slimes.emplace_back(pos);
-                    // Slimes.emplace_back(pos);
-                    // Slimes.emplace_back(pos);
+                    // Bombers.emplace_back(pos);
+                    // Bombers.emplace_back(pos);
+                    // Bombers.emplace_back(pos);
                     // continue;
-                    if (randomness(50)) {
-//                        Bats.emplace_back(pos);
+                    if (randomness(40)) {
                         Bombers.emplace_back(pos);
+                    } else if (randomness(30)) {
+                        Bats.emplace_back(pos);
                     } else {
                         Slimes.emplace_back(pos);
                     }
@@ -220,9 +219,19 @@ struct Room {
         }
         for (int i = 0; i < static_cast<int>(Bombers.size()); i++) {
             Bombers[i].simulate(delta_time, visitable_grid_dots);
-            if (Bombers[i].is_deleted) {
+            if (Bombers[i].hp <= 0) {
                 Bombers.erase(Bombers.begin() + i);
                 i--;
+            }
+        }
+        for (auto &bomber1 : Bombers) {
+            if (bomber1.is_booming && bomber1.anim.frame_cur_count > 5 && bomber1.anim.frame_cur_count < 12) {
+                for (auto &bomber2 : Bombers) {
+                    if (!bomber2.is_booming && (bomber1.pos - bomber2.pos).get_len() < Bomber::boom_radius) {
+                        // цепная реакция!
+                        bomber2.do_boom();
+                    }
+                }
             }
         }
 
@@ -233,7 +242,7 @@ struct Room {
             }
 
             // bullet hit enemies
-            for (int i = 0; i < static_cast<int>(Bullets.size()); i++) {
+            for (uint32_t i = 0; i < Bullets.size(); i++) {
                 if (Bullets[i].simulate_attack_on_mob(Slimes) || Bullets[i].simulate_attack_on_mob(Bats) ||
                     Bullets[i].simulate_attack_on_mob(Bombers) || Bullets[i].simulate_attack_on_player(Players)) {
                     Bullets.erase(Bullets.begin() + i);
@@ -333,7 +342,7 @@ struct Room {
             for (auto &bat : Bats) {
                 Objects.emplace_back(&bat);
             }
-            for (auto &bomber: Bombers) {
+            for (auto &bomber : Bombers) {
                 if (!bomber.is_booming) {
                     Objects.emplace_back(&bomber);
                 }
@@ -360,7 +369,7 @@ struct Room {
         // draw effects
         for (auto &effect : Effects) {
             if (effect.anim.sprite_sheet != SS_FLOWER_EFFECT) {
-                // effect.draw();
+                effect.draw();
             }
         }
 
@@ -369,7 +378,7 @@ struct Room {
                 draw_sprite(pos, size, sprite);
             }
         }
-        for (auto &bomber: Bombers) {
+        for (auto &bomber : Bombers) {
             if (bomber.is_booming) {
                 bomber.draw();
             }
@@ -378,9 +387,9 @@ struct Room {
         // draw grid
         {
             // draw grid start
-            draw_rect(grid_start_dot - global_variables::camera.pos, Dot(1, 1), YELLOW);
+            /*draw_rect(grid_start_dot - global_variables::camera.pos, Dot(1, 1), YELLOW);
 
-            /*for(auto grid_pos : visitable_grid_dots){
+            for(auto grid_pos : visitable_grid_dots){
                 Dot pos = grid_start_dot + step_size * Dot(grid_pos.first, grid_pos.second);
                 draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), YELLOW);
             }*/

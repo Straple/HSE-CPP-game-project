@@ -2,59 +2,53 @@
 #define GAME_SLIME_HPP
 
 #include "../../render.hpp"
-#include "abstract_game_object.hpp"
+#include "abstract_physical_object.hpp"
 #include "effect.hpp"
-#include "enemy_states.hpp"
 #include "game_utils.hpp"
+#include "mob.hpp"
 #include "player.hpp"
 
-struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
+struct Slime : Mob {
     ADD_BYTE_SERIALIZATION();
 
+    // visible
+    inline const static efloat size = 0.8;
+    inline const static Dot delta_draw_pos = Dot(-30, 38) * size;
     inline const static u8 draw_alpha = 210;
     inline const static efloat frame_duration = 1.0 / 7;
     inline const static animation animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
                                   animation_devour = animation(SS_SLIME, 25, 30, frame_duration),
                                   animation_shot = animation(SS_SLIME, 55, 13, frame_duration);
+    // physics
+    inline const static efloat collision_radius = 6;
+    inline const static efloat ddp_speed = 400;
+    // cooldowns
+    inline const static efloat devour_cooldown = 5;
+    inline const static efloat shot_cooldown = 10;
+    // others
+    inline const static efloat jump_radius = 14;
+    inline const static int devour_damage = 2;
 
     int hp = 4;
-    efloat devour_accum, devour_cooldown;
-    efloat shot_accum, shot_cooldown;
-    efloat paralyzed_accum;
+
+    efloat devour_accum = 0;
+    efloat shot_accum = 0;
+
     animation anim = animation_idle;
 
     bool is_devour = false;
     bool is_shooting = false;
 
-    Dot move_dir_to_target;
-    efloat time_for_update_move_dir = 0;
-
-    efloat target_change_accum = 5;
-    int target_client_id = -1;
-
     Slime(const Dot &position = Dot()) {
-        // abstract_game_object
         pos = position;
-        size = 0.8;
-        collision_radius = 6;
-        delta_draw_pos = Dot(-30, 38) * size;
 
-        // enemy_state_for_trivial_enemy
-        damage = 2;
-        jump_radius = 14;
-        ddp_speed = 400;
-        paralyzed_accum = paralyzed_cooldown = 0.3;
-        // attack_cooldown = 3;
-        devour_cooldown = devour_accum = 5;
-        shot_cooldown = shot_accum = 10;
-
-        // чтобы разнообразить кучу слаймов, которые будут иметь одновременные
+        // чтобы разнообразить кучу мобов, которые будут иметь одновременные
         // анимации
         anim.frame_cur_count = get_random_engine()() % 24;
     }
 
     [[nodiscard]] bool is_invulnerable() const {
-        return is_devour || paralyzed_accum < paralyzed_cooldown;
+        return is_devour || paralyzed_accum > 0;
     }
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
@@ -65,23 +59,10 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
         return get_collision();
     }
 
-    void simulate_move_to_player(Player &player, const std::set<grid_pos_t> &visitable_grid_dots) {
-        // чтобы слайм был поверх игрока, а не под ним
-        Dot to = player.pos - Dot(0, 0.1);
-
-        if (!get_direction_to_shortest_path(
-                pos, to, move_dir_to_target,
-                [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
-                [&](const Dot &request) { return (to - request).get_len() < 10; }
-            )) {
-            // ASSERT(false, "oh ho, way not found");
-        }
-    }
-
-    bool is_reachable(Dot from, Dot to, std::vector<CollisionBox>&Walls) {
+    bool is_reachable(Dot from, Dot to, std::vector<CollisionBox> &Walls) {
         Dot dir = (to - from).normalize();
         while ((to - from).get_len() >= 2) {
-            for (auto&wall: Walls) {
+            for (auto &wall : Walls) {
                 if (wall.trigger(from)) {
                     return false;
                 }
@@ -91,17 +72,20 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
         return true;
     }
 
-    void simulate(const efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots, std::vector<CollisionBox>& Walls) {
-        paralyzed_accum += delta_time;
-        shot_accum += delta_time;
-        devour_accum += delta_time;
-        target_change_accum += delta_time;
+    void simulate(
+        const efloat delta_time,
+        const std::set<grid_pos_t> &visitable_grid_dots,
+        std::vector<CollisionBox> &Walls
+    ) {
+        paralyzed_accum -= delta_time;
+        shot_accum -= delta_time;
+        devour_accum -= delta_time;
+        target_change_accum -= delta_time;
 
         // мы парализованы и отлетаем от удара
-        if (paralyzed_accum < paralyzed_cooldown) {
+        if (paralyzed_accum > 0) {
             simulate_move2d(pos, dp, Dot(), delta_time);
         } else if (is_devour) {  // мы едим игрока
-
             int index = find_player_index(target_client_id);
 
             if (index == -1) {
@@ -110,8 +94,7 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
                 is_devour = false;
                 anim = animation_idle;
                 anim.frame_cur_count = get_random_engine()() % 24;
-
-                devour_accum = 0;
+                devour_accum = devour_cooldown;
                 return;
             }
 
@@ -122,8 +105,8 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
                 is_devour = false;
                 anim = animation_idle;
                 anim.frame_cur_count = get_random_engine()() % 24;
-
-                devour_accum = 0;
+                devour_accum = devour_cooldown;
+                dp = Dot();
 
                 // так как мы ели игрока, то почему бы нам не получить доп хп
                 hp += 2;
@@ -134,7 +117,7 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
                 // выплюнуть игрока
                 player.dp = Circle(Dot(), 500).get_random_dot();
                 player.is_paralyzed = false;
-                player.hp -= damage;
+                player.hp -= devour_damage;
                 player.set_invulnerable();
                 add_hit_effect(player.pos);
                 if (player.hp <= 0) {
@@ -145,33 +128,28 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
             int index = find_player_index(target_client_id);
             if (index == -1) {
                 // этот клиент вышел из игры
-                shot_accum = 0;
+                shot_accum = shot_cooldown;
                 is_shooting = false;
                 anim = animation_idle;
                 anim.frame_cur_count = get_random_engine()() % 24;
+                dp = Dot();
                 return;
             }
 
             if (anim.frame_update(delta_time)) {
-                shot_accum = 0;
+                shot_accum = shot_cooldown;
                 is_shooting = false;
                 anim = animation_idle;
-                // чтобы разнообразить кучу слаймов, которые будут иметь одновременные
-                // анимации
                 anim.frame_cur_count = get_random_engine()() % 24;
+                dp = Dot();
 
                 Dot bullet_pos = pos + Dot(0, 15);
                 Bullets.emplace_back(BulletHostType::ENEMY, bullet_pos, Players[index].pos, 1, 1000, SP_SLIME_BULLET);
             }
         } else {
             anim.frame_update(delta_time);
-            // если у нас нет цели, то найдем ее
-            if (find_player_index(target_client_id) == -1 || Players[find_player_index(target_client_id)].is_dead ||
-                // или мы уже долго гонялись за ним. может есть кто лучше?
-                target_change_accum > 5) {
-                target_client_id = find_best_player(pos);
-                target_change_accum = 0;
-            }
+
+            update_target();
 
             int index = find_player_index(target_client_id);
             if (index == -1) {
@@ -179,23 +157,17 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
             }
             auto &player = Players[index];
 
-            time_for_update_move_dir -= delta_time;
-            if (time_for_update_move_dir < 0) {
-                if (randomness(30)) {
-                    time_for_update_move_dir = 0.35;
-                } else if (randomness(50)) {
-                    time_for_update_move_dir = 0.2;
-                } else {
-                    time_for_update_move_dir = 0.15;
-                }
-                simulate_move_to_player(player, visitable_grid_dots);
-            }
+            update_move_dir(delta_time, player.pos, visitable_grid_dots);
             // move_dir уже нормализован в get_direction_to_shortest_path
             simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
             if (
                 // игрока никто не ест
-                !player.is_paralyzed && shot_accum >= shot_cooldown && is_reachable(pos + Dot(0, 15), player.pos, Walls)
+                !player.is_paralyzed &&
+                // перезарядка выстрела прошла
+                shot_accum <= 0 &&
+                // мы можем попасть по нему
+                is_reachable(pos + Dot(0, 15), player.pos, Walls)
             ) {
                 anim = animation_shot;
                 is_shooting = true;
@@ -209,13 +181,11 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
                     // мы близко к игроку
                     (player.pos - pos).get_len() <= jump_radius &&
                     // перезарядка атаки прошла
-                    devour_accum >= devour_cooldown
+                    devour_accum <= 0
                     ) {
                 // игрок не может двигаться и у нас анимация атаки
                 player.is_paralyzed = is_devour = true;
-
                 pos = player.pos;  // прыгаем на игрока
-
                 anim = animation_devour;
             }
         }
@@ -233,18 +203,13 @@ struct Slime : AbstractGameObject, enemy_state_for_trivial_enemy {
             draw_sprite(pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW, shadow_color_func());
 
             anim.draw(pos + delta_draw_pos, size, [&](Color color) {
-                return paralyzed_accum < paralyzed_cooldown ? Color(0xffffff, 128)
-                                                            : Color(color.operator unsigned int(), draw_alpha);
+                return paralyzed_accum > 0 ? Color(0xffffff, 128) : Color(static_cast<uint32_t>(color), draw_alpha);
             });
         }
 
         draw_collision(*this);
         draw_hitbox(*this);
         draw_hp(*this);
-
-        if (global_variables::show_locator) {
-            draw_circle(Circle(pos - global_variables::camera.pos, jump_radius), Color(0xff0000, 50));
-        }
     }
 };
 
