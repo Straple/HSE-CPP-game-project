@@ -202,12 +202,12 @@ bool get_direction_to_shortest_path_bfs(
         }
     }
 
-    std::queue<grid_pos_t> queue;
+    std::vector<grid_pos_t> queue;
     std::map<grid_pos_t, efloat> dist;
     std::map<grid_pos_t, grid_pos_t> previous;
 
     for (auto &start_pos : starting_points) {
-        queue.push(start_pos);
+        queue.push_back(start_pos);
         dist[start_pos] = 0;
         previous[start_pos] = start_pos;
     }
@@ -215,9 +215,8 @@ bool get_direction_to_shortest_path_bfs(
     bool find_answer = false;
     grid_pos_t answer_pos;
 
-    while (!queue.empty()) {
-        auto grid_pos = queue.front();
-        queue.pop();
+    for(uint32_t top = 0; top < queue.size(); top++){
+        auto grid_pos = queue[top];
 
         if (suitable(cast_grid_coord_to_game_coord(grid_pos))) {
             find_answer = true;
@@ -232,7 +231,7 @@ bool get_direction_to_shortest_path_bfs(
                 // посещаем
                 dist[grid_neighbour] = dist[grid_pos] + 1;
                 previous[grid_neighbour] = grid_pos;
-                queue.push(grid_neighbour);
+                queue.push_back(grid_neighbour);
             }
         }
     }
