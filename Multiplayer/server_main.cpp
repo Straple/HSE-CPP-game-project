@@ -159,7 +159,7 @@ public:
         std::cout << "Client <" << remote_endpoint << "> joined in session\n" << std::endl;
 
         // добавим персонажа в игру
-        Players.push_back({});
+        Players.emplace_back(Dot(25, -100));
         Players.back().client_id = client_ptr->client_id;
 
         // обновим игровой снапшот, так как мы получили нового игрока

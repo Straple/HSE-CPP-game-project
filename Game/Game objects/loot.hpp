@@ -33,7 +33,7 @@ struct Loot : AbstractPhysicalObject {
     void draw() const override = 0;
 
     void simulate(efloat delta_time) {
-        int index = find_nearest_player(pos);
+        int index = find_nearest_player_index(pos);
 
         if (index == -1) {
             // Нет игроков

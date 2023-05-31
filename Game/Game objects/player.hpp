@@ -246,10 +246,10 @@ int find_player_index(int client_id) {
 }
 
 // найти самого близкого игрока к этой точке
-// вернет client_id, а не index, для более безопасной работы
-int find_nearest_player(Dot pos) {
+// вернет index
+int find_nearest_player_index(Dot pos) {
     int best = -1;
-    for (int index = 0; index < Players.size(); index++) {
+    for (std::size_t index = 0; index < Players.size(); index++) {
         if (Players[index].is_dead() || Players[index].is_paralyzed) {
             continue;
         }
@@ -257,10 +257,7 @@ int find_nearest_player(Dot pos) {
             best = index;
         }
     }
-    if (best == -1) {
-        return -1;
-    }
-    return Players[best].client_id;
+    return best;
 }
 
 // моб стоит в pos
@@ -269,7 +266,7 @@ int find_nearest_player(Dot pos) {
 int find_best_player(Dot pos) {
     // return find_nearest_player(pos);
     int best = -1;
-    for (int index = 0; index < Players.size(); index++) {
+    for (std::size_t index = 0; index < Players.size(); index++) {
         if (Players[index].is_dead() || Players[index].is_paralyzed) {
             continue;
         }
