@@ -14,11 +14,18 @@ void set_game_state(const std::string &game_state) {
     std::istringstream iss(game_state);
 
     Players = serialization_traits<std::vector<Player>>::deserialize(iss);
+
+    // mobs
     Slimes = serialization_traits<std::vector<Slime>>::deserialize(iss);
     Bats = serialization_traits<std::vector<Bat>>::deserialize(iss);
+    Bombers = serialization_traits<std::vector<Bomber>>::deserialize(iss);
+
+    // world
     Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
     Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
     Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
+
+    // objects
     Effects = serialization_traits<std::vector<Effect>>::deserialize(iss);
     Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
     Loot_coins = serialization_traits<std::vector<Coin>>::deserialize(iss);

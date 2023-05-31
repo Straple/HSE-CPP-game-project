@@ -23,11 +23,18 @@ std::string get_game_state() {
     std::ostringstream oss(std::ios::binary);
 
     serialization_traits<std::vector<Player>>::serialize(oss, Players);
+
+    // mobs
     serialization_traits<std::vector<Slime>>::serialize(oss, Slimes);
     serialization_traits<std::vector<Bat>>::serialize(oss, Bats);
+    serialization_traits<std::vector<Bomber>>::serialize(oss, Bombers);
+
+    // world
     serialization_traits<std::vector<Tree>>::serialize(oss, Trees);
     serialization_traits<std::vector<Bush>>::serialize(oss, Bushes);
     serialization_traits<std::vector<Log>>::serialize(oss, Logs);
+
+    // objects
     serialization_traits<std::vector<Effect>>::serialize(oss, Effects);
     serialization_traits<std::vector<Bullet>>::serialize(oss, Bullets);
     serialization_traits<std::vector<Coin>>::serialize(oss, Loot_coins);
