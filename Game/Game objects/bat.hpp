@@ -23,11 +23,11 @@ struct Bat : Mob {
     // others
     inline const static int damage = 1;
 
-    int hp = 3;
-
     efloat attack_accum = 0;
 
     animation anim = animation(SS_BAT, 0, 5, 1.0 / 7);
+
+    int hp = 3;
 
     Bat(const Dot &position = Dot()) {
         pos = position;
