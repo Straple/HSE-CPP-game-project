@@ -398,7 +398,7 @@ private:
         }
 
         // update render_scale
-        /*{
+        {
             if (IS_DOWN(BUTTON_UP)) {
                 increase_window_scaling(cursor.pos);
             }
@@ -406,7 +406,7 @@ private:
             if (IS_DOWN(BUTTON_DOWN)) {
                 decrease_window_scaling(cursor.pos);
             }
-        }*/
+        }
 
         cursor.simulate(input);
     }

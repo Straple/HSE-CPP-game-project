@@ -1,5 +1,12 @@
 #include "window_handler.hpp"
 
+enum game_mode_t {
+    GM_GAME,
+    GM_CUSTOMIZATION,
+};
+
+game_mode_t game_mode = GM_GAME;
+
 int main() {
     setlocale(LC_ALL, "ru-RU");
 
@@ -35,37 +42,85 @@ int main() {
             window_handler.update();
 
             int index = find_player_index(0);
-            Players[index].input = window_handler.input;
-            auto &input = Players[index].input;
+            auto &player = Players[index];
+            player.input = window_handler.input;
+            auto &input = player.input;
 
-            if (PRESSED(BUTTON_G)) {
+            if (PRESSED(BUTTON_C)) {
                 if (game_mode == GM_GAME) {
                     game_mode = GM_CUSTOMIZATION;
-                    save_player_for_customization = Players[index];
-                    Players[index].now_is_customization = true;
-                } else if (game_mode = GM_CUSTOMIZATION) {
+                    save_player_for_customization = player;
+                    player.now_is_customization = true;
+                    global_variables::camera.pos = player.pos;
+                } else if (game_mode == GM_CUSTOMIZATION) {
                     game_mode = GM_GAME;
-                    save_player_for_customization.t_shirt_color_id = Players[index].t_shirt_color_id;
-                    save_player_for_customization.cloack_color_id = Players[index].cloack_color_id;
-                    Players[index] = save_player_for_customization;
+                    save_player_for_customization.t_shirt_color_id = player.t_shirt_color_id;
+                    save_player_for_customization.cloack_color_id = player.cloack_color_id;
+                    player = save_player_for_customization;
+                    global_variables::camera.pos = player.pos;
                 } else {
                     ASSERT(false, "game_mode = ?");
                 }
             }
 
+            // customize colors
             if (game_mode == GM_CUSTOMIZATION) {
-                simulate_player(delta_time, 0);
-                global_variables::camera.simulate(Players[index].pos, delta_time);
-            } else {
+                // false = t-shirt
+                // true = cloack
+                static bool change_mode = false;
+                if (PRESSED(BUTTON_T)) {
+                    change_mode = !change_mode;
+                }
+
+                if (PRESSED(BUTTON_Q)) {
+                    if (change_mode) {
+                        if (player.cloack_color_id == 0) {
+                            player.cloack_color_id = Player::customization_colors.size() / 2 - 1;
+                        } else {
+                            player.cloack_color_id--;
+                        }
+                    } else {
+                        if (player.t_shirt_color_id == 0) {
+                            player.t_shirt_color_id = Player::customization_colors.size() / 2 - 1;
+                        } else {
+                            player.t_shirt_color_id--;
+                        }
+                    }
+                }
+
+                if (PRESSED(BUTTON_E)) {
+                    if (change_mode) {
+                        player.cloack_color_id++;
+                        if (player.cloack_color_id == Player::customization_colors.size() / 2) {
+                            player.cloack_color_id = 0;
+                        }
+                    } else {
+                        player.t_shirt_color_id++;
+                        if (player.t_shirt_color_id == Player::customization_colors.size() / 2) {
+                            player.t_shirt_color_id = 0;
+                        }
+                    }
+                }
+            }
+
+            if (game_mode == GM_GAME) {
                 simulate_player(delta_time, 0);
                 simulate_game(delta_time);
 
-                Players[index].cursor_dir =
-                    window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-                global_variables::camera.simulate(Players[index].pos, delta_time);
+                player.cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - player.pos;
+                global_variables::camera.simulate(player.pos, delta_time);
+
+                window_handler.draw_frame(delta_time, 0);
+            } else if (game_mode == GM_CUSTOMIZATION) {
+                simulate_player(delta_time, 0);
+                global_variables::camera.pos = player.pos; // static camera
+
+                clear_screen(GREY);
+                player.draw();
+            } else {
+                ASSERT(false, "game_mode = ?");
             }
 
-            window_handler.draw_frame(delta_time, 0);
             window_handler.release_frame();
         }
 

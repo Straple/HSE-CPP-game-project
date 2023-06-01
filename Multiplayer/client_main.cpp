@@ -34,6 +34,17 @@ void set_game_state(const std::string &game_state) {
 
 //----------------------------------------------------------------------
 
+enum game_mode_t {
+    GM_GAME,
+    GM_CUSTOMIZATION,
+};
+
+game_mode_t game_mode = GM_GAME;
+
+Player customization_player;
+
+//----------------------------------------------------------------------
+
 // Клиент. Это мы
 class Client {
 public:
@@ -67,15 +78,31 @@ public:
         sending_chain_is_run = true;
 
         GameMessage message;
-        message.body_length(sizeof(ButtonsState) + sizeof(Dot));
+        message.body_length(sizeof(ButtonsState) + sizeof(Dot) + 2 * sizeof(int));
         message.encode_header();
 
         // запишем ButtonsState
-        std::memcpy(message.body(), &window_handler.input.current, sizeof(ButtonsState));
+        if (game_mode == GM_GAME) {
+            std::memcpy(message.body(), &window_handler.input.current, sizeof(ButtonsState));
+        } else if (game_mode == GM_CUSTOMIZATION) {
+            // никаких нажатий нет
+        } else {
+            ASSERT(false, "game_mode = ?");
+        }
 
         // запишем cursor_dir (нужен для пушки и выстрелов от игрока)
         int index = find_player_index(client_id);
         std::memcpy(message.body() + sizeof(ButtonsState), &Players[index].cursor_dir, sizeof(Dot));
+
+        // запишем cloack_color_id
+        std::memcpy(
+            message.body() + sizeof(ButtonsState) + sizeof(Dot), &customization_player.cloack_color_id, sizeof(int)
+        );
+        // запишем t_shirt_color_id
+        std::memcpy(
+            message.body() + sizeof(ButtonsState) + sizeof(Dot) + sizeof(int), &customization_player.t_shirt_color_id,
+            sizeof(int)
+        );
 
         // отправим на сервер
         write(message);
@@ -92,33 +119,6 @@ public:
             time_tick_prev_frame = cur_time_tick;
         }
 
-        // simulate frame
-        {
-            window_handler.update();
-
-            int index = find_player_index(client_id);
-            Players[index].cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - Players[index].pos;
-            global_variables::camera.simulate(Players[index].pos, delta_time);
-        }
-
-        if (!this_frame_from_server) {
-            // этот фрейм уже не от сервера
-            // мы должны симулировать свою версию игры
-            //
-            // то есть мы пару кадров будем жить в своем собственном мире,
-            // а когда получим от сервера его версию игры, то переключимся на нее
-            // таким образом игра становиться более плавной и менее зависящей от сервера
-            // если долго не будут приходить пакеты от сервера, то клиент еще сможет играть
-
-            // симулируем игроков
-            for (auto &player : Players) {
-                simulate_player(delta_time, player.client_id);
-            }
-
-            // симулируем игру
-            simulate_game(delta_time);
-        }
-
         // update debug info
         {
             if (this_frame_from_server) {
@@ -133,14 +133,127 @@ public:
             }
         }
 
+        int index = find_player_index(client_id);
+        auto &player = Players[index];
+
+        // simulate frame
+        {
+            window_handler.update();
+            customization_player.input = player.input = window_handler.input;
+
+            auto &input = player.input;
+
+            if (PRESSED(BUTTON_C)) {
+                if (game_mode == GM_GAME) {
+                    game_mode = GM_CUSTOMIZATION;
+                    customization_player = player;
+                    customization_player.now_is_customization = true;
+                    global_variables::camera.pos = player.pos;
+                } else if (game_mode == GM_CUSTOMIZATION) {
+                    game_mode = GM_GAME;
+                    player.cloack_color_id = customization_player.cloack_color_id;
+                    player.t_shirt_color_id = customization_player.t_shirt_color_id;
+                    global_variables::camera.pos = player.pos;
+                } else {
+                    ASSERT(false, "game_mode = ?");
+                }
+            }
+
+            if (game_mode == GM_GAME) {
+                // мы должны симулировать свою версию игры,
+                // то есть мы пару кадров будем жить в своем собственном мире,
+                // а когда получим от сервера его версию игры, то переключимся на нее
+                // таким образом игра становиться более плавной и менее зависящей от сервера
+                // если долго не будут приходить пакеты от сервера, то клиент еще сможет играть
+
+                player.cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - player.pos;
+                global_variables::camera.simulate(player.pos, delta_time);
+
+                // симулируем игроков
+                for (auto &player : Players) {
+                    simulate_player(delta_time, player.client_id);
+                }
+
+                // симулируем игру
+                simulate_game(delta_time);
+            } else if (game_mode == GM_CUSTOMIZATION) {
+                simulate_player(delta_time, customization_player);
+                global_variables::camera.pos = customization_player.pos; // static camera
+
+                // false = t-shirt
+                // true = cloack
+                static bool change_mode = false;
+                if (PRESSED(BUTTON_T)) {
+                    change_mode = !change_mode;
+                }
+
+                if (PRESSED(BUTTON_Q)) {
+                    if (change_mode) {
+                        if (customization_player.cloack_color_id == 0) {
+                            customization_player.cloack_color_id = Player::customization_colors.size() / 2 - 1;
+                        } else {
+                            customization_player.cloack_color_id--;
+                        }
+                    } else {
+                        if (customization_player.t_shirt_color_id == 0) {
+                            customization_player.t_shirt_color_id = Player::customization_colors.size() / 2 - 1;
+                        } else {
+                            customization_player.t_shirt_color_id--;
+                        }
+                    }
+                }
+
+                if (PRESSED(BUTTON_E)) {
+                    if (change_mode) {
+                        customization_player.cloack_color_id++;
+                        if (customization_player.cloack_color_id == Player::customization_colors.size() / 2) {
+                            customization_player.cloack_color_id = 0;
+                        }
+                    } else {
+                        customization_player.t_shirt_color_id++;
+                        if (customization_player.t_shirt_color_id == Player::customization_colors.size() / 2) {
+                            customization_player.t_shirt_color_id = 0;
+                        }
+                    }
+                }
+            } else {
+                ASSERT(false, "game_mode = ?");
+            }
+
+            /*if (!this_frame_from_server) {
+                // этот фрейм уже не от сервера
+                // мы должны симулировать свою версию игры
+                //
+                // то есть мы пару кадров будем жить в своем собственном мире,
+                // а когда получим от сервера его версию игры, то переключимся на нее
+                // таким образом игра становиться более плавной и менее зависящей от сервера
+                // если долго не будут приходить пакеты от сервера, то клиент еще сможет играть
+
+                // симулируем игроков
+                for (auto &player : Players) {
+                    simulate_player(delta_time, player.client_id);
+                }
+
+                // симулируем игру
+                simulate_game(delta_time);
+            }*/
+        }
+
         // draw frame
         {
-            window_handler.draw_frame(delta_time, client_id);
+            if (game_mode == GM_GAME) {
+                window_handler.draw_frame(delta_time, client_id);
 
-            if (global_variables::show_fps) {
-                draw_object(
-                    count_of_non_server_frames_snapshot, Dot(5, 20) - global_variables::arena_half_size, 0.5, GREEN
-                );
+                if (global_variables::show_fps) {
+                    draw_object(
+                        count_of_non_server_frames_snapshot, Dot(5, 20) - global_variables::arena_half_size, 0.5, GREEN
+                    );
+                }
+            } else if (game_mode == GM_CUSTOMIZATION) {
+                clear_screen(GREY);
+                customization_player.draw();
+            } else {
+                ASSERT(false, "game_mode = ?");
             }
 
             window_handler.release_frame();

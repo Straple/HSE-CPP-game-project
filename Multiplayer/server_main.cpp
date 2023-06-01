@@ -282,7 +282,8 @@ private:
                 if (!error_code) {
                     // обработаем полученное сообщение
                     ASSERT(
-                        read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot), "is not input from client"
+                        read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot) + 2 * sizeof(int),
+                        "is not input from client"
                     );
 
                     int index = find_player_index(client_id);
@@ -290,6 +291,15 @@ private:
 
                     Dot &cursor_dir = Players[find_player_index(client_id)].cursor_dir;
                     std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
+
+                    std::memcpy(
+                        &Players[index].cloack_color_id, read_message.body() + sizeof(ButtonsState) + sizeof(Dot),
+                        sizeof(int)
+                    );
+                    std::memcpy(
+                        &Players[index].t_shirt_color_id,
+                        read_message.body() + sizeof(ButtonsState) + sizeof(Dot) + sizeof(int), sizeof(int)
+                    );
 
                     do_read_header();  // продолжим цепочку чтения сообщений
                 } else {
