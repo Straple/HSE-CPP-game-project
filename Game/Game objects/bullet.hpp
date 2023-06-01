@@ -8,7 +8,7 @@
 #include "effect.hpp"
 #include "game_utils.hpp"
 
-enum class BulletHostType : u8 {
+enum class BulletHostType {
     // эту пулю выпустил игрок
     PLAYER,
     // эту пулю выпустил моб

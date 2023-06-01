@@ -23,11 +23,6 @@
 
 std::mt19937 &get_random_engine();
 
-using s8 = int8_t;
-using u8 = uint8_t;
-using s64 = int64_t;
-using u64 = uint64_t;
-
 template <typename T>
 T quare(const T &val) {
     return val * val;

@@ -41,7 +41,7 @@ struct Room {
     efloat wave_cooldown_accum = 0;
 
     void build_grid() {
-        grid_start = grid_start_dot;  // use this grid start position
+        get_ref_grid_start() = grid_start_dot;  // use this grid start position
 
         const static std::vector<grid_pos_t> steps = {{1, 0}, {-1, 0}, {0, 1},  {0, -1},
                                                       {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};

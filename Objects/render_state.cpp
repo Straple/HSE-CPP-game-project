@@ -7,7 +7,7 @@ void RenderState::resize(unsigned int new_width, unsigned int new_height) {
 
     // update render_memory
     {
-        u64 size = static_cast<u64>(m_width) * new_height;
+        uint64_t size = static_cast<uint64_t>(m_width) * new_height;
 
         if (m_render_memory_len < size) {  // не хватает памяти
             delete[] m_render_memory;

@@ -7,6 +7,8 @@
 // [a, r, g, b]
 // [0..255]
 struct Color {
+    using u8 = uint8_t;
+
     u8 b;  // blue
     u8 g;  // green
     u8 r;  // red

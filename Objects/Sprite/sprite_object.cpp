@@ -3,21 +3,20 @@
 Sprite read_sprite_from_png(const std::string &path) {
     std::vector<unsigned char> img;
     unsigned int width, height;
-    unsigned int return_code =
-        lodepng::decode(img, width, height, path, LCT_RGBA);
+    unsigned int return_code = lodepng::decode(img, width, height, path, LCT_RGBA);
 
     ASSERT(
-        return_code == 0, "failed read_sprite_from_png\npath: " + path +
-                              "\nerror_code: " + lodepng_error_text(return_code)
+        return_code == 0,
+        "failed read_sprite_from_png\npath: " + path + "\nerror_code: " + lodepng_error_text(return_code)
     );
 
     Sprite pixels(height, width);
 
-    for (u64 y = 0; y < height; y++) {
-        for (u64 x = 0; x < width; x++) {
+    for (uint64_t y = 0; y < height; y++) {
+        for (uint64_t x = 0; x < width; x++) {
             pixels[y][x] = Color(
-                img[y * width * 4 + x * 4 + 0], img[y * width * 4 + x * 4 + 1],
-                img[y * width * 4 + x * 4 + 2], img[y * width * 4 + x * 4 + 3]
+                img[y * width * 4 + x * 4 + 0], img[y * width * 4 + x * 4 + 1], img[y * width * 4 + x * 4 + 2],
+                img[y * width * 4 + x * 4 + 3]
             );
         }
     }
@@ -26,11 +25,7 @@ Sprite read_sprite_from_png(const std::string &path) {
 
 // распарсить спрайт на кадры
 Spritesheet::Spritesheet(const Sprite &sprite, int frame_len_x) {
-    ASSERT(
-        frame_len_x > 0 && frame_len_x <= sprite.width() &&
-            sprite.width() % frame_len_x == 0,
-        "bad frame_len_x"
-    );
+    ASSERT(frame_len_x > 0 && frame_len_x <= sprite.width() && sprite.width() % frame_len_x == 0, "bad frame_len_x");
 
     for (int j = 0; j < sprite.width(); j += frame_len_x) {
         frames.emplace_back(sprite.height(), frame_len_x);

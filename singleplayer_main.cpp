@@ -1,12 +1,13 @@
 #include "game_mode.hpp"
-//#include "window_handler.hpp"
+
+// #include "window_handler.hpp"
 
 int main() {
     setlocale(LC_ALL, "ru-RU");
 
     // initialize
     {
-        std::cout << "performance_frequency: " << performance_frequency << std::endl;
+        std::cout << "performance_frequency: " << get_performance_frequency() << std::endl;
 
         ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
         ShowCursor(global_variables::show_cursor);
@@ -23,8 +24,8 @@ int main() {
 
     WindowHandler window_handler;
 
-    u64 time_tick_global_start = get_ticks();
-    u64 time_tick_prev = time_tick_global_start;
+    uint64_t time_tick_global_start = get_ticks();
+    uint64_t time_tick_prev = time_tick_global_start;
 
     efloat delta_time = 0;
 
@@ -39,8 +40,8 @@ int main() {
 
         // update time
         {
-            u64 cur_time_tick = get_ticks();
-            delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev) / performance_frequency;
+            uint64_t cur_time_tick = get_ticks();
+            delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev) / get_performance_frequency();
             time_tick_prev = cur_time_tick;
         }
     }

@@ -288,7 +288,7 @@ private:
                 } break;
                 case WM_KEYUP:
                 case WM_KEYDOWN: {
-                    u64 vk_code = message.wParam;
+                    uint64_t vk_code = message.wParam;
                     bool is_down = (message.message == WM_KEYDOWN);
 
 #define update_button(b, vk)                  \

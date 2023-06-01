@@ -1,6 +1,7 @@
-#include "../Objects/collision.hpp"
+#include "render_object.hpp"
+#include "render_geometry.hpp"
 
-void draw_collision(const CollisionCircle &collision, const Color color = Color(0x00ff00, 70)) {
+void draw_collision(const CollisionCircle &collision, const Color color) {
     if (global_variables::debug_mode) {
         Circle circle = collision.circle;
         static_pos_update(circle.pos, global_variables::camera_is_static);
@@ -8,7 +9,7 @@ void draw_collision(const CollisionCircle &collision, const Color color = Color(
     }
 }
 
-void draw_collision(const CollisionBox &collision, const Color color = Color(0x00ff00, 70)) {
+void draw_collision(const CollisionBox &collision, const Color color) {
     if (global_variables::debug_mode) {
         Dot p0 = collision.p0;
         Dot p1 = collision.p1;
@@ -18,7 +19,7 @@ void draw_collision(const CollisionBox &collision, const Color color = Color(0x0
     }
 }
 
-void draw_collision(const Collision &collision, const Color color = Color(0x00ff00, 70)) {
+void draw_collision(const Collision &collision, const Color color) {
     if (dynamic_cast<const CollisionCircle *>(&collision) != nullptr) {
         draw_collision(*dynamic_cast<const CollisionCircle *>(&collision), color);
     } else if (dynamic_cast<const CollisionBox *>(&collision) != nullptr) {
@@ -28,25 +29,6 @@ void draw_collision(const Collision &collision, const Color color = Color(0x00ff
     }
 }
 
-template <typename T>
-void draw_collision(const T &object) {
-    draw_collision(*object.get_collision());
-}
-
 void draw_hitbox(const Collision &collision) {
     draw_collision(collision, Color(0xff0000, 70));
-}
-
-template <typename T>
-void draw_hitbox(const T &object) {
-    draw_hitbox(*object.get_hitbox());
-}
-
-template <typename T>
-void draw_hp(const T &object) {
-    if (global_variables::debug_mode) {
-        Dot pos = object.pos;
-        static_pos_update(pos, global_variables::camera_is_static);
-        draw_object(object.hp, pos, 0.5, Color(0x0000ff, 0xff));
-    }
 }

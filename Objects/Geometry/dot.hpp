@@ -1,6 +1,7 @@
 ﻿#ifndef GAME_ENGINE_GEOMETRY_DOT_HPP
 #define GAME_ENGINE_GEOMETRY_DOT_HPP
 
+#include <iostream>
 #include "geometry_utils.hpp"
 
 // (x, y)

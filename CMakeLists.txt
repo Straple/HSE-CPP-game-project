@@ -11,19 +11,36 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512vl")
 
 add_library(SOURCES OBJECT
-        utils.cpp
 
+utils.cpp
+sprites.cpp
+
+    # OBJECTS
+    Objects/render_state.cpp
+    Objects/collision.cpp
+    Objects/time.cpp
+    Objects/platform_common.cpp
+    Objects/move.cpp
+    Objects/camera.cpp
+        # GEOMETRY
         Objects/Geometry/dot.cpp
         Objects/Geometry/circle.cpp
         Objects/Geometry/line.cpp
-
+        # SPRITE
         Objects/Sprite/png.cpp
         Objects/Sprite/color.cpp
         Objects/Sprite/sprite_object.cpp
 
-        Objects/render_state.cpp
 
-        Objects/collision.cpp
+    # RENDER
+    Render/render_utils.cpp
+    Render/basic_render.cpp
+    Render/render_geometry.cpp
+    Render/render_text.cpp
+    Render/render_sprite.cpp
+    Render/animation.cpp
+    Render/render_object.cpp
+
         )
 
 

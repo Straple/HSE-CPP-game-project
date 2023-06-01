@@ -14,7 +14,7 @@ struct Slime : Mob {
     // visible
     inline const static efloat size = 0.8;
     inline const static Dot delta_draw_pos = Dot(-30, 38) * size;
-    inline const static u8 draw_alpha = 210;
+    inline const static uint8_t draw_alpha = 210;
     inline const static efloat frame_duration = 1.0 / 7;
     inline const static animation animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
                                   animation_devour = animation(SS_SLIME, 25, 30, frame_duration),
@@ -192,7 +192,7 @@ struct Slime : Mob {
 
     void draw() const override {
         if (is_devour) {
-            if (is_between<u8>(9, anim.frame_count, 25)) {
+            if (is_between<uint8_t>(9, anim.frame_count, 25)) {
                 draw_sprite(pos + delta_draw_pos, size, SP_SLIME_LARGE_SHADOW, shadow_color_func());
             } else {
                 draw_sprite(pos + delta_draw_pos, size, SP_SLIME_MEDIUM_SHADOW, shadow_color_func());

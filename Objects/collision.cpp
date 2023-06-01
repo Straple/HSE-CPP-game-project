@@ -1,4 +1,5 @@
 #include "collision.hpp"
+#include "../utils.hpp"
 
 CollisionCircle::CollisionCircle(const Circle &circle) : circle(circle) {
 }

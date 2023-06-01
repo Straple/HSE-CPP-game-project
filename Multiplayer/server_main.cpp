@@ -123,7 +123,7 @@ public:
         efloat delta_time;
         // update time
         {
-            u64 cur_time_tick = get_ticks();
+            uint64_t cur_time_tick = get_ticks();
             delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev_frame) / performance_frequency;
             time_tick_prev_frame = cur_time_tick;
         }
@@ -206,7 +206,7 @@ private:
 
     int frame_count_accum = 0;  // накопленное количество кадров
 
-    u64 time_tick_prev_frame;  // время последнего кадра
+    uint64_t time_tick_prev_frame;  // время последнего кадра
 };
 
 //----------------------------------------------------------------------

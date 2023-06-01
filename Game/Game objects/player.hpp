@@ -30,7 +30,7 @@ const static animation player_anims[] = {
 
 // дерево анимаций игрока
 struct Player_anim_tree {
-    enum anim_t : u8 {
+    enum anim_t : uint8_t {
         NONE,
         RUN,
         ATTACK,
