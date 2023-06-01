@@ -299,7 +299,7 @@ void read_spritesheets() {
         read(SS_BAT, "Enemies\\bat.png", 16);
         read(SS_BAT_INVERSE, "Enemies\\bat_inverse.png", 16);
 
-        read(SS_SLIME, "Enemies\\slime_new_ss.png", 64);
+        read(SS_SLIME, "Enemies\\slime.png", 64);
     }
 
     // effects

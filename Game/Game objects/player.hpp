@@ -248,28 +248,34 @@ struct Player : AbstractPhysicalObject {
     void draw() const override {
         draw_sprite(pos + Dot(-8, 3), size, SP_MEDIUM_SHADOW);
 
-        if (invulnerable_accum > 0 || is_dead()) {
-            anim.draw(pos + delta_draw_pos, size, [&](const Color &color) { return Color(0xffffff, 128); });
-        } else {
-            anim.sprite_sheet = SS_PLAYER_CLOACK;
-            anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
-                if (color == WHITE) {
-                    return customization_colors[2 * cloack_color_id];
-                } else {
-                    return customization_colors[2 * cloack_color_id + 1];
-                }
-            });
-            anim.sprite_sheet = SS_PLAYER_T_SHIRT;
-            anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
-                if (color == WHITE) {
-                    return customization_colors[2 * t_shirt_color_id];
-                } else {
-                    return customization_colors[2 * t_shirt_color_id + 1];
-                }
-            });
-            anim.sprite_sheet = SS_PLAYER_BODY;
-            anim.draw(pos + delta_draw_pos, size);
-        }
+        anim.sprite_sheet = SS_PLAYER_CLOACK;
+        anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
+            if (invulnerable_accum > 0 || is_dead()) {
+                return Color(0xffffff, 128);
+            } else if (color == WHITE) {
+                return customization_colors[2 * cloack_color_id];
+            } else {
+                return customization_colors[2 * cloack_color_id + 1];
+            }
+        });
+        anim.sprite_sheet = SS_PLAYER_T_SHIRT;
+        anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
+            if (invulnerable_accum > 0 || is_dead()) {
+                return Color(0xffffff, 128);
+            } else if (color == WHITE) {
+                return customization_colors[2 * t_shirt_color_id];
+            } else {
+                return customization_colors[2 * t_shirt_color_id + 1];
+            }
+        });
+        anim.sprite_sheet = SS_PLAYER_BODY;
+        anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {
+            if (invulnerable_accum > 0 || is_dead()) {
+                return Color(0xffffff, 128);
+            } else {
+                return color;
+            }
+        });
 
         if (!now_is_customization && !is_jumped && !is_dead()) {
             weapon.draw(pos, cursor_dir + pos);

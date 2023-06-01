@@ -176,7 +176,7 @@ struct Room {
         if (Slimes.size() + Bats.size() + Bombers.size() == 0) {
             // new wave
 
-            /*std::cout << "New wave!" << std::endl;
+            std::cout << "New wave!" << std::endl;
 
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
@@ -188,7 +188,7 @@ struct Room {
                         Slimes.emplace_back(pos);
                     }
                 }
-            }*/
+            }
 
             /*wave_cooldown_accum += delta_time;
             if (wave_cooldown_accum >= wave_cooldown) {
