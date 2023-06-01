@@ -118,6 +118,10 @@ struct Player : AbstractPhysicalObject {
         // purple
         Color(0xaf55dd, 0xff),
         Color(0x7a3b9B, 0xff),
+
+        // green
+        Color(0x00854a, 0xff),
+        Color(0x006639, 0xff),
     };
 
     efloat jump_accum = 0;
