@@ -2,8 +2,7 @@
 // for get_random_engine()
 #include "../../utils.hpp"
 
-Circle::Circle(const Dot &new_pos, efloat new_radius)
-    : pos(new_pos), radius(new_radius) {
+Circle::Circle(const Dot &new_pos, efloat new_radius) : pos(new_pos), radius(new_radius) {
 }
 
 // возвращает точку на окружности

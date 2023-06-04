@@ -1,5 +1,6 @@
 ﻿
 #include "render_text.hpp"
+#include <cstring>
 #include "letters.cpp"
 #include "render_geometry.hpp"
 
