@@ -1,4 +1,4 @@
-﻿#include "Game objects/game_objects.hpp"
+﻿#include "Game_objects/game_objects.hpp"
 
 void simulate_player(efloat delta_time, Player &player) {
     auto &input = player.input;

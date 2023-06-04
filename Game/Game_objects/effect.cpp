@@ -1,33 +1,19 @@
-﻿#ifndef GAME_EFFECT_HPP
-#define GAME_EFFECT_HPP
+#include "effect.hpp"
 
-#include "../../render.hpp"
-#include "abstract_object.hpp"
 
-struct Effect : AbstractObject {
-    ADD_BYTE_SERIALIZATION();
+// pos лежит в AbstractObject
+Effect::Effect(const Dot &pos, const animation &anim) : AbstractObject(pos), anim(anim) {
+}
 
-    Dot delta_draw_pos;
-    efloat size = 0.5;
-    animation anim;
+// вернет правду, если его анимация закончилась и нужно удалить объект
+bool Effect::simulate(efloat delta_time) {
+    return anim.frame_update(delta_time);
+}
 
-    Effect() = default;
+void Effect::draw() const {
+    anim.draw(pos + delta_draw_pos, size);
+}
 
-    // pos лежит в AbstractObject
-    Effect(const Dot &pos, const animation &anim) : AbstractObject(pos), anim(anim) {
-    }
-
-    // вернет правду, если его анимация закончилась и нужно удалить объект
-    bool simulate(efloat delta_time) {
-        return anim.frame_update(delta_time);
-    }
-
-    void draw() const {
-        anim.draw(pos + delta_draw_pos, size);
-    }
-};
-
-std::vector<Effect> Effects;
 
 void add_hit_effect(const Dot &pos) {
     Effect effect(pos, animation(SS_HIT_EFFECT, 0, 2, 0.1));
@@ -66,4 +52,3 @@ void add_flower_dome_effect(const Dot &pos) {
     add_flower_effect(pos + Dot(22, 7));
 }
 
-#endif  // GAME_EFFECT_HPP

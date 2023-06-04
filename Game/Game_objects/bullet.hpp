@@ -35,14 +35,9 @@ struct Bullet : AbstractPhysicalObject {
 
     Bullet() = default;
 
-    Bullet(BulletHostType host, Dot from, Dot to, int damage, int speed, sprite_t sp)
-        : host(host), ddp((to - from).normalize() * speed), damage(damage), sprite(sp) {
-        pos = from;
-    }
+    Bullet(BulletHostType host, Dot from, Dot to, int damage, int speed, sprite_t sp);
 
-    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override {
-        return std::make_unique<CollisionCircle>(pos, collision_radius);
-    }
+    [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 
     // вернет правду, если атака кого-то зацепила
     template <typename enemy_t>
@@ -109,16 +104,11 @@ struct Bullet : AbstractPhysicalObject {
         return false;
     }
 
-    void simulate(efloat delta_time) {
-        simulate_move2d(pos, dp, ddp, delta_time);
-    }
+    void simulate(efloat delta_time);
 
-    void draw() const override {
-        draw_sprite(pos + Dot(-2, 2), 0.4, sprite);
-        draw_collision(*this);
-    }
+    void draw() const override;
 };
 
-std::vector<Bullet> Bullets;
+static std::vector<Bullet> Bullets;
 
 #endif  // GAME_BULLET_HPP

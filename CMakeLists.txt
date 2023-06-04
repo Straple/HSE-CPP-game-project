@@ -40,7 +40,27 @@ sprites.cpp
     Render/render_sprite.cpp
     Render/animation.cpp
     Render/render_object.cpp
-
+    # GAME OBJECTS
+    Game/Game_objects/abstract_object.cpp
+    Game/Game_objects/abstract_physical_object.cpp
+    Game/Game_objects/bullet.cpp
+    Game/Game_objects/bat.cpp
+    Game/Game_objects/bomber.cpp
+    Game/Game_objects/bush.cpp
+    Game/Game_objects/button.cpp
+    Game/Game_objects/cursor.cpp
+    Game/Game_objects/effect.cpp
+    Game/Game_objects/game_collision.cpp
+    Game/Game_objects/heart_and_coin.cpp
+    Game/Game_objects/log.cpp
+    Game/Game_objects/loot.cpp
+    Game/Game_objects/mob.cpp
+    Game/Game_objects/player.cpp
+    Game/Game_objects/room.cpp
+    Game/Game_objects/slime.cpp
+    Game/Game_objects/table.cpp
+    Game/Game_objects/tree.cpp
+    Game/Game_objects/weapon.cpp
         )
 
 

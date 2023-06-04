@@ -1,46 +1,16 @@
-#ifndef GAME_ROOM_HPP
-#define GAME_ROOM_HPP
+#include "room.hpp"
 
-#include "../../objects.hpp"
-#include "../../render.hpp"
-#include "../../sprites.hpp"
-#include "game_objects.hpp"
 
-struct drawing_objects {
-    Dot pos;
-    efloat size;
-    sprite_t sprite;
-    int level;
 
-    bool operator<(const drawing_objects &right) const {
+    bool drawing_objects::operator<(const drawing_objects &right) const {
         return level < right.level;
     }
-};
 
-struct interesting_dot {
-    Dot pos;
-    std::string name;
-};
 
-struct Room {
-    // room sprites
-    std::vector<drawing_objects> Draw_objects;
 
-    // walls
-    std::vector<CollisionBox> Walls;
 
-    std::vector<interesting_dot> Interesting_dots;
 
-    std::set<grid_pos_t> visitable_grid_dots;
-
-    Dot grid_start_dot;
-
-    bool player_spawned = false;
-    int wave_number = 0;
-    efloat wave_cooldown = 2;
-    efloat wave_cooldown_accum = 0;
-
-    void build_grid() {
+    void Room::build_grid() {
         get_ref_grid_start() = grid_start_dot;  // use this grid start position
 
         const static std::vector<grid_pos_t> steps = {{1, 0}, {-1, 0}, {0, 1},  {0, -1},
@@ -81,7 +51,7 @@ struct Room {
         }
     }
 
-    void read(const std::string &filename) {
+    void Room::read(const std::string &filename) {
         std::ifstream file(filename);
         {
             std::string str;
@@ -134,7 +104,7 @@ struct Room {
         std::cout << visitable_grid_dots.size() << std::endl;
     }
 
-    void write(const std::string &filename) {
+    void Room::write(const std::string &filename) {
         std::ofstream file(filename);
         file << std::fixed << std::setprecision(10);
 
@@ -159,7 +129,7 @@ struct Room {
         ASSERT(false, "need to update");
     }
 
-    void simulate(efloat delta_time) {
+    void Room::simulate(efloat delta_time) {
         /*if (!player_spawned) {
             for (auto &player : Players) {
                 for (auto [pos, name] : Interesting_dots) {
@@ -304,7 +274,7 @@ struct Room {
         simulate_game_collisions(delta_time, Walls);
     }
 
-    void draw() {
+    void Room::draw() {
         clear_screen(GREY);
 
         for (auto [pos, size, sprite, level] : Draw_objects) {
@@ -391,6 +361,5 @@ struct Room {
             }*/
         }
     }
-};
 
-#endif  // GAME_ROOM_HPP
+

@@ -8,8 +8,7 @@ struct AbstractObject {
 
     AbstractObject() = default;
 
-    AbstractObject(Dot pos) : pos(pos) {
-    }
+    AbstractObject(Dot pos);
 
     virtual void draw() const = 0;
 };
