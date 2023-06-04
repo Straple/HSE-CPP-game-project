@@ -3,6 +3,7 @@
 
 #include "../global_variables.hpp"
 #include "../sprites.hpp"
+#include "basic_render.hpp"
 #include "render_utils.hpp"
 
 // вызывается из других функций draw_sprite

@@ -1,4 +1,5 @@
 #include "dot.hpp"
+#include <cmath>
 #include "../../assert.hpp"
 
 Dot::Dot(efloat x, efloat y) : x(x), y(y) {
