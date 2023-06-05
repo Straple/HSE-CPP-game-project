@@ -143,7 +143,7 @@
             }
         }*/
 
-        if (Slimes.size() + Bats.size() + Bombers.size() == 0) {
+        if (game_variables::Slimes.size() + game_variables:: Bats.size() + game_variables::Bombers.size() == 0) {
             // new wave
 
             std::cout << "New wave!" << std::endl;
@@ -151,11 +151,11 @@
             for (auto [pos, name] : Interesting_dots) {
                 if (name != "player") {
                     if (randomness(40)) {
-                        Bombers.emplace_back(pos);
+                        game_variables::Bombers.emplace_back(pos);
                     } else if (randomness(30)) {
-                        Bats.emplace_back(pos);
+                        game_variables:: Bats.emplace_back(pos);
                     } else {
-                        Slimes.emplace_back(pos);
+                        game_variables::Slimes.emplace_back(pos);
                     }
                 }
             }
@@ -168,31 +168,31 @@
                 for (auto [pos, name] : Interesting_dots) {
                     if (name == "enemy") {
                         if (randomness(50)) {
-                            Bats.emplace_back(pos);
+                            game_variables:: Bats.emplace_back(pos);
                         } else {
-                            Slimes.emplace_back(pos);
+                            game_variables::Slimes.emplace_back(pos);
                         }
                     }
                 }
             }*/
         }
 
-        for (auto &slime : Slimes) {
+        for (auto &slime : game_variables::Slimes) {
             slime.simulate(delta_time, visitable_grid_dots, Walls);
         }
-        for (auto &bat : Bats) {
+        for (auto &bat : game_variables:: Bats) {
             bat.simulate(delta_time, visitable_grid_dots);
         }
-        for (int i = 0; i < static_cast<int>(Bombers.size()); i++) {
-            Bombers[i].simulate(delta_time, visitable_grid_dots);
-            if (Bombers[i].hp <= 0) {
-                Bombers.erase(Bombers.begin() + i);
+        for (int i = 0; i < static_cast<int>(game_variables::Bombers.size()); i++) {
+            game_variables::Bombers[i].simulate(delta_time, visitable_grid_dots);
+            if (game_variables::Bombers[i].hp <= 0) {
+                game_variables::Bombers.erase(game_variables::Bombers.begin() + i);
                 i--;
             }
         }
-        for (auto &bomber1 : Bombers) {
+        for (auto &bomber1 : game_variables::Bombers) {
             if (bomber1.is_booming && bomber1.anim.frame_cur_count > 5 && bomber1.anim.frame_cur_count < 12) {
-                for (auto &bomber2 : Bombers) {
+                for (auto &bomber2 : game_variables::Bombers) {
                     if (!bomber2.is_booming && (bomber1.pos - bomber2.pos).get_len() < Bomber::boom_radius) {
                         // цепная реакция!
                         bomber2.do_boom();
@@ -203,29 +203,29 @@
 
         // simulate bullets
         {
-            for (auto &bullet : Bullets) {
+            for (auto &bullet : game_variables:: game_variables::Bullets) {
                 bullet.simulate(delta_time);
             }
 
             // bullet hit enemies
-            for (uint32_t i = 0; i < Bullets.size(); i++) {
-                if (Bullets[i].simulate_attack_on_mob(Slimes) || Bullets[i].simulate_attack_on_mob(Bats) ||
-                    Bullets[i].simulate_attack_on_mob(Bombers) || Bullets[i].simulate_attack_on_player(Players)) {
-                    Bullets.erase(Bullets.begin() + i);
+            for (uint32_t i = 0; i < game_variables::Bullets.size(); i++) {
+                if (game_variables::Bullets[i].simulate_attack_on_mob(game_variables::Slimes) || game_variables::Bullets[i].simulate_attack_on_mob(game_variables:: Bats) ||
+                    game_variables::Bullets[i].simulate_attack_on_mob(game_variables::Bombers) || game_variables::Bullets[i].simulate_attack_on_player(game_variables::Players)) {
+                    game_variables::Bullets.erase(game_variables::Bullets.begin() + i);
                     i--;
                 }
             }
             // bullet hit wall
-            for (uint32_t i = 0; i < Bullets.size(); i++) {
+            for (uint32_t i = 0; i < game_variables::Bullets.size(); i++) {
                 bool need_delete = false;
                 for (auto &collision_box : Walls) {
-                    if (collision_box.trigger(Bullets[i].pos)) {
+                    if (collision_box.trigger(game_variables::Bullets[i].pos)) {
                         need_delete = true;
                     }
                 }
                 if (need_delete) {
-                    add_hit_effect(Bullets[i].pos);
-                    Bullets.erase(Bullets.begin() + i);
+                    add_hit_effect(game_variables::Bullets[i].pos);
+                    game_variables::Bullets.erase(game_variables::Bullets.begin() + i);
                     i--;
                 }
             }
@@ -233,9 +233,9 @@
 
         // simulate effects
         {
-            for (int i = 0; i < Effects.size(); i++) {
-                if (Effects[i].simulate(delta_time)) {
-                    Effects.erase(Effects.begin() + i);
+            for (int i = 0; i < game_variables::Effects.size(); i++) {
+                if (game_variables::Effects[i].simulate(delta_time)) {
+                    game_variables::Effects.erase(game_variables::Effects.begin() + i);
                     i--;
                 }
             }
@@ -245,26 +245,26 @@
         {
             // heart
             {
-                for (auto &heart : Loot_hearts) {
+                for (auto &heart : game_variables::Loot_hearts) {
                     heart.simulate(delta_time);
                 }
-                for (int i = 0; i < static_cast<int>(Loot_hearts.size()); i++) {
-                    auto &heart = Loot_hearts[i];
+                for (int i = 0; i < static_cast<int>(game_variables::Loot_hearts.size()); i++) {
+                    auto &heart = game_variables::Loot_hearts[i];
                     if (heart.simulate_collection()) {
-                        Loot_hearts.erase(Loot_hearts.begin() + i);
+                        game_variables::Loot_hearts.erase(game_variables::Loot_hearts.begin() + i);
                         i--;
                     }
                 }
             }
             // coin
             {
-                for (auto &coin : Loot_coins) {
+                for (auto &coin : game_variables::Loot_coins) {
                     coin.simulate(delta_time);
                 }
-                for (int i = 0; i < static_cast<int>(Loot_coins.size()); i++) {
-                    auto &coin = Loot_coins[i];
+                for (int i = 0; i < static_cast<int>(game_variables::Loot_coins.size()); i++) {
+                    auto &coin = game_variables::Loot_coins[i];
                     if (coin.simulate_collection()) {
-                        Loot_coins.erase(Loot_coins.begin() + i);
+                        game_variables::Loot_coins.erase(game_variables::Loot_coins.begin() + i);
                         i--;
                     }
                 }
@@ -287,33 +287,33 @@
         {
             std::vector<AbstractObject *> Objects;
 
-            for (auto &heart : Loot_hearts) {
+            for (auto &heart : game_variables::Loot_hearts) {
                 Objects.emplace_back(&heart);
             }
-            for (auto &coin : Loot_coins) {
+            for (auto &coin : game_variables::Loot_coins) {
                 Objects.emplace_back(&coin);
             }
-            for (auto &bush : Bushes) {
+            for (auto &bush : game_variables::Bushes) {
                 Objects.emplace_back(&bush);
             }
-            for (auto &table : Tables) {
+            for (auto &table : game_variables::Tables) {
                 Objects.emplace_back(&table);
             }
-            for (auto &player : Players) {
+            for (auto &player : game_variables::Players) {
                 Objects.emplace_back(&player);
             }
-            for (auto &slime : Slimes) {
+            for (auto &slime : game_variables::Slimes) {
                 Objects.emplace_back(&slime);
             }
-            for (auto &bat : Bats) {
+            for (auto &bat : game_variables:: Bats) {
                 Objects.emplace_back(&bat);
             }
-            for (auto &bomber : Bombers) {
+            for (auto &bomber : game_variables::Bombers) {
                 if (!bomber.is_booming) {
                     Objects.emplace_back(&bomber);
                 }
             }
-            for (auto &effect : Effects) {
+            for (auto &effect : game_variables::Effects) {
                 if (effect.anim.sprite_sheet == SS_FLOWER_EFFECT) {
                     Objects.emplace_back(&effect);
                 }
@@ -328,12 +328,12 @@
         }
 
         // draw bullets
-        for (auto &bullet : Bullets) {
+        for (auto &bullet : game_variables::Bullets) {
             bullet.draw();
         }
 
         // draw effects
-        for (auto &effect : Effects) {
+        for (auto &effect : game_variables::Effects) {
             if (effect.anim.sprite_sheet != SS_FLOWER_EFFECT) {
                 effect.draw();
             }
@@ -344,7 +344,7 @@
                 draw_sprite(pos, size, sprite);
             }
         }
-        for (auto &bomber : Bombers) {
+        for (auto &bomber : game_variables::Bombers) {
             if (bomber.is_booming) {
                 bomber.draw();
             }

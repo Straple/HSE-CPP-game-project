@@ -17,6 +17,8 @@
 //loot
 #include "heart_and_coin.hpp"
 
+#include "game_variables.hpp"
+
 void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox> &Walls);
 
 #endif  // GAME_COLLISION_HPP

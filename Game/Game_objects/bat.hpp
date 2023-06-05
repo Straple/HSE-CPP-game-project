@@ -7,6 +7,7 @@
 #include "game_utils.hpp"
 #include "mob.hpp"
 #include "player.hpp"
+#include "game_variables.hpp"
 
 struct Bat : Mob {
     ADD_BYTE_SERIALIZATION();
@@ -41,7 +42,5 @@ struct Bat : Mob {
 
     void draw() const override;
 };
-
-static std::vector<Bat> Bats;
 
 #endif  // GAME_BAT_HPP

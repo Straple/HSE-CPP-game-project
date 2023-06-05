@@ -51,7 +51,7 @@
             // если у нас нет цели
                 index == -1 ||
                 // или цель кокнулась
-                Players[index].is_dead() ||
+                game_variables::Players[index].is_dead() ||
                 // или мы уже долго гонялись за ней
                 target_change_accum <= 0) {
             target_client_id = find_best_player(pos);

@@ -156,7 +156,7 @@ struct Player : AbstractPhysicalObject {
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 };
 
-static std::vector<Player> Players;
+
 
 // найти индекс в Players, у которого такой client_id
 // вернет -1, если такого не нашли

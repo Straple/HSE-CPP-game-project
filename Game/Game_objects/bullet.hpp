@@ -7,6 +7,7 @@
 #include "abstract_physical_object.hpp"
 #include "effect.hpp"
 #include "game_utils.hpp"
+#include "game_variables.hpp"
 
 enum class BulletHostType {
     // эту пулю выпустил игрок
@@ -60,14 +61,14 @@ struct Bullet : AbstractPhysicalObject {
                     add_death_effect(Enemies[i].get_hitbox()->get_pos());
 
                     if (randomness(20)) {
-                        Loot_hearts.push_back(Heart(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
+                        game_variables::Loot_hearts.push_back(Heart(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
                     } else if (randomness(50)) {
                         for (int count = 0; count < 4; count++) {
-                            Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
+                            game_variables::Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
                         }
                     } else {
                         for (int count = 0; count < 8; count++) {
-                            Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
+                            game_variables::Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
                         }
                     }
 
@@ -109,6 +110,6 @@ struct Bullet : AbstractPhysicalObject {
     void draw() const override;
 };
 
-static std::vector<Bullet> Bullets;
+
 
 #endif  // GAME_BULLET_HPP

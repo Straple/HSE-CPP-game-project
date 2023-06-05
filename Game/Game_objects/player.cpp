@@ -178,11 +178,11 @@
 
 
 
-// найти индекс в Players, у которого такой client_id
+// найти индекс в game_variables:: Players, у которого такой client_id
 // вернет -1, если такого не нашли
 int find_player_index(int client_id) {
-    for (std::size_t index = 0; index < Players.size(); index++) {
-        if (Players[index].client_id == client_id) {
+    for (std::size_t index = 0; index < game_variables::game_variables:: Players.size(); index++) {
+        if (game_variables:: Players[index].client_id == client_id) {
             return index;
         }
     }
@@ -193,11 +193,11 @@ int find_player_index(int client_id) {
 // вернет index
 int find_nearest_player_index(Dot pos) {
     int best = -1;
-    for (std::size_t index = 0; index < Players.size(); index++) {
-        if (Players[index].is_dead() || Players[index].is_paralyzed) {
+    for (std::size_t index = 0; index < game_variables:: Players.size(); index++) {
+        if (game_variables:: Players[index].is_dead() || game_variables:: Players[index].is_paralyzed) {
             continue;
         }
-        if (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
+        if (best == -1 || (game_variables:: Players[index].pos - pos).get_len() < (game_variables:: Players[best].pos - pos).get_len()) {
             best = index;
         }
     }
@@ -210,16 +210,16 @@ int find_nearest_player_index(Dot pos) {
 int find_best_player(Dot pos) {
     // return find_nearest_player(pos);
     int best = -1;
-    for (std::size_t index = 0; index < Players.size(); index++) {
-        if (Players[index].is_dead() || Players[index].is_paralyzed) {
+    for (std::size_t index = 0; index < game_variables:: Players.size(); index++) {
+        if (game_variables:: Players[index].is_dead() || game_variables:: Players[index].is_paralyzed) {
             continue;
         }
-        if (best == -1 || (Players[index].pos - pos).get_len() < (Players[best].pos - pos).get_len()) {
+        if (best == -1 || (game_variables:: Players[index].pos - pos).get_len() < (game_variables:: Players[best].pos - pos).get_len()) {
             best = index;
         }
     }
     if (best == -1) {
         return -1;
     }
-    return Players[best].client_id;
+    return game_variables:: Players[best].client_id;
 }

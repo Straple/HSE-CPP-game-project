@@ -58,7 +58,7 @@
                 return;
             }
 
-            auto &player = Players[index];
+            auto &player = game_variables::Players[index];
 
             // анимация атаки закончилась
             if (anim.frame_update(delta_time)) {
@@ -104,7 +104,7 @@
                 dp = Dot();
 
                 Dot bullet_pos = pos + Dot(0, 15);
-                Bullets.emplace_back(BulletHostType::ENEMY, bullet_pos, Players[index].pos, 1, 1000, SP_SLIME_BULLET);
+                game_variables::Bullets.emplace_back(BulletHostType::ENEMY, bullet_pos, game_variables::Players[index].pos, 1, 1000, SP_SLIME_BULLET);
             }
         } else {
             anim.frame_update(delta_time);
@@ -115,7 +115,7 @@
             if (index == -1) {
                 return;  // нет игроков
             }
-            auto &player = Players[index];
+            auto &player = game_variables::Players[index];
 
             update_move_dir(delta_time, player.pos, visitable_grid_dots);
             // move_dir уже нормализован в get_direction_to_shortest_path

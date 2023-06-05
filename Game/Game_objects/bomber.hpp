@@ -7,6 +7,7 @@
 #include "game_utils.hpp"
 #include "mob.hpp"
 #include "player.hpp"
+#include "game_variables.hpp"
 
 struct Bomber : Mob {
     ADD_BYTE_SERIALIZATION();
@@ -47,6 +48,6 @@ struct Bomber : Mob {
     void draw() const override;
 };
 
-static std::vector<Bomber> Bombers;
+
 
 #endif  // BULLETPROOF_BOMBER_HPP

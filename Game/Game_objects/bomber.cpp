@@ -39,7 +39,7 @@ void Bomber::simulate(const efloat delta_time, const std::set<grid_pos_t> &visit
         if (index == -1) {
             return;  // нет игроков
         }
-        auto &player = Players[index];
+        auto &player = game_variables::Players[index];
 
         update_move_dir(delta_time, player.pos, visitable_grid_dots);
         // move_dir уже нормализован в get_direction_to_shortest_path
@@ -63,7 +63,7 @@ void Bomber::simulate(const efloat delta_time, const std::set<grid_pos_t> &visit
 void Bomber::do_boom() {
     is_booming = true;
     anim = animation_boom;
-    for (auto &player : Players) {
+    for (auto &player : game_variables::Players) {
         if ((player.pos - pos).get_len() < boom_radius) {
             player.hp -= boom_damage;
             player.dp += (player.pos - pos).normalize() * 600;

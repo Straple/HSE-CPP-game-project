@@ -3,6 +3,7 @@
 
 #include "../../render.hpp"
 #include "abstract_object.hpp"
+#include "game_variables.hpp"
 
 struct Effect : AbstractObject {
 
@@ -22,7 +23,7 @@ struct Effect : AbstractObject {
     void draw() const;
 };
 
-static std::vector<Effect> Effects;
+
 
 void add_hit_effect(const Dot &pos);
 

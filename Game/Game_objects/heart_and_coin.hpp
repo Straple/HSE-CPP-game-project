@@ -27,7 +27,6 @@ struct Coin : Loot {
     void draw() const override;
 };
 
-static std::vector<Coin> Loot_coins;
-static std::vector<Heart> Loot_hearts;
+
 
 #endif  // GAME_LOOT_HEART_AND_COIN_HPP

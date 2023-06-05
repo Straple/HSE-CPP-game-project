@@ -22,7 +22,7 @@
         Dot dir = target - pos;
         dir = dir.normalize();
         dir += Circle(Dot(), 0.1).get_random_dot();
-        Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 1, 1000, sprite);
+        game_variables::Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 1, 1000, sprite);
 
     }
 

@@ -42,7 +42,7 @@ void Bat::simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid
             return;  // нет игроков
         }
 
-        auto &player = Players[index];
+        auto &player = game_variables::Players[index];
 
         update_move_dir(delta_time, player.pos, visitable_grid_dots);
         // move_dir уже нормализован в get_direction_to_shortest_path

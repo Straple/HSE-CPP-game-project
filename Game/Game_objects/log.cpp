@@ -18,4 +18,3 @@
     }
 
 
-std::vector<Log> Logs;

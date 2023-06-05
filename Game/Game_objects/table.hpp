@@ -20,6 +20,6 @@ struct Table : AbstractPhysicalObject {
     void draw() const override;
 };
 
-static std::vector<Table> Tables;
+
 
 #endif  // GAME_TABLE_HPP

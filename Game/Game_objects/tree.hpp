@@ -27,6 +27,5 @@ struct Tree : AbstractPhysicalObject {
     void simulate_hit(int damage);
 };
 
-static std::vector<Tree> Trees;
 
 #endif  // GAME_TREE_HPP

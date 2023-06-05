@@ -18,20 +18,20 @@ void Effect::draw() const {
 void add_hit_effect(const Dot &pos) {
     Effect effect(pos, animation(SS_HIT_EFFECT, 0, 2, 0.1));
     effect.delta_draw_pos = Dot(-12, 12) * 0.5;
-    Effects.push_back(effect);
+    game_variables::Effects.push_back(effect);
 }
 
 void add_death_effect(const Dot &pos) {
     Effect effect(pos, animation(SS_DEATH_EFFECT, 0, 10, 0.1));
     effect.delta_draw_pos = Dot(-16, 16) * 0.5;
-    Effects.push_back(effect);
+    game_variables::Effects.push_back(effect);
 }
 
 void add_flower_effect(const Dot &pos) {
     uint32_t frame_shift = get_random_engine()() % 4;
     Effect effect(pos, animation(SS_FLOWER_EFFECT, frame_shift, 52 - frame_shift, 0.2));
     effect.delta_draw_pos = Dot(-16, 22) * 0.5;
-    Effects.push_back(effect);
+    game_variables::Effects.push_back(effect);
 }
 
 void add_flower_dome_effect(const Dot &pos) {

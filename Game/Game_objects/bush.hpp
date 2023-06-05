@@ -22,8 +22,6 @@ struct Bush : AbstractPhysicalObject {
     void draw() const override;
 };
 
-static std::vector<Bush> Bushes = {
-    // Bush(Dot(49, -106)),
-};
+
 
 #endif  // GAME_BUSH_HPP

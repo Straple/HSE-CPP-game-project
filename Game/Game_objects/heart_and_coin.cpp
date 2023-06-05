@@ -1,12 +1,12 @@
 #include "heart_and_coin.hpp"
-
+#include "game_variables.hpp"
 
 
     Heart::Heart(Dot position, Dot dir) : Loot(position, dir) {
     }
 
     bool Heart::simulate_collection() {
-        for (auto &player : Players) {
+        for (auto &player : game_variables::Players) {
             if (collection_trigger(player.pos)) {
                 if (player.is_dead()) {
                     player.reborn();
@@ -32,7 +32,7 @@
     }
 
     bool Coin::simulate_collection() {
-        for (auto &player : Players) {
+        for (auto &player : game_variables::Players) {
             if (!player.is_dead() && collection_trigger(player.pos)) {
                 player.coins++;
                 return true;

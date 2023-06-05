@@ -3,22 +3,22 @@
 void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox> &Walls) {
     // через стены никто пройти не может
     for (const auto &wall : Walls) {
-        for (auto &player : Players) {
+        for (auto &player : game_variables:: Players) {
             player.push_out_of_collision_hard(wall);
         }
-        for (auto &bat : Bats) {
+        for (auto &bat : game_variables::Bats) {
             bat.push_out_of_collision_hard(wall);
         }
-        for (auto &slime : Slimes) {
+        for (auto &slime : game_variables::Slimes) {
             slime.push_out_of_collision_hard(wall);
         }
-        for (auto &bomber : Bombers) {
+        for (auto &bomber : game_variables::Bombers) {
             bomber.push_out_of_collision_hard(wall);
         }
-        for (auto &coin : Loot_coins) {
+        for (auto &coin : game_variables::Loot_coins) {
             coin.push_out_of_collision_hard(wall);
         }
-        for (auto &heart : Loot_hearts) {
+        for (auto &heart : game_variables::Loot_hearts) {
             heart.push_out_of_collision_hard(wall);
         }
     }
@@ -26,9 +26,9 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
     // сами с собой
     {
         // player
-        for (auto &player1 : Players) {
+        for (auto &player1 : game_variables:: Players) {
             if (!player1.is_paralyzed && !player1.is_dead()) {  // пока мы парализованы или мертвы, мы не выталкиваемы
-                for (auto &player2 : Players) {
+                for (auto &player2 : game_variables:: Players) {
                     // чтобы не выталкивать самих себя
                     if (&player1 != &player2) {
                         player1.push_out_of_collision_soft(*player2.get_collision(), delta_time);
@@ -38,9 +38,9 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
 
         // slime
-        for (auto &slime1 : Slimes) {
+        for (auto &slime1 : game_variables::Slimes) {
             if (!slime1.is_devour) {  // пока слайм ест игрока, он не выталкиваем
-                for (auto &slime2 : Slimes) {
+                for (auto &slime2 : game_variables::Slimes) {
                     // чтобы не выталкивать самих себя
                     if (&slime1 != &slime2) {
                         slime1.push_out_of_collision_soft(*slime2.get_collision(), delta_time);
@@ -50,8 +50,8 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
 
         // bomber
-        for (auto &bomber1 : Bombers) {
-            for (auto &bomber2 : Bombers) {
+        for (auto &bomber1 : game_variables::Bombers) {
+            for (auto &bomber2 : game_variables::Bombers) {
                 // чтобы не выталкивать самих себя
                 if (&bomber1 != &bomber2 && !bomber1.is_booming && !bomber2.is_booming) {
                     bomber1.push_out_of_collision_soft(*bomber2.get_collision(), delta_time);
@@ -60,8 +60,8 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
 
         // bat
-        for (auto &bat1 : Bats) {
-            for (auto &bat2 : Bats) {
+        for (auto &bat1 : game_variables::Bats) {
+            for (auto &bat2 : game_variables::Bats) {
                 // чтобы не выталкивать самих себя
                 if (&bat1 != &bat2) {
                     bat1.push_out_of_collision_soft(*bat2.get_collision(), delta_time);
@@ -70,16 +70,16 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
 
         // coin
-        for (auto &coin1 : Loot_coins) {
-            for (auto &coin2 : Loot_coins) {
+        for (auto &coin1 : game_variables::Loot_coins) {
+            for (auto &coin2 : game_variables::Loot_coins) {
                 if (&coin1 != &coin2) {
                     coin1.push_out_of_collision_soft(*coin2.get_collision(), delta_time);
                 }
             }
         }
 
-        for (auto &heart1 : Loot_hearts) {
-            for (auto &heart2 : Loot_hearts) {
+        for (auto &heart1 : game_variables::Loot_hearts) {
+            for (auto &heart2 : game_variables::Loot_hearts) {
                 if (&heart1 != &heart2) {
                     heart1.push_out_of_collision_soft(*heart2.get_collision(), delta_time);
                 }
@@ -88,11 +88,11 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
     }
 
     // player <-> slime
-    for (auto &player : Players) {
+    for (auto &player : game_variables:: Players) {
         if (player.is_dead()) {
             continue;
         }
-        for (auto &slime : Slimes) {
+        for (auto &slime : game_variables::Slimes) {
             if (!slime.is_devour) {  // пока слайм ест игрока, он не выталкиваем
                 slime.push_out_of_collision_soft(*player.get_collision(), delta_time);
             }
@@ -103,31 +103,31 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
     }
 
     // heart <-> coin
-    for (auto &heart : Loot_hearts) {
-        for (auto &coin : Loot_coins) {
+    for (auto &heart : game_variables::Loot_hearts) {
+        for (auto &coin : game_variables::Loot_coins) {
             heart.push_out_of_collision_soft(*coin.get_collision(), delta_time);
             coin.push_out_of_collision_soft(*heart.get_collision(), delta_time);
         }
     }
 
     // слайм не может пройти через Bush, Table
-    for (auto &slime : Slimes) {
-        for (const auto &bush : Bushes) {
+    for (auto &slime : game_variables::Slimes) {
+        for (const auto &bush : game_variables:: Bushes) {
             // TODO: maybe soft?
             slime.push_out_of_collision_hard(*bush.get_collision());
         }
-        for (const auto &table : Tables) {
+        for (const auto &table : game_variables::Tables) {
             // TODO: maybe soft?
             slime.push_out_of_collision_hard(*table.get_collision());
         }
     }
 
     // игрок не может пройти через Bush, Table
-    for (auto &player : Players) {
-        for (const auto &bush : Bushes) {
+    for (auto &player : game_variables:: Players) {
+        for (const auto &bush : game_variables::Bushes) {
             player.push_out_of_collision_soft(*bush.get_collision(), delta_time);
         }
-        for (const auto &table : Tables) {
+        for (const auto &table : game_variables::Tables) {
             player.push_out_of_collision_soft(*table.get_collision(), delta_time);
         }
     }

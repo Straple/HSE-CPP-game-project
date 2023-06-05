@@ -1,7 +1,6 @@
 #include "loot.hpp"
 
-    Loot::Loot(Dot position, Dot dir) {
-        pos = position;
+    Loot::Loot(Dot position, Dot dir): AbstractPhysicalObject(position) {
         dp = dir * 200;
     }
 
@@ -21,7 +20,7 @@
             // Нет игроков
             return;
         }
-        Dot to = Players[index].pos;
+        Dot to = game_variables::Players[index].pos;
 
         if ((to - pos).get_len() <= magnet_radius) {
             Dot ddp = (to - pos) * 100;

@@ -58,6 +58,6 @@ struct Slime : Mob {
     void draw() const override;
 };
 
-static std::vector<Slime> Slimes;
+
 
 #endif  // GAME_SLIME_HPP
