@@ -22,6 +22,4 @@ struct Bush : AbstractPhysicalObject {
     void draw() const override;
 };
 
-
-
 #endif  // GAME_BUSH_HPP

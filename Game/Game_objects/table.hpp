@@ -1,7 +1,6 @@
 #ifndef GAME_TABLE_HPP
 #define GAME_TABLE_HPP
 
-#include "../../render.hpp"
 #include "abstract_physical_object.hpp"
 
 struct Table : AbstractPhysicalObject {
@@ -19,7 +18,5 @@ struct Table : AbstractPhysicalObject {
 
     void draw() const override;
 };
-
-
 
 #endif  // GAME_TABLE_HPP

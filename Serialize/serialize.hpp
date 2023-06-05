@@ -38,13 +38,11 @@ T byte_deserialization(std::istream &input_stream) {
 }
 
 // macro for bytes serialization in structures
-#define ADD_BYTE_SERIALIZATION()                                                                  \
-    inline void serialize(std::ostream &output_stream) const {                                           \
-        byte_serialization(output_stream, *this);                                                 \
-    }                                                                                             \
-                                                                                                  \
-    inline void deserialize(std::istream &input_stream) {                                                \
-        *this = byte_deserialization<std::remove_reference<decltype(*this)>::type>(input_stream); \
+#define ADD_BYTE_SERIALIZATION()                                                                           \
+    inline void serialize(std::ostream &output_stream) const { byte_serialization(output_stream, *this); } \
+                                                                                                           \
+    inline void deserialize(std::istream &input_stream) {                                                  \
+        *this = byte_deserialization<std::remove_reference<decltype(*this)>::type>(input_stream);          \
     }
 
 //----------------------------------------------------------------------

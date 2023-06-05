@@ -1,5 +1,7 @@
 #include "effect.hpp"
-
+//
+#include "../../sprites.hpp"
+#include "game_variables.hpp"
 
 // pos лежит в AbstractObject
 Effect::Effect(const Dot &pos, const animation &anim) : AbstractObject(pos), anim(anim) {
@@ -13,7 +15,6 @@ bool Effect::simulate(efloat delta_time) {
 void Effect::draw() const {
     anim.draw(pos + delta_draw_pos, size);
 }
-
 
 void add_hit_effect(const Dot &pos) {
     Effect effect(pos, animation(SS_HIT_EFFECT, 0, 2, 0.1));
@@ -51,4 +52,3 @@ void add_flower_dome_effect(const Dot &pos) {
     add_flower_effect(pos + Dot(13, 2));
     add_flower_effect(pos + Dot(22, 7));
 }
-

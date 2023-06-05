@@ -1,7 +1,0 @@
-#ifndef GAME_FORWARD_HEART_AND_COIN_HPP
-#define GAME_FORWARD_HEART_AND_COIN_HPP
-
-struct Coin;
-struct Heart;
-
-#endif  // GAME_FORWARD_HEART_AND_COIN_HPP

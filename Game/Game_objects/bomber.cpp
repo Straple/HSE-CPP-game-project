@@ -1,4 +1,7 @@
 #include "bomber.hpp"
+//
+#include "game_variables.hpp"
+#include "player.hpp"
 
 Bomber::Bomber(const Dot &position) {
     pos = position;
@@ -90,4 +93,3 @@ void Bomber::draw() const {
     draw_hitbox(*this);
     draw_hp(*this);
 }
-

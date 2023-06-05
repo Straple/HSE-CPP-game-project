@@ -30,8 +30,6 @@ sprites.cpp
         Objects/Sprite/png.cpp
         Objects/Sprite/color.cpp
         Objects/Sprite/sprite_object.cpp
-
-
     # RENDER
     Render/render_utils.cpp
     Render/basic_render.cpp
@@ -61,7 +59,7 @@ sprites.cpp
     Game/Game_objects/table.cpp
     Game/Game_objects/tree.cpp
     Game/Game_objects/weapon.cpp
-        )
+)
 
 
 add_executable(singleplayer singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)

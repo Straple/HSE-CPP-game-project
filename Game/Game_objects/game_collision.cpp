@@ -1,9 +1,30 @@
 #include "game_collision.hpp"
+//
+
+// world
+#include "bush.hpp"
+#include "log.hpp"
+#include "table.hpp"
+#include "tree.hpp"
+
+// enemies
+#include "bat.hpp"
+#include "bomber.hpp"
+#include "slime.hpp"
+
+// player
+#include "player.hpp"
+
+// loot
+#include "heart_and_coin.hpp"
+
+//
+#include "game_variables.hpp"
 
 void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox> &Walls) {
     // через стены никто пройти не может
     for (const auto &wall : Walls) {
-        for (auto &player : game_variables:: Players) {
+        for (auto &player : game_variables::Players) {
             player.push_out_of_collision_hard(wall);
         }
         for (auto &bat : game_variables::Bats) {
@@ -26,9 +47,9 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
     // сами с собой
     {
         // player
-        for (auto &player1 : game_variables:: Players) {
+        for (auto &player1 : game_variables::Players) {
             if (!player1.is_paralyzed && !player1.is_dead()) {  // пока мы парализованы или мертвы, мы не выталкиваемы
-                for (auto &player2 : game_variables:: Players) {
+                for (auto &player2 : game_variables::Players) {
                     // чтобы не выталкивать самих себя
                     if (&player1 != &player2) {
                         player1.push_out_of_collision_soft(*player2.get_collision(), delta_time);
@@ -88,7 +109,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
     }
 
     // player <-> slime
-    for (auto &player : game_variables:: Players) {
+    for (auto &player : game_variables::Players) {
         if (player.is_dead()) {
             continue;
         }
@@ -112,7 +133,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
 
     // слайм не может пройти через Bush, Table
     for (auto &slime : game_variables::Slimes) {
-        for (const auto &bush : game_variables:: Bushes) {
+        for (const auto &bush : game_variables::Bushes) {
             // TODO: maybe soft?
             slime.push_out_of_collision_hard(*bush.get_collision());
         }
@@ -123,7 +144,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
     }
 
     // игрок не может пройти через Bush, Table
-    for (auto &player : game_variables:: Players) {
+    for (auto &player : game_variables::Players) {
         for (const auto &bush : game_variables::Bushes) {
             player.push_out_of_collision_soft(*bush.get_collision(), delta_time);
         }

@@ -3,7 +3,6 @@
 
 #include "../../render.hpp"
 #include "abstract_physical_object.hpp"
-#include "game_utils.hpp"
 #include "weapon.hpp"
 
 const static animation player_anims[] = {
@@ -155,8 +154,6 @@ struct Player : AbstractPhysicalObject {
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 };
-
-
 
 // найти индекс в Players, у которого такой client_id
 // вернет -1, если такого не нашли

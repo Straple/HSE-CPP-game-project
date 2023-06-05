@@ -1,6 +1,5 @@
 #include "bush.hpp"
 
-
 Bush::Bush(const Dot &position) {
     pos = position;
 }
@@ -15,6 +14,3 @@ void Bush::draw() const {
 
     draw_collision(*this);
 }
-
-
-

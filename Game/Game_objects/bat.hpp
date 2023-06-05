@@ -3,11 +3,7 @@
 
 #include "../../render.hpp"
 #include "abstract_physical_object.hpp"
-#include "effect.hpp"
-#include "game_utils.hpp"
 #include "mob.hpp"
-#include "player.hpp"
-#include "game_variables.hpp"
 
 struct Bat : Mob {
     ADD_BYTE_SERIALIZATION();

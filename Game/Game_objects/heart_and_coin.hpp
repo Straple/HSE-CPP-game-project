@@ -27,6 +27,4 @@ struct Coin : Loot {
     void draw() const override;
 };
 
-
-
 #endif  // GAME_LOOT_HEART_AND_COIN_HPP

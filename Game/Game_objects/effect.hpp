@@ -3,11 +3,8 @@
 
 #include "../../render.hpp"
 #include "abstract_object.hpp"
-#include "game_variables.hpp"
 
 struct Effect : AbstractObject {
-
-
     Dot delta_draw_pos;
     efloat size = 0.5;
     animation anim;
@@ -22,8 +19,6 @@ struct Effect : AbstractObject {
 
     void draw() const;
 };
-
-
 
 void add_hit_effect(const Dot &pos);
 

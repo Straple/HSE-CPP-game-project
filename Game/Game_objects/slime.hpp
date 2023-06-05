@@ -3,10 +3,7 @@
 
 #include "../../render.hpp"
 #include "abstract_physical_object.hpp"
-#include "effect.hpp"
-#include "game_utils.hpp"
 #include "mob.hpp"
-#include "player.hpp"
 
 struct Slime : Mob {
     ADD_BYTE_SERIALIZATION();
@@ -57,7 +54,5 @@ struct Slime : Mob {
 
     void draw() const override;
 };
-
-
 
 #endif  // GAME_SLIME_HPP

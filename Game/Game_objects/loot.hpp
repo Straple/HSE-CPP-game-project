@@ -1,9 +1,7 @@
 #ifndef GAME_LOOT_HPP
 #define GAME_LOOT_HPP
 
-#include "../../render.hpp"
 #include "abstract_physical_object.hpp"
-#include "player.hpp"
 
 struct Loot : AbstractPhysicalObject {
     // visible

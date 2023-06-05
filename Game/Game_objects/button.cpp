@@ -1,8 +1,7 @@
 #include "button.hpp"
 
-
 button::button(std::string text, Dot pos, efloat size, Color color, Color focus_color)
-        : text(text), pos(pos), color(color), focus_color(focus_color), size(size) {
+    : text(text), pos(pos), color(color), focus_color(focus_color), size(size) {
     // create collision box
     {
         int len = text_len_in_pixels(text.c_str());

@@ -27,8 +27,8 @@
 
 // enemies
 #include "bat.hpp"
-#include "slime.hpp"
 #include "bomber.hpp"
+#include "slime.hpp"
 // #include "mini_slime.hpp"
 
 // weapons
@@ -40,5 +40,8 @@
 
 // world
 #include "room.hpp"
+
+// game objects
+#include "game_objects.hpp"
 
 #endif  // GAME_OBJECTS_HPP

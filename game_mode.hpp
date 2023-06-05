@@ -49,7 +49,7 @@ void simulate_game_mode(
         global_variables::camera.simulate(player.pos, delta_time);
 
         // симулируем игроков
-        for (auto &player : Players) {
+        for (auto &player : game_variables::Players) {
             simulate_player(delta_time, player.client_id);
         }
 

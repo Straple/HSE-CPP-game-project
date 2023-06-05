@@ -1,28 +1,24 @@
 #ifndef GAME_VARIABLES_HPP
 #define GAME_VARIABLES_HPP
 
-struct Bullet;
-struct Player;
-struct Bat;
-struct Bomber;
-struct Log;
-struct Bush;
-struct Slime;
-struct Tree;
-struct Effect;
-struct Heart;
-struct Coin;
-struct Table;
-
+#include "bat.hpp"
+#include "bomber.hpp"
+#include "bullet.hpp"
+#include "bush.hpp"
+#include "effect.hpp"
+#include "heart_and_coin.hpp"
+#include "log.hpp"
+#include "player.hpp"
+#include "slime.hpp"
+#include "table.hpp"
+#include "tree.hpp"
 
 struct game_variables {
     static inline std::vector<Player> Players;
     static inline std::vector<Bat> Bats;
     static inline std::vector<Bomber> Bombers;
     static inline std::vector<Bullet> Bullets;
-    static inline std::vector<Bush> Bushes = {
-            // Bush(Dot(49, -106)),
-    };
+    static inline std::vector<Bush> Bushes;
     static inline std::vector<Coin> Loot_coins;
     static inline std::vector<Heart> Loot_hearts;
     static inline std::vector<Log> Logs;
@@ -32,6 +28,4 @@ struct game_variables {
     static inline std::vector<Effect> Effects;
 };
 
-
-
-#endif //GAME_VARIABLES_HPP
+#endif  // GAME_VARIABLES_HPP

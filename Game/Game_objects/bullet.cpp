@@ -1,7 +1,7 @@
 #include "bullet.hpp"
 
 Bullet::Bullet(BulletHostType host, Dot from, Dot to, int damage, int speed, sprite_t sp)
-        : host(host), ddp((to - from).normalize() * speed), damage(damage), sprite(sp) {
+    : host(host), ddp((to - from).normalize() * speed), damage(damage), sprite(sp) {
     pos = from;
 }
 

@@ -2,7 +2,6 @@
 #define GAME_WEAPON_HPP
 
 #include "bullet.hpp"
-#include "../../render.hpp"
 
 struct Weapon {
     efloat cooldown;

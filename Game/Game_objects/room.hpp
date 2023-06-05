@@ -2,10 +2,7 @@
 #define GAME_ROOM_HPP
 
 #include "../../objects.hpp"
-#include "../../render.hpp"
 #include "../../sprites.hpp"
-#include "game_objects.hpp"
-#include "game_variables.hpp"
 
 struct drawing_objects {
     Dot pos;

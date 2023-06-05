@@ -1,9 +1,7 @@
 ﻿#ifndef GAME_TREE_HPP
 #define GAME_TREE_HPP
 
-#include "../../render.hpp"
 #include "abstract_physical_object.hpp"
-#include "effect.hpp"
 
 struct Tree : AbstractPhysicalObject {
     ADD_BYTE_SERIALIZATION();
@@ -26,6 +24,5 @@ struct Tree : AbstractPhysicalObject {
 
     void simulate_hit(int damage);
 };
-
 
 #endif  // GAME_TREE_HPP

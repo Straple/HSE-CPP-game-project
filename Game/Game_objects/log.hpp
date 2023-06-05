@@ -1,7 +1,6 @@
 ﻿#ifndef GAME_LOG_HPP
 #define GAME_LOG_HPP
 
-#include "../../render.hpp"
 #include "abstract_physical_object.hpp"
 
 struct Log : AbstractPhysicalObject {
@@ -23,6 +22,5 @@ struct Log : AbstractPhysicalObject {
 
     void simulate(efloat delta_time);
 };
-
 
 #endif  // GAME_LOG_HPP

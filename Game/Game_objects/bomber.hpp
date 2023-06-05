@@ -3,11 +3,7 @@
 
 #include "../../render.hpp"
 #include "abstract_physical_object.hpp"
-#include "effect.hpp"
-#include "game_utils.hpp"
 #include "mob.hpp"
-#include "player.hpp"
-#include "game_variables.hpp"
 
 struct Bomber : Mob {
     ADD_BYTE_SERIALIZATION();
@@ -47,7 +43,5 @@ struct Bomber : Mob {
 
     void draw() const override;
 };
-
-
 
 #endif  // BULLETPROOF_BOMBER_HPP

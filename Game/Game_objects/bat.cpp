@@ -1,4 +1,7 @@
 #include "bat.hpp"
+//
+#include "game_variables.hpp"
+#include "player.hpp"
 
 Bat::Bat(const Dot &position) {
     pos = position;

@@ -1,8 +1,8 @@
-#ifndef GAME_ENEMY_STATES_HPP
-#define GAME_ENEMY_STATES_HPP
+#ifndef GAME_MOB_HPP
+#define GAME_MOB_HPP
 
-#include "../../utils.hpp"
-#include "player.hpp"
+#include <set>
+#include "abstract_physical_object.hpp"
 
 struct Mob : AbstractPhysicalObject {
 private:
@@ -26,4 +26,4 @@ public:
     void update_target(efloat delta_time);
 };
 
-#endif  // GAME_ENEMY_STATES_HPP
+#endif  // GAME_MOB_HPP

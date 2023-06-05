@@ -1,4 +1,5 @@
 ﻿#include "Game_objects/game_objects.hpp"
+#include "Game_objects/game_variables.hpp"
 
 void simulate_player(efloat delta_time, Player &player) {
     auto &input = player.input;
@@ -32,7 +33,7 @@ void simulate_player(efloat delta_time, int client_id) {
     int index = find_player_index(client_id);
     ASSERT(index != -1, "where this player?");
 
-    simulate_player(delta_time, Players[index]);
+    simulate_player(delta_time, game_variables::Players[index]);
 }
 
 Room test_room;
@@ -47,7 +48,7 @@ void draw_game(int client_id) {
     // draw UI
     {
         int index = find_player_index(client_id);
-        auto &player = Players[index];
+        auto &player = game_variables::Players[index];
         // draw hp
         for (int i = 0; i < player.hp; i++) {
             draw_sprite(
@@ -61,7 +62,7 @@ void draw_game(int client_id) {
         for (int i = 0; i < player.coins; i++) {
             draw_sprite(
                 Dot(-global_variables::arena_half_size.x, global_variables::arena_half_size.y) * 0.8 +
-                    global_variables::camera.pos + Dot(-14 - i * 2 + Players[0].coins * 2, 0),
+                    global_variables::camera.pos + Dot(-14 - i * 2 + game_variables::Players[0].coins * 2, 0),
                 0.5, SP_COIN
             );
         }

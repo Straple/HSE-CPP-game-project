@@ -18,8 +18,8 @@ int main() {
         test_room.read("level.txt");
 
         // создадим персонажа
-        Players.emplace_back(Dot(25, -100));
-        Players.back().client_id = 0;
+        game_variables::Players.emplace_back(Dot(25, -100));
+        game_variables::Players.back().client_id = 0;
     }
 
     WindowHandler window_handler;
@@ -32,7 +32,7 @@ int main() {
     Player customization_player;
 
     while (global_variables::running) {
-        auto &player = Players[0];
+        auto &player = game_variables::Players[0];
 
         simulate_game_mode(delta_time, player, customization_player, window_handler);
 

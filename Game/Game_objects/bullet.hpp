@@ -1,13 +1,8 @@
 #ifndef GAME_BULLET_HPP
 #define GAME_BULLET_HPP
 
-#include "forward_heart_and_coin.hpp"
-//
 #include "../../render.hpp"
 #include "abstract_physical_object.hpp"
-#include "effect.hpp"
-#include "game_utils.hpp"
-#include "game_variables.hpp"
 
 enum class BulletHostType {
     // эту пулю выпустил игрок
@@ -41,7 +36,7 @@ struct Bullet : AbstractPhysicalObject {
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 
     // вернет правду, если атака кого-то зацепила
-    template <typename enemy_t>
+    /*template <typename enemy_t>
     bool simulate_attack_on_mob(std::vector<enemy_t> &Enemies) {
         if (host != BulletHostType::PLAYER) {
             return false;
@@ -61,14 +56,19 @@ struct Bullet : AbstractPhysicalObject {
                     add_death_effect(Enemies[i].get_hitbox()->get_pos());
 
                     if (randomness(20)) {
-                        game_variables::Loot_hearts.push_back(Heart(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
+                        game_variables::Loot_hearts.push_back(Heart(Enemies[i].get_hitbox()->get_pos(), ddp.normalize())
+                        );
                     } else if (randomness(50)) {
                         for (int count = 0; count < 4; count++) {
-                            game_variables::Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
+                            game_variables::Loot_coins.push_back(
+                                Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize())
+                            );
                         }
                     } else {
                         for (int count = 0; count < 8; count++) {
-                            game_variables::Loot_coins.push_back(Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize()));
+                            game_variables::Loot_coins.push_back(
+                                Coin(Enemies[i].get_hitbox()->get_pos(), ddp.normalize())
+                            );
                         }
                     }
 
@@ -103,13 +103,11 @@ struct Bullet : AbstractPhysicalObject {
             }
         }
         return false;
-    }
+    }*/
 
     void simulate(efloat delta_time);
 
     void draw() const override;
 };
-
-
 
 #endif  // GAME_BULLET_HPP

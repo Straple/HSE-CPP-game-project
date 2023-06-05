@@ -9,6 +9,10 @@
 struct AbstractPhysicalObject : AbstractObject {
     Dot dp;
 
+    AbstractPhysicalObject() = default;
+
+    AbstractPhysicalObject(Dot pos);
+
     [[nodiscard]] virtual std::unique_ptr<Collision> get_collision() const = 0;
 
     // жестко выталкивает за пределы коллизии

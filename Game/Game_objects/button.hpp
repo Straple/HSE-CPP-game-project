@@ -1,8 +1,6 @@
 #ifndef GAME_BUTTON_HPP
 #define GAME_BUTTON_HPP
 
-
-
 #include "../../Objects/Sprite/color.hpp"
 #include "../../Objects/collision.hpp"
 #include "../../global_variables.hpp"
