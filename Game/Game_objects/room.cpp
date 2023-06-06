@@ -250,10 +250,10 @@ void Room::simulate(efloat delta_time) {
     if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
         // new wave
 
-        std::cout << "New wave!" << std::endl;
+        //std::cout << "New wave!" << std::endl;
 
         for (auto [pos, name] : Interesting_dots) {
-            if (name != "player") {
+            if (name.size() < 5 || name.substr(0, 5) != "player") {
                 if (randomness(40)) {
                     game_variables::Bombers.emplace_back(pos);
                 } else if (randomness(30)) {
