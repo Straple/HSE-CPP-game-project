@@ -39,7 +39,8 @@ struct Room {
 
     std::vector<interesting_dot> Interesting_dots;
 
-    std::set<grid_pos_t> visitable_grid_dots;
+    std::set<grid_pos_t> visitable_grid_dots_for_ground_mob;
+    std::set<grid_pos_t> visitable_grid_dots_for_air_mob;
 
     // нужен, чтобы убрать косяки стен: мобы и игрок могут выпирать из стены
     // (left top, bottom right, Color)

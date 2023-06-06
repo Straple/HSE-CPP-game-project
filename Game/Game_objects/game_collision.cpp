@@ -131,11 +131,15 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
     }
 
-    // слайм не может пройти через Bush, Table
+    // слайм не может пройти через Bush, Tree, Table
     for (auto &slime : game_variables::Slimes) {
         for (const auto &bush : game_variables::Bushes) {
             // TODO: maybe soft?
             slime.push_out_of_collision_hard(*bush.get_collision());
+        }
+        for (const auto &tree : game_variables::Trees) {
+            // TODO: maybe soft?
+            slime.push_out_of_collision_hard(*tree.get_collision());
         }
         for (const auto &table : game_variables::Tables) {
             // TODO: maybe soft?
@@ -143,10 +147,13 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
     }
 
-    // игрок не может пройти через Bush, Table
+    // игрок не может пройти через Bush, Tree, Table
     for (auto &player : game_variables::Players) {
         for (const auto &bush : game_variables::Bushes) {
             player.push_out_of_collision_soft(*bush.get_collision(), delta_time);
+        }
+        for (const auto &tree : game_variables::Trees) {
+            player.push_out_of_collision_soft(*tree.get_collision(), delta_time);
         }
         for (const auto &table : game_variables::Tables) {
             player.push_out_of_collision_soft(*table.get_collision(), delta_time);

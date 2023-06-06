@@ -24,7 +24,7 @@ void Mob::simulate_move_to_player(Dot player_pos, const std::set<grid_pos_t> &vi
         )) {
         // ASSERT(false, "oh ho, way not found");
         // телепортируем моба в ближайщую точку грида
-        std::cout << "Teleported Mob to visitable grid" << std::endl;
+        /*std::cout << "Teleported Mob to visitable grid" << std::endl;
 
         grid_pos_t cur_grid_pos = cast_game_coord_to_grid_coord(pos);
 
@@ -41,7 +41,7 @@ void Mob::simulate_move_to_player(Dot player_pos, const std::set<grid_pos_t> &vi
         }
 
         ASSERT(best_dist != 1e9, "why is 1e9?");
-        pos = cast_grid_coord_to_game_coord(best_grid_pos);
+        pos = cast_grid_coord_to_game_coord(best_grid_pos);*/
     }
 }
 
