@@ -213,6 +213,10 @@ bool get_direction_to_shortest_path_Astar(
         auto [heuristic, grid_pos] = queue.top();
         queue.pop();
 
+        if(queue.size() > 100){
+            break; // что-то уже слишком
+        }
+
         if (visited.count(grid_pos)) {
             ASSERT(false, to_string(visited.size()) + "ol");
             continue;

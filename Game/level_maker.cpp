@@ -129,7 +129,7 @@ void render_game(const Input &input, const Dot &cursor_pos) {
             } else if (current_object == OT_TABLE) {
                 Table(current_pos).draw();
             }
-        } else if(current_mode == LM_COLOR_BOX){
+        } else if (current_mode == LM_COLOR_BOX) {
             for (auto [p0, p1, color] : current_room.ColorBoxes) {
                 draw_rect2(p0 - global_variables::camera.pos, p1 - global_variables::camera.pos, color);
             }
@@ -302,22 +302,12 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
             }
         } else if (current_mode == LM_OBJECT) {
             Dot pos = current_pos - global_variables::camera.pos;
-            for (int i = 0; i < static_cast<int>(Objects.size()); i++) {
-                if (Objects[i].second == OT_BUSH) {
-                    if (Bush(Objects[i].first).trigger_in_draw_sprite(pos)) {
-                        Objects.erase(Objects.begin() + i);
-                        break;
-                    }
-                } else if (Objects[i].second == OT_TREE) {
-                    if (Tree(Objects[i].first).trigger_in_draw_sprite(pos)) {
-                        Objects.erase(Objects.begin() + i);
-                        break;
-                    }
-                } else if (Objects[i].second == OT_TABLE) {
-                    if (Table(Objects[i].first).trigger_in_draw_sprite(pos)) {
-                        Objects.erase(Objects.begin() + i);
-                        break;
-                    }
+            for (int i = static_cast<int>(Objects.size()) - 1; i >= 0; i--) {
+                if ((Objects[i].second == OT_BUSH && Bush(Objects[i].first).trigger_in_draw_sprite(pos)) ||
+                    (Objects[i].second == OT_TREE && Tree(Objects[i].first).trigger_in_draw_sprite(pos)) ||
+                    (Objects[i].second == OT_TABLE && Table(Objects[i].first).trigger_in_draw_sprite(pos))) {
+                    Objects.erase(Objects.begin() + i);
+                    break;
                 }
             }
         } else if (current_mode == LM_COLOR_BOX) {
@@ -376,7 +366,8 @@ void simulate_leve_maker(const Input &input, Dot cursor_pos, efloat delta_time) 
 
         static Dot dp;
         simulate_move2d(
-            global_variables::camera.pos, dp, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S) * 500, delta_time
+            global_variables::camera.pos, dp,
+            accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S) * 10 / global_variables::render_scale, delta_time
         );
     }
 

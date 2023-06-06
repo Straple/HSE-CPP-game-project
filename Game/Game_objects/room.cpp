@@ -36,7 +36,8 @@ void Room::build_grid() {
     const static std::vector<grid_pos_t> steps = {{1, 0}, {-1, 0}, {0, 1}, {0, -1}, {1, 1}, {1, -1}, {-1, 1}, {-1, -1}};
     //{{1, 0}, {-1, 0}, {0, 1}, {0, -1}};
 
-    visitable_grid_dots.clear();
+    visitable_grid_dots_for_ground_mob.clear();
+    visitable_grid_dots_for_air_mob.clear();
     std::queue<grid_pos_t> queue;
 
     queue.push({0, 0});
@@ -49,7 +50,7 @@ void Room::build_grid() {
             grid_pos_t grid_neighbour = {grid_pos.first + step.first, grid_pos.second + step.second};
             Dot pos = grid_start_dot + step_size * Dot(grid_neighbour.first, grid_neighbour.second);
             // мы еще не были в этой точке и можем ее посетить
-            if (!visitable_grid_dots.count(grid_neighbour)) {
+            if (!visitable_grid_dots_for_air_mob.count(grid_neighbour)) {
                 bool is_visitable = true;
 
                 Slime slime_tester(pos);
@@ -63,9 +64,37 @@ void Room::build_grid() {
 
                 if (is_visitable) {
                     queue.push(grid_neighbour);
-                    visitable_grid_dots.insert(grid_neighbour);
+                    visitable_grid_dots_for_air_mob.insert(grid_neighbour);
                 }
             }
+        }
+    }
+
+    // мы построили гряд для воздушных
+    // грид для наземных это грид для воздушных - те точки, в которых мы быть не можем
+
+    for(auto grid : visitable_grid_dots_for_air_mob){
+        bool is_visitable = true;
+
+        Dot pos = grid_start_dot + step_size * Dot(grid.first, grid.second);
+        Slime slime_tester(pos);
+
+        for (const auto &bush : game_variables::Bushes) {
+            if (bush.get_collision()->trigger(*slime_tester.get_collision())) {
+                is_visitable = false;
+                break;
+            }
+        }
+        for (const auto &tree : game_variables::Trees) {
+            if (tree.get_collision()->trigger(*slime_tester.get_collision())) {
+                is_visitable = false;
+                break;
+            }
+        }
+
+        if (is_visitable) {
+            queue.push(grid);
+            visitable_grid_dots_for_ground_mob.insert(grid);
         }
     }
 }
@@ -157,9 +186,11 @@ std::vector<std::pair<Dot, object_type>> Room::read(const std::string &filename)
         file >> grid_start_dot;
     }
 
+    // TODO: пока коллизии не построены такое не надо вызывать
     build_grid();
 
-    std::cout << "visitable grid dots: " << visitable_grid_dots.size() << std::endl;
+    std::cout << "visitable grid dots for air mob: " << visitable_grid_dots_for_air_mob.size() << std::endl;
+    std::cout << "visitable grid dots for ground mob: " << visitable_grid_dots_for_ground_mob.size() << std::endl;
 
     return Objects;
 }
@@ -251,13 +282,13 @@ void Room::simulate(efloat delta_time) {
     }
 
     for (auto &slime : game_variables::Slimes) {
-        slime.simulate(delta_time, visitable_grid_dots, Walls);
+        slime.simulate(delta_time, visitable_grid_dots_for_ground_mob, Walls);
     }
     for (auto &bat : game_variables::Bats) {
-        bat.simulate(delta_time, visitable_grid_dots);
+        bat.simulate(delta_time, visitable_grid_dots_for_air_mob);
     }
     for (int i = 0; i < static_cast<int>(game_variables::Bombers.size()); i++) {
-        game_variables::Bombers[i].simulate(delta_time, visitable_grid_dots);
+        game_variables::Bombers[i].simulate(delta_time, visitable_grid_dots_for_ground_mob);
         if (game_variables::Bombers[i].hp <= 0) {
             game_variables::Bombers.erase(game_variables::Bombers.begin() + i);
             i--;
@@ -369,6 +400,9 @@ void Room::draw() {
         }
         for (auto &bush : game_variables::Bushes) {
             Objects.emplace_back(&bush);
+        }
+        for (auto &tree : game_variables::Trees) {
+            Objects.emplace_back(&tree);
         }
         for (auto &table : game_variables::Tables) {
             Objects.emplace_back(&table);

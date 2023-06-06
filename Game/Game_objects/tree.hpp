@@ -10,7 +10,7 @@ struct Tree : AbstractPhysicalObject {
     inline const static efloat size = 1;
     inline const static Dot delta_draw_pos = Dot(-16, 36) * size;
     // physics
-    inline const static efloat collision_radius = 5;
+    inline const static efloat collision_radius = 12;
 
     int hp = 200;
 
