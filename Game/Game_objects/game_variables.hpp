@@ -12,6 +12,7 @@
 #include "slime.hpp"
 #include "table.hpp"
 #include "tree.hpp"
+#include "weapon.hpp"
 
 struct game_variables {
     static inline std::vector<Player> Players;
@@ -26,6 +27,7 @@ struct game_variables {
     static inline std::vector<Table> Tables;
     static inline std::vector<Tree> Trees;
     static inline std::vector<Effect> Effects;
+    static inline std::vector<Weapon> Weapons;
 };
 
 #endif  // GAME_VARIABLES_HPP

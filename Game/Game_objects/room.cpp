@@ -254,12 +254,17 @@ void Room::simulate(efloat delta_time) {
 
         for (auto [pos, name] : Interesting_dots) {
             if (name != "player") {
-                if (randomness(40)) {
-                    game_variables::Bombers.emplace_back(pos);
-                } else if (randomness(30)) {
-                    game_variables::Bats.emplace_back(pos);
-                } else {
-                    game_variables::Slimes.emplace_back(pos);
+                if (name == "weapon") {
+                    game_variables::Weapons.emplace_back(pos);
+                }
+                else {
+                    if (randomness(40)) {
+                        game_variables::Bombers.emplace_back(pos);
+                    } else if (randomness(30)) {
+                        game_variables::Bats.emplace_back(pos);
+                    } else {
+                        game_variables::Slimes.emplace_back(pos);
+                    }
                 }
             }
         }
@@ -424,6 +429,11 @@ void Room::draw() {
         for (auto &effect : game_variables::Effects) {
             if (effect.anim.sprite_sheet == SS_FLOWER_EFFECT) {
                 Objects.emplace_back(&effect);
+            }
+        }
+        for (int i = 0; i < game_variables::Weapons.size(); i++) {
+            if (!game_variables::Weapons[i].is_picked) {
+                Objects.emplace_back(&game_variables::Weapons[i]);
             }
         }
         std::stable_sort(Objects.begin(), Objects.end(), [](AbstractObject *lhs, AbstractObject *rhs) {
