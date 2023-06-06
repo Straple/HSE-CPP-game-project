@@ -13,7 +13,7 @@ struct Bomber : Mob {
     inline const static Dot delta_draw_pos = Dot(-30, 38) * size;
     inline const static uint8_t draw_alpha = 210;
     inline const static efloat frame_duration = 1.0 / 7;
-    inline const static animation animation_idle = animation(SS_SLIME, 0, 24, frame_duration),
+    inline const static animation animation_idle = animation(SS_BOMBER, 0, 10, frame_duration),
                                   animation_boom = animation(SS_BOOM, 0, 18, frame_duration / 2);
     // physics
     inline const static efloat collision_radius = 6;
