@@ -18,6 +18,16 @@ struct interesting_dot {
     std::string name;
 };
 
+enum object_type {
+    OT_BUSH,
+    OT_TREE,
+    OT_TABLE,
+};
+
+std::string object_type_to_string(object_type type);
+
+object_type string_to_object_type(const std::string &str);
+
 struct Room {
     // room sprites
     std::vector<drawing_objects> Draw_objects;

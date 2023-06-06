@@ -27,3 +27,8 @@ void Tree::simulate_hit(int damage) {
         add_death_effect(pos + Dot(-12, 12) * size);
     }
 }
+
+bool Tree::trigger_in_draw_sprite(const Dot &check_pos) {
+    return collision_in_draw_sprite(pos + Dot(-16, 6) * size, size, SP_LARGE_SHADOW, check_pos) ||
+           collision_in_draw_sprite(pos + delta_draw_pos, size, SP_TREE, check_pos);
+}

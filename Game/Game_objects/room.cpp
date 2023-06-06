@@ -8,6 +8,28 @@ bool drawing_objects::operator<(const drawing_objects &right) const {
     return level < right.level;
 }
 
+std::string object_type_to_string(object_type type) {
+    if (type == OT_BUSH) {
+        return "BUSH";
+    } else if (type == OT_TREE) {
+        return "TREE";
+    } else if (type == OT_TABLE) {
+        return "TABLE";
+    }
+    ASSERT(false, "type=?");
+}
+
+object_type string_to_object_type(const std::string &str) {
+    if (str == "BUSH") {
+        return OT_BUSH;
+    } else if (str == "TREE") {
+        return OT_TREE;
+    } else if (str == "TABLE") {
+        return OT_TABLE;
+    }
+    ASSERT(false, "str=?");
+}
+
 void Room::build_grid() {
     get_ref_grid_start() = grid_start_dot;  // use this grid start position
 
@@ -98,7 +120,7 @@ void Room::read(const std::string &filename) {
 
     build_grid();
 
-    std::cout << visitable_grid_dots.size() << std::endl;
+    std::cout << "visitable grid dots: " << visitable_grid_dots.size() << std::endl;
 }
 
 void Room::write(const std::string &filename) {
@@ -123,7 +145,8 @@ void Room::write(const std::string &filename) {
         file << pos << ' ' << name << '\n';
     }
 
-    ASSERT(false, "need to update");
+    file << "GRID_START_DOT\n";
+    file << Dot() << '\n';
 }
 
 void Room::simulate(efloat delta_time) {

@@ -12,6 +12,9 @@ static_assert(false);
 
 #define GAME_ENGINE_DRAW_FPS_PLOT
 
+// if defined, then level maker, otherwise game mode
+#define LEVEL_MAKER_MODE
+
 /*
 WARNINGS:
 Dot::get_len() uses hypot which is very slow
@@ -26,6 +29,9 @@ Dot::get_len() uses hypot which is very slow
 //-----------------------------------------------
 #include "render.hpp"
 //-----------------------------------------------
-#include "Game/game.cpp"  // game
 
-// #include "Game/Level maker/level_maker.cpp" // level maker
+#ifdef LEVEL_MAKER_MODE
+#include "Game/level_maker.cpp"
+#else
+#include "Game/game.cpp"
+#endif

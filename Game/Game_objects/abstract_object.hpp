@@ -1,6 +1,7 @@
 #ifndef GAME_POSITION_HPP
 #define GAME_POSITION_HPP
 
+#include "../../Serialize/serialize.hpp"
 #include "../../objects.hpp"
 
 struct AbstractObject {

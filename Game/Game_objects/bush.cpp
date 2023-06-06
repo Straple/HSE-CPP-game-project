@@ -14,3 +14,8 @@ void Bush::draw() const {
 
     draw_collision(*this);
 }
+
+bool Bush::trigger_in_draw_sprite(const Dot &check_pos) {
+    return collision_in_draw_sprite(pos + delta_draw_pos + Dot(0, -13) * size, size, SP_LARGE_SHADOW, check_pos) ||
+           collision_in_draw_sprite(pos + delta_draw_pos, size, SP_BUSH, check_pos);
+}

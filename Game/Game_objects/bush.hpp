@@ -20,6 +20,8 @@ struct Bush : AbstractPhysicalObject {
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 
     void draw() const override;
+
+    bool trigger_in_draw_sprite(const Dot &check_pos);
 };
 
 #endif  // GAME_BUSH_HPP

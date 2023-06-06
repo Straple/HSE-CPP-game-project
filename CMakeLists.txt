@@ -63,6 +63,7 @@ sprites.cpp
 
 
 add_executable(singleplayer singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)
+add_executable(levelmaker level_maker_main.cpp $<TARGET_OBJECTS:SOURCES>)
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

@@ -5,6 +5,8 @@
 #include "abstract_object.hpp"
 
 struct Effect : AbstractObject {
+    ADD_BYTE_SERIALIZATION();
+
     Dot delta_draw_pos;
     efloat size = 0.5;
     animation anim;

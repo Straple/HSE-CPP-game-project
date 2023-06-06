@@ -23,6 +23,8 @@ struct Tree : AbstractPhysicalObject {
     void draw() const override;
 
     void simulate_hit(int damage);
+
+    bool trigger_in_draw_sprite(const Dot &check_pos);
 };
 
 #endif  // GAME_TREE_HPP

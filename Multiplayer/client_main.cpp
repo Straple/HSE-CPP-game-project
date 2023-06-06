@@ -13,23 +13,23 @@ using boost::asio::ip::tcp;
 void set_game_state(const std::string &game_state) {
     std::istringstream iss(game_state);
 
-    Players = serialization_traits<std::vector<Player>>::deserialize(iss);
+    game_variables::Players = serialization_traits<std::vector<Player>>::deserialize(iss);
 
     // mobs
-    Slimes = serialization_traits<std::vector<Slime>>::deserialize(iss);
-    Bats = serialization_traits<std::vector<Bat>>::deserialize(iss);
-    Bombers = serialization_traits<std::vector<Bomber>>::deserialize(iss);
+    game_variables::Slimes = serialization_traits<std::vector<Slime>>::deserialize(iss);
+    game_variables::Bats = serialization_traits<std::vector<Bat>>::deserialize(iss);
+    game_variables::Bombers = serialization_traits<std::vector<Bomber>>::deserialize(iss);
 
     // world
-    Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
-    Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
-    Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
+    game_variables::Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
+    game_variables::Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
+    game_variables::Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
 
     // objects
-    Effects = serialization_traits<std::vector<Effect>>::deserialize(iss);
-    Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
-    Loot_coins = serialization_traits<std::vector<Coin>>::deserialize(iss);
-    Loot_hearts = serialization_traits<std::vector<Heart>>::deserialize(iss);
+    game_variables::Effects = serialization_traits<std::vector<Effect>>::deserialize(iss);
+    game_variables::Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
+    game_variables::Loot_coins = serialization_traits<std::vector<Coin>>::deserialize(iss);
+    game_variables::Loot_hearts = serialization_traits<std::vector<Heart>>::deserialize(iss);
 }
 
 //----------------------------------------------------------------------
@@ -85,7 +85,7 @@ public:
 
         // запишем cursor_dir (нужен для пушки и выстрелов от игрока)
         int index = find_player_index(client_id);
-        std::memcpy(message.body() + sizeof(ButtonsState), &Players[index].cursor_dir, sizeof(Dot));
+        std::memcpy(message.body() + sizeof(ButtonsState), &game_variables::Players[index].cursor_dir, sizeof(Dot));
 
         // запишем cloack_color_id
         std::memcpy(
@@ -108,7 +108,7 @@ public:
         // update time
         {
             uint64_t cur_time_tick = get_ticks();
-            delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev_frame) / performance_frequency;
+            delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev_frame) / get_performance_frequency();
             time_tick_prev_frame = cur_time_tick;
         }
 
@@ -127,7 +127,7 @@ public:
         }
 
         int index = find_player_index(client_id);
-        auto &player = Players[index];
+        auto &player = game_variables::Players[index];
 
         simulate_game_mode(delta_time, player, customization_player, window_handler);
 
@@ -300,7 +300,7 @@ int main() {
 
     // initialize
     {
-        std::cout << "performance_frequency: " << performance_frequency << std::endl;
+        std::cout << "performance_frequency: " << get_performance_frequency() << std::endl;
 
         ShowWindow(GetConsoleWindow(), global_variables::show_console ? SW_SHOW : SW_HIDE);
         ShowCursor(global_variables::show_cursor);

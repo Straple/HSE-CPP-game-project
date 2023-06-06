@@ -17,6 +17,8 @@ struct Table : AbstractPhysicalObject {
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 
     void draw() const override;
+
+    bool trigger_in_draw_sprite(const Dot &check_pos);
 };
 
 #endif  // GAME_TABLE_HPP

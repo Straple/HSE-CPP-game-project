@@ -168,7 +168,9 @@ public:
 
     // рисует игру, полезную для дебага информацию, курсор
     void draw_frame(efloat delta_time, int client_id) {
+#ifndef LEVEL_MAKER_MODE
         draw_game(client_id);
+#endif
         draw_debug_info(delta_time, cursor);
         cursor.draw();
 

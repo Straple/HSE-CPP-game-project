@@ -22,23 +22,23 @@
 std::string get_game_state() {
     std::ostringstream oss(std::ios::binary);
 
-    serialization_traits<std::vector<Player>>::serialize(oss, Players);
+    serialization_traits<std::vector<Player>>::serialize(oss, game_variables::Players);
 
     // mobs
-    serialization_traits<std::vector<Slime>>::serialize(oss, Slimes);
-    serialization_traits<std::vector<Bat>>::serialize(oss, Bats);
-    serialization_traits<std::vector<Bomber>>::serialize(oss, Bombers);
+    serialization_traits<std::vector<Slime>>::serialize(oss, game_variables::Slimes);
+    serialization_traits<std::vector<Bat>>::serialize(oss, game_variables::Bats);
+    serialization_traits<std::vector<Bomber>>::serialize(oss, game_variables::Bombers);
 
     // world
-    serialization_traits<std::vector<Tree>>::serialize(oss, Trees);
-    serialization_traits<std::vector<Bush>>::serialize(oss, Bushes);
-    serialization_traits<std::vector<Log>>::serialize(oss, Logs);
+    serialization_traits<std::vector<Tree>>::serialize(oss, game_variables::Trees);
+    serialization_traits<std::vector<Bush>>::serialize(oss, game_variables::Bushes);
+    serialization_traits<std::vector<Log>>::serialize(oss, game_variables::Logs);
 
     // objects
-    serialization_traits<std::vector<Effect>>::serialize(oss, Effects);
-    serialization_traits<std::vector<Bullet>>::serialize(oss, Bullets);
-    serialization_traits<std::vector<Coin>>::serialize(oss, Loot_coins);
-    serialization_traits<std::vector<Heart>>::serialize(oss, Loot_hearts);
+    serialization_traits<std::vector<Effect>>::serialize(oss, game_variables::Effects);
+    serialization_traits<std::vector<Bullet>>::serialize(oss, game_variables::Bullets);
+    serialization_traits<std::vector<Coin>>::serialize(oss, game_variables::Loot_coins);
+    serialization_traits<std::vector<Heart>>::serialize(oss, game_variables::Loot_hearts);
 
     return oss.str();
 }
@@ -124,7 +124,7 @@ public:
         // update time
         {
             uint64_t cur_time_tick = get_ticks();
-            delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev_frame) / performance_frequency;
+            delta_time = static_cast<efloat>(cur_time_tick - time_tick_prev_frame) / get_performance_frequency();
             time_tick_prev_frame = cur_time_tick;
         }
 
@@ -159,8 +159,8 @@ public:
         std::cout << "Client <" << remote_endpoint << "> joined in session\n" << std::endl;
 
         // добавим персонажа в игру
-        Players.emplace_back(Dot(25, -100));
-        Players.back().client_id = client_ptr->client_id;
+        game_variables::Players.emplace_back(Dot(25, -100));
+        game_variables::Players.back().client_id = client_ptr->client_id;
 
         // обновим игровой снапшот, так как мы получили нового игрока
         // иначе будет UB: после join() ClientHandler отправит get_game_state() клиенту,
@@ -181,7 +181,7 @@ public:
 
             // также удалим персонажа из игры
             int index = find_player_index(client_ptr->client_id);
-            Players.erase(Players.begin() + index);
+            game_variables::Players.erase(game_variables::Players.begin() + index);
 
             // TODO: возможно тут стоит тоже сразу же пересчитать игровой мир
             // так как например, если слайм ел игрока, а он вышел из игры, то кого он в итоге ест?
@@ -287,17 +287,17 @@ private:
                     );
 
                     int index = find_player_index(client_id);
-                    std::memcpy(&Players[index].input.current, read_message.body(), sizeof(ButtonsState));
+                    auto &player = game_variables::Players[index];
+                    std::memcpy(&player.input.current, read_message.body(), sizeof(ButtonsState));
 
-                    Dot &cursor_dir = Players[find_player_index(client_id)].cursor_dir;
+                    Dot &cursor_dir = player.cursor_dir;
                     std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
 
                     std::memcpy(
-                        &Players[index].cloack_color_id, read_message.body() + sizeof(ButtonsState) + sizeof(Dot),
-                        sizeof(int)
+                        &player.cloack_color_id, read_message.body() + sizeof(ButtonsState) + sizeof(Dot), sizeof(int)
                     );
                     std::memcpy(
-                        &Players[index].t_shirt_color_id,
+                        &player.t_shirt_color_id,
                         read_message.body() + sizeof(ButtonsState) + sizeof(Dot) + sizeof(int), sizeof(int)
                     );
 

@@ -24,3 +24,7 @@ void Table::draw() const {
 
     draw_collision(*this);
 }
+
+bool Table::trigger_in_draw_sprite(const Dot &check_pos) {
+    return collision_in_draw_sprite(pos + delta_draw_pos, size, SP_TABLE, check_pos);
+}

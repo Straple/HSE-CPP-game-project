@@ -79,10 +79,10 @@ struct Bullet : AbstractPhysicalObject {
             }
         }
         return false;
-    }
+    }*/
 
     // вернет правду, если атака кого-то зацепила
-    template <typename Player_type>
+    /*template <typename Player_type>
     bool simulate_attack_on_player(std::vector<Player_type> &Players) {
         if (host != BulletHostType::ENEMY) {
             return false;
