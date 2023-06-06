@@ -7,7 +7,7 @@ Bomber::Bomber(const Dot &position) {
     pos = position;
     // чтобы разнообразить кучу мобов, которые будут иметь одновременные
     // анимации
-    anim.frame_cur_count = get_random_engine()() % 24;
+    anim.frame_cur_count = get_random_engine()() % 10;
 }
 
 [[nodiscard]] bool Bomber::is_invulnerable() const {

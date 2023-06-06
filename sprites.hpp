@@ -88,6 +88,7 @@ enum spritesheet_t : uint8_t {
     SS_BAT_INVERSE,
 
     SS_SLIME,
+    SS_BOMBER,
 
     // effects
     SS_BOOM,
