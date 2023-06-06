@@ -27,7 +27,7 @@ object_type current_object;
 std::vector<std::pair<Dot, object_type>> Objects;
 
 void render_game(const Input &input, const Dot &cursor_pos) {
-    clear_screen(GREY);
+    clear_screen(BLACK);
 
     // draw level
     {
