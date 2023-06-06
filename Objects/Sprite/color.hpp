@@ -29,12 +29,16 @@ struct Color {
     // накладывает на этот цвет color
     [[nodiscard]] Color combine(const Color &color) const;
 
-    explicit operator unsigned int() const;
+    explicit operator uint32_t() const;
 };
 
 bool operator==(const Color &lhs, const Color &rhs);
 
 bool is_draw(const Color &color);
+
+std::ostream& operator << (std::ostream& output, const Color& color);
+
+std::istream& operator >> (std::istream& input, Color& color);
 
 #define WHITE Color(0xffffffff)
 #define BLACK Color(0xff000000)

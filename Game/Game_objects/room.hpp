@@ -22,6 +22,8 @@ enum object_type {
     OT_BUSH,
     OT_TREE,
     OT_TABLE,
+
+    OT_COUNT,
 };
 
 std::string object_type_to_string(object_type type);
@@ -39,6 +41,10 @@ struct Room {
 
     std::set<grid_pos_t> visitable_grid_dots;
 
+    // нужен, чтобы убрать косяки стен: мобы и игрок могут выпирать из стены
+    // (left top, bottom right, Color)
+    std::vector<std::tuple<Dot, Dot, Color>> ColorBoxes;
+
     Dot grid_start_dot;
 
     bool player_spawned = false;
@@ -48,9 +54,9 @@ struct Room {
 
     void build_grid();
 
-    void read(const std::string &filename);
+    std::vector<std::pair<Dot, object_type>> read(const std::string &filename);
 
-    void write(const std::string &filename);
+    void write(const std::string &filename, const std::vector<std::pair<Dot, object_type>>& Objects);
 
     void simulate(efloat delta_time);
 

@@ -13,7 +13,7 @@ static_assert(false);
 #define GAME_ENGINE_DRAW_FPS_PLOT
 
 // if defined, then level maker, otherwise game mode
-#define LEVEL_MAKER_MODE
+//#define LEVEL_MAKER_MODE
 
 /*
 WARNINGS:

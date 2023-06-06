@@ -13,7 +13,7 @@ int main() {
         read_sprites();
         read_spritesheets();
 
-        current_room.read("level.txt");
+        Objects = current_room.read("level.txt");
     }
 
     WindowHandler window_handler;

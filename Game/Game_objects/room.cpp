@@ -70,7 +70,7 @@ void Room::build_grid() {
     }
 }
 
-void Room::read(const std::string &filename) {
+std::vector<std::pair<Dot, object_type>> Room::read(const std::string &filename) {
     std::ifstream file(filename);
     {
         std::string str;
@@ -111,6 +111,45 @@ void Room::read(const std::string &filename) {
         }
     }
 
+    std::vector<std::pair<Dot, object_type>> Objects;
+
+    {
+        std::string str;
+        file >> str;  // OBJECTS
+        ASSERT(str == "OBJECTS", "failed read");
+        int count;
+        file >> count;
+        Objects.resize(count);
+        for (int index = 0; index < count; index++) {
+            Dot pos;
+            std::string str_object_type;
+            file >> pos >> str_object_type;
+            object_type type = string_to_object_type(str_object_type);
+            Objects[index] = {pos, type};
+            if (type == OT_BUSH) {
+                game_variables::Bushes.emplace_back(pos);
+            } else if (type == OT_TREE) {
+                game_variables::Trees.emplace_back(pos);
+            } else if (type == OT_TABLE) {
+                game_variables::Tables.emplace_back(pos);
+            } else {
+                ASSERT(false, "type=?");
+            }
+        }
+    }
+
+    {
+        std::string str;
+        file >> str;
+        ASSERT(str == "COLOR_BOXES", "failed read");
+        int count;
+        file >> count;
+        ColorBoxes.resize(count);
+        for (auto &[top_left, bottom_right, color] : ColorBoxes) {
+            file >> top_left >> bottom_right >> color;
+        }
+    }
+
     {
         std::string str;
         file >> str;  // GRID_START_DOT
@@ -121,9 +160,11 @@ void Room::read(const std::string &filename) {
     build_grid();
 
     std::cout << "visitable grid dots: " << visitable_grid_dots.size() << std::endl;
+
+    return Objects;
 }
 
-void Room::write(const std::string &filename) {
+void Room::write(const std::string &filename, const std::vector<std::pair<Dot, object_type>> &Objects) {
     std::ofstream file(filename);
     file << std::fixed << std::setprecision(10);
 
@@ -145,8 +186,20 @@ void Room::write(const std::string &filename) {
         file << pos << ' ' << name << '\n';
     }
 
+    file << "OBJECTS\n";
+    file << Objects.size() << '\n';
+    for (auto [pos, object_type] : Objects) {
+        file << pos << ' ' << object_type_to_string(object_type) << '\n';
+    }
+
+    file << "COLOR_BOXES\n";
+    file << ColorBoxes.size() << '\n';
+    for (auto [top_left, bottom_right, color] : ColorBoxes) {
+        file << top_left << ' ' << bottom_right << ' ' << color << '\n';
+    }
+
     file << "GRID_START_DOT\n";
-    file << Dot() << '\n';
+    file << grid_start_dot << '\n';
 }
 
 void Room::simulate(efloat delta_time) {
@@ -380,5 +433,9 @@ void Room::draw() {
             Dot pos = grid_start_dot + step_size * Dot(grid_pos.first, grid_pos.second);
             draw_rect(pos - global_variables::camera.pos, Dot(0.5, 0.5), YELLOW);
         }*/
+    }
+
+    for (auto [top_left, bottom_right, color] : ColorBoxes) {
+        draw_rect2(top_left - global_variables::camera.pos, bottom_right - global_variables::camera.pos, color);
     }
 }

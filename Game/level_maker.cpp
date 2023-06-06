@@ -16,11 +16,15 @@ efloat current_size = 1;
 Dot current_pos;
 int current_level = 0;
 
-enum level_maker_mode { LM_SPRITE, LM_COLLISION_BOX, LM_RENDER_LEVEL, LM_OBJECT, LM_INTERESTING_DOT };
+enum level_maker_mode { LM_SPRITE, LM_COLLISION_BOX, LM_RENDER_LEVEL, LM_OBJECT, LM_INTERESTING_DOT, LM_COLOR_BOX };
 
 level_maker_mode current_mode;
 
 Dot downed_pos;
+
+object_type current_object;
+
+std::vector<std::pair<Dot, object_type>> Objects;
 
 void render_game(const Input &input, const Dot &cursor_pos) {
     clear_screen(GREY);
@@ -65,8 +69,32 @@ void render_game(const Input &input, const Dot &cursor_pos) {
                 }
             }
         }
+
+        // TODO: а как highlight-ить эти объекты?
+        /*need_highlight = -1;
+        if (current_mode == LM_OBJECT) {
+            for (int i = static_cast<int>(Objects.size()) - 1; i >= 0; i--) {
+                if ((Objects[i].second == OT_BUSH && Bush(Objects[i].first).trigger_in_draw_sprite(current_pos)) ||
+                    (Objects[i].second == OT_TREE && Tree(Objects[i].first).trigger_in_draw_sprite(current_pos)) ||
+                    (Objects[i].second == OT_TABLE && Table(Objects[i].first).trigger_in_draw_sprite(current_pos))) {
+                    need_highlight = i;
+                    break;
+                }
+            }
+        }*/
+
+        for (auto [pos, object_type] : Objects) {
+            if (object_type == OT_BUSH) {
+                Bush(pos).draw();
+            } else if (object_type == OT_TREE) {
+                Tree(pos).draw();
+            } else if (object_type == OT_TABLE) {
+                Table(pos).draw();
+            }
+        }
     }
 
+    // draw current choice object
     {
         if (current_mode == LM_SPRITE) {
             Dot pos = current_pos;
@@ -92,6 +120,26 @@ void render_game(const Input &input, const Dot &cursor_pos) {
 
                 cast_to_top_left_and_bottom_right(p0, p1);
                 draw_rect2(p0, p1, Color(0xff0000, 30));
+            }
+        } else if (current_mode == LM_OBJECT) {
+            if (current_object == OT_BUSH) {
+                Bush(current_pos).draw();
+            } else if (current_object == OT_TREE) {
+                Tree(current_pos).draw();
+            } else if (current_object == OT_TABLE) {
+                Table(current_pos).draw();
+            }
+        } else if(current_mode == LM_COLOR_BOX){
+            for (auto [p0, p1, color] : current_room.ColorBoxes) {
+                draw_rect2(p0 - global_variables::camera.pos, p1 - global_variables::camera.pos, color);
+            }
+
+            if (IS_DOWN(BUTTON_MOUSE_L)) {
+                Dot p0 = downed_pos - global_variables::camera.pos;
+                Dot p1 = current_pos - global_variables::camera.pos;
+
+                cast_to_top_left_and_bottom_right(p0, p1);
+                draw_rect2(p0, p1, Color(0x00ff00, 30));
             }
         }
     }
@@ -121,6 +169,8 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
         } else if (current_mode == LM_OBJECT) {
             current_mode = LM_INTERESTING_DOT;
         } else if (current_mode == LM_INTERESTING_DOT) {
+            current_mode = LM_COLOR_BOX;
+        } else if (current_mode == LM_COLOR_BOX) {
             current_mode = LM_SPRITE;
         } else {
             ASSERT(false, "what is mode?");
@@ -138,6 +188,13 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
             current_type_of_sprite = static_cast<sprite_t>(sprite_id);
         } else if (current_mode == LM_RENDER_LEVEL) {
             current_level--;
+        } else if (current_mode == LM_OBJECT) {
+            int type_id = static_cast<int>(current_object);
+            type_id--;
+            if (type_id < 0) {
+                type_id += OT_COUNT;
+            }
+            current_object = static_cast<object_type>(type_id);
         }
     } else if (PRESSED(BUTTON_E)) {
         if (current_mode == LM_SPRITE) {
@@ -149,12 +206,19 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
             current_type_of_sprite = static_cast<sprite_t>(sprite_id);
         } else if (current_mode == LM_RENDER_LEVEL) {
             current_level++;
+        } else if (current_mode == LM_OBJECT) {
+            int type_id = static_cast<int>(current_object);
+            type_id++;
+            if (type_id == OT_COUNT) {
+                type_id = 0;
+            }
+            current_object = static_cast<object_type>(type_id);
         }
     }
 
     if (IS_DOWN(BUTTON_SHIFT)) {
         Dot better = Dot(1e9, 1e9);
-        //  найти близжайший рисуемый прямоугольник
+        // найти близжайший рисуемый прямоугольник
         for (auto [pos, size, sprite, level] : current_room.Draw_objects) {
             const auto &pixels = get_sprite(sprite);
 
@@ -178,6 +242,7 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
         current_pos = better;
     }
 
+    // set object
     if (PRESSED(BUTTON_MOUSE_L)) {
         if (current_mode == LM_SPRITE) {
             Dot pos = current_pos;
@@ -206,10 +271,12 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
             }
         } else if (current_mode == LM_INTERESTING_DOT) {
             current_room.Interesting_dots.push_back({current_pos, "none"});
+        } else if (current_mode == LM_OBJECT) {
+            Objects.push_back({current_pos, current_object});
         }
     }
 
-    // remove
+    // remove object
     if (PRESSED(BUTTON_MOUSE_R)) {
         if (current_mode == LM_SPRITE) {
             for (int i = static_cast<int>(current_room.Draw_objects.size()) - 1; i >= 0; i--) {
@@ -233,6 +300,34 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
                     break;
                 }
             }
+        } else if (current_mode == LM_OBJECT) {
+            Dot pos = current_pos - global_variables::camera.pos;
+            for (int i = 0; i < static_cast<int>(Objects.size()); i++) {
+                if (Objects[i].second == OT_BUSH) {
+                    if (Bush(Objects[i].first).trigger_in_draw_sprite(pos)) {
+                        Objects.erase(Objects.begin() + i);
+                        break;
+                    }
+                } else if (Objects[i].second == OT_TREE) {
+                    if (Tree(Objects[i].first).trigger_in_draw_sprite(pos)) {
+                        Objects.erase(Objects.begin() + i);
+                        break;
+                    }
+                } else if (Objects[i].second == OT_TABLE) {
+                    if (Table(Objects[i].first).trigger_in_draw_sprite(pos)) {
+                        Objects.erase(Objects.begin() + i);
+                        break;
+                    }
+                }
+            }
+        } else if (current_mode == LM_COLOR_BOX) {
+            for (int i = static_cast<int>(current_room.ColorBoxes.size()) - 1; i >= 0; i--) {
+                if (CollisionBox(std::get<0>(current_room.ColorBoxes[i]), std::get<1>(current_room.ColorBoxes[i]))
+                        .trigger(current_pos)) {
+                    current_room.ColorBoxes.erase(current_room.ColorBoxes.begin() + i);
+                    break;
+                }
+            }
         }
     }
 
@@ -248,12 +343,19 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
         cast_to_top_left_and_bottom_right(p0, p1);
 
         current_room.Walls.emplace_back(p0, p1);
+    } else if (current_mode == LM_COLOR_BOX && RELEASED(BUTTON_MOUSE_L)) {
+        Dot p0 = downed_pos;
+        Dot p1 = current_pos;
+
+        cast_to_top_left_and_bottom_right(p0, p1);
+
+        current_room.ColorBoxes.emplace_back(p0, p1, RED);
     }
 
     // save level
     if (PRESSED(BUTTON_V)) {
         std::sort(current_room.Draw_objects.begin(), current_room.Draw_objects.end());
-        current_room.write("level.txt");
+        current_room.write("level.txt", Objects);
     }
 }
 
@@ -296,6 +398,8 @@ void simulate_leve_maker(const Input &input, Dot cursor_pos, efloat delta_time) 
             mode_str = "object";
         } else if (current_mode == LM_INTERESTING_DOT) {
             mode_str = "interesting dot";
+        } else if (current_mode == LM_COLOR_BOX) {
+            mode_str = "color box";
         }
         draw_object(mode_str, Dot(0, -global_variables::arena_half_size.y + 5), 0.5, RED);
     }
