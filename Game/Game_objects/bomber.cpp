@@ -88,7 +88,6 @@ void Bomber::draw() const {
             return paralyzed_accum > 0 ? Color(0xffffff, 128) : Color(static_cast<uint32_t>(color), draw_alpha);
         });
     }
-    draw_rect(pos - global_variables::camera.pos + Dot(0, 15), Dot(0.5, 0.5), GREEN);
     draw_collision(*this);
     draw_hitbox(*this);
     draw_hp(*this);
