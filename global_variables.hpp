@@ -16,6 +16,8 @@ struct global_variables {
 
     static inline bool fullscreen_mode = true;
 
+    static inline bool is_typing = false;
+
     static inline Camera camera;
 
     static inline RenderState render_state;
