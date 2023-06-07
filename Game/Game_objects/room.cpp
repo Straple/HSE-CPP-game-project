@@ -456,11 +456,6 @@ void Room::draw() {
             draw_sprite(pos, size, sprite);
         }
     }
-    for (auto &bomber : game_variables::Bombers) {
-        if (bomber.is_booming) {
-            bomber.draw();
-        }
-    }
 
     // draw grid
     {
@@ -475,5 +470,11 @@ void Room::draw() {
 
     for (auto [top_left, bottom_right, color] : ColorBoxes) {
         draw_rect2(top_left - global_variables::camera.pos, bottom_right - global_variables::camera.pos, color);
+    }
+
+    for (auto &bomber : game_variables::Bombers) {
+        if (bomber.is_booming) {
+            bomber.draw();
+        }
     }
 }

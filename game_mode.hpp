@@ -17,7 +17,7 @@ void simulate_game_mode(
     Player &customization_player,
     WindowHandler &window_handler
 ) {
-    window_handler.update();
+    window_handler.update(delta_time);
     customization_player.input = player.input = window_handler.input;
 
     auto &input = player.input;

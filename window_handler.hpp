@@ -13,20 +13,20 @@ void relax_scaling_after_change_window_scaling(Dot &cursor_pos) {
     cursor_pos -= global_variables::arena_half_size;
 }
 
-void increase_window_scaling(Dot &cursor_pos) {
+void increase_window_scaling(Dot &cursor_pos, efloat delta_time) {
     cursor_pos += global_variables::arena_half_size;
     cursor_pos *= global_variables::scale_factor;
 
-    global_variables::render_scale *= 0.99;
+    global_variables::render_scale -= global_variables::render_scale * 0.01 * delta_time * 100;
 
     relax_scaling_after_change_window_scaling(cursor_pos);
 }
 
-void decrease_window_scaling(Dot &cursor_pos) {
+void decrease_window_scaling(Dot &cursor_pos, efloat delta_time) {
     cursor_pos += global_variables::arena_half_size;
     cursor_pos *= global_variables::scale_factor;
 
-    global_variables::render_scale /= 0.99;
+    global_variables::render_scale += global_variables::render_scale * 0.01 * delta_time * 100;
 
     relax_scaling_after_change_window_scaling(cursor_pos);
 }
@@ -161,9 +161,9 @@ public:
     // ESC => выход
     // ENTER => поменять тип окна (полноэкранный или оконные)
     // и т.п.
-    void update() {
+    void update(efloat delta_time) {
         update_controls();
-        simulate_input();
+        simulate_input(delta_time);
     }
 
     // рисует игру, полезную для дебага информацию, курсор
@@ -371,7 +371,7 @@ private:
         }
     }
 
-    void simulate_input() {
+    void simulate_input(efloat delta_time) {
         if (PRESSED(BUTTON_ESC)) {
             global_variables::running = false;
             return;
@@ -402,11 +402,11 @@ private:
         // update render_scale
         {
             if (IS_DOWN(BUTTON_UP)) {
-                increase_window_scaling(cursor.pos);
+                increase_window_scaling(cursor.pos, delta_time);
             }
 
             if (IS_DOWN(BUTTON_DOWN)) {
-                decrease_window_scaling(cursor.pos);
+                decrease_window_scaling(cursor.pos, delta_time);
             }
         }
 
