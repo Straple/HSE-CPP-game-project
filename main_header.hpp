@@ -8,7 +8,7 @@ static_assert(false);
 //-----------------------------------------------
 
 // use LPCSTR or LPCWSTR
-#define GAME_ENGINE_MY_LPCSTR LPCSTR
+#define GAME_ENGINE_MY_LPCSTR LPCWSTR
 
 #define GAME_ENGINE_DRAW_FPS_PLOT
 

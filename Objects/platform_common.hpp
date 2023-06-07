@@ -17,6 +17,14 @@ enum button_t : uint8_t {
     BUTTON_MOUSE_R,
     BUTTON_DEL,
     BUTTON_SHIFT,
+    BUTTON_MINUS,
+    BUTTON_PLUS,
+    BUTTON_DOT,
+    BUTTON_COMMA,
+    BUTTON_COLON,
+    BUTTON_QUESTION_MARK,
+    BUTTON_BACKSPACE,
+
 
     BUTTON_A,
     BUTTON_B,
@@ -45,7 +53,16 @@ enum button_t : uint8_t {
     BUTTON_X,
     BUTTON_Y,
 
-    BUTTON_0,
+    BUTTON_NUMPAD0,
+    BUTTON_NUMPAD1,
+    BUTTON_NUMPAD2,
+    BUTTON_NUMPAD3,
+    BUTTON_NUMPAD4,
+    BUTTON_NUMPAD5,
+    BUTTON_NUMPAD6,
+    BUTTON_NUMPAD7,
+    BUTTON_NUMPAD8,
+    BUTTON_NUMPAD9,
     BUTTON_1,
     BUTTON_2,
     BUTTON_3,
@@ -55,7 +72,7 @@ enum button_t : uint8_t {
     BUTTON_7,
     BUTTON_8,
     BUTTON_9,
-
+    BUTTON_0,
     BUTTON_COUNT,
 };
 

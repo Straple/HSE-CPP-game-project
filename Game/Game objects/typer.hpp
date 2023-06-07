@@ -6,7 +6,7 @@
 #include "../../sprites.hpp"
 #include "game_objects.hpp"
 struct Typer {
-	std::string text="bebra";
+	std::string text="";
 	Dot pos;
 	efloat size;
 	Color color;
