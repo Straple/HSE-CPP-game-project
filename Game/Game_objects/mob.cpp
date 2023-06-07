@@ -18,10 +18,14 @@ void Mob::simulate_move_to_player(Dot player_pos, const std::set<grid_pos_t> &vi
     // чтобы моб был поверх игрока, а не под ним
     Dot to = player_pos - Dot(0, 0.1);
 
-    if (!get_direction_to_shortest_path(
-            pos, to, move_dir_to_target, [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
-            [&](const Dot &request) { return (to - request).get_len() < 10; }
-        )) {
+    if ((pos - to).get_len() < 20) {
+        // мы очень близко. можем дойти и так
+        move_dir_to_target = (to - pos).normalize();
+    } else if (!get_direction_to_shortest_path(
+                   pos, to, move_dir_to_target,
+                   [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
+                   [&](const Dot &request) { return (to - request).get_len() < 15; }
+               )) {
         // ASSERT(false, "oh ho, way not found");
         // телепортируем моба в ближайщую точку грида
         /*std::cout << "Teleported Mob to visitable grid" << std::endl;
