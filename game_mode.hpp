@@ -12,6 +12,14 @@ game_mode_t game_mode = GM_GAME;
 
 bool now_is_typing = false;
 
+struct chat_message_object {
+    int client_id;
+    std::string message;
+    efloat time;  // накопленное время существования этого сообщения
+};
+
+std::vector<chat_message_object> ChatMessages;
+
 // симулирует игру или кастомизацию игрока
 void simulate_game_mode(
     efloat delta_time,
@@ -48,6 +56,15 @@ void simulate_game_mode(
         }
     }
 
+    // по истечению 10s сообщение из чата удаляется
+    for (int index = 0; index < ChatMessages.size(); index++) {
+        ChatMessages[index].time += delta_time;
+        if (ChatMessages[index].time > 10) {
+            ChatMessages.erase(ChatMessages.begin() + index);
+            index--;
+        }
+    }
+
     if (game_mode == GM_GAME) {
         // мы должны симулировать свою версию игры,
         // то есть мы пару кадров будем жить в своем собственном мире,
@@ -64,6 +81,10 @@ void simulate_game_mode(
 
         if (now_is_typing) {
             typer.simulate(input, delta_time);
+            // ограничить размером окошка
+            while (text_len_in_pixels(typer.text.c_str()) > 150) {
+                typer.text.pop_back();
+            }
         }
 
         // симулируем игру
@@ -111,24 +132,29 @@ void simulate_game_mode(
     } else {
         ASSERT(false, "game_mode = ?");
     }
+}
 
-    /*if (!this_frame_from_server) {
-        // этот фрейм уже не от сервера
-        // мы должны симулировать свою версию игры
-        //
-        // то есть мы пару кадров будем жить в своем собственном мире,
-        // а когда получим от сервера его версию игры, то переключимся на нее
-        // таким образом игра становиться более плавной и менее зависящей от сервера
-        // если долго не будут приходить пакеты от сервера, то клиент еще сможет играть
+void draw_chat_messages() {
+    if (game_mode == GM_GAME) {
+        for (auto &player : game_variables::Players) {
+            int i = 0;
+            for (auto [sender_client_id, message, time] : ChatMessages) {
+                // это сообщение отправил этот игрок
+                if (player.client_id == sender_client_id) {
+                    efloat message_alpha_factor = 1;
+                    if (time > 5) {
+                        message_alpha_factor = (10 - time) / 5;
+                    }
 
-        // симулируем игроков
-        for (auto &player : Players) {
-            simulate_player(delta_time, player.client_id);
+                    draw_text_align(
+                        message.c_str(), player.pos - global_variables::camera.pos + Dot(0, 30 + i * 10), 1,
+                        Color(0x00ff00, static_cast<uint8_t>(message_alpha_factor * 0xff))
+                    );
+                    i++;
+                }
+            }
         }
-
-        // симулируем игру
-        simulate_game(delta_time);
-    }*/
+    }
 }
 
 // рисует игру или кастомизацию игрока
@@ -165,12 +191,27 @@ void draw_game_mode(
         draw_text_align("press T to change the choice of customization (t-shirt or cloack)", Dot(0, -30), 0.5, GREEN);
         draw_text_align("press Q or E to change the choice of color", Dot(0, -40), 0.5, GREEN);
         draw_text_align("use W,A,S,D to walk and SPACE to jump", Dot(0, -50), 0.5, GREEN);
-
     } else {
         ASSERT(false, "game_mode = ?");
     }
-    // draw typer
-    { draw_text(typer.get_text().c_str(), Dot(), 0.5, RED); }
+    if (now_is_typing) {
+        draw_rect2(
+            -global_variables::arena_half_size + Dot(10, 20), -global_variables::arena_half_size + Dot(162, 10), BLACK
+        );
+        efloat text_size = 1;
+        /*efloat text_size = 150.0 / text_len_in_pixels(typer.get_text().c_str());
+        if (text_size > 1) {
+            text_size = 1;
+        }*/
+        draw_text(typer.text.c_str(), -global_variables::arena_half_size + Dot(12, 18), text_size, WHITE);
+    }
+
+    draw_chat_messages();
+
+    if (now_is_typing) {
+        draw_rect(Dot(), Dot(10, 10), RED);
+    }
+
     window_handler.release_frame();
 }
 

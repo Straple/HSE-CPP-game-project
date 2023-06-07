@@ -39,7 +39,6 @@
 #include "game_collision.hpp"
 
 // world
-#include "typer.hpp"
 //#include "menu.hpp"
 #include "room.hpp"
 

@@ -22,6 +22,7 @@ sprites.cpp
     Objects/platform_common.cpp
     Objects/move.cpp
     Objects/camera.cpp
+    Objects/typer.cpp
         # GEOMETRY
         Objects/Geometry/dot.cpp
         Objects/Geometry/circle.cpp

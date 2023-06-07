@@ -66,7 +66,22 @@ public:
         socket.close();
     }
 
+    void send_chat_message_to_server(const std::string &chat_message) {
+        GameMessage message;
+        message.set_body_length(chat_message.size());
+        message.set_message_type(GameMessage::CHAT_MESSAGE);
+        message.encode_header();
+
+        std::memcpy(message.body(), chat_message.data(), chat_message.size());
+
+        // отправим на сервер
+        write(message);
+    }
+
     void send_input_to_server() {
+        if (now_is_typing) {
+            return;
+        }
         GameMessage message;
         message.set_body_length(sizeof(ButtonsState) + sizeof(Dot) + 2 * sizeof(int));
         message.set_message_type(GameMessage::PLAYER_INPUT);
@@ -75,6 +90,7 @@ public:
         // запишем ButtonsState
         if (game_mode == GM_GAME) {
             std::memcpy(message.body(), &window_handler.input.current, sizeof(ButtonsState));
+
         } else if (game_mode == GM_CUSTOMIZATION) {
             // никаких нажатий нет
         } else {
@@ -125,10 +141,20 @@ public:
         int index = find_player_index(client_id);
         ASSERT(index != -1, "where this player?");
         auto &player = game_variables::Players[index];
+        const auto &input = window_handler.input;
 
-        simulate_game_mode(delta_time, player, customization_player, window_handler);
+        // костыль
+        bool old_is_typing = now_is_typing;
+        std::string typer_text = typer.text;
 
-        draw_game_mode(delta_time, client_id, customization_player, window_handler);
+        simulate_game_mode(delta_time, player, customization_player, window_handler, typer);
+
+        // мы сбросили сообщение чата и оно не было пусто
+        if (old_is_typing != now_is_typing && old_is_typing && !typer_text.empty()) {
+            send_chat_message_to_server(typer_text);
+        }
+
+        draw_game_mode(delta_time, client_id, customization_player, window_handler, typer);
 
         send_input_to_server();
 
@@ -206,6 +232,14 @@ private:
                         } else {
                             std::cout << "old frame :_(" << std::endl;
                         }
+                    } else if (read_message.message_type() == GameMessage::CHAT_MESSAGE) {
+                        int sender_client_id = -1;
+                        std::memcpy(&sender_client_id, read_message.body(), sizeof(int));
+
+                        std::string chat_message;
+                        chat_message.resize(read_message.body_length() - sizeof(int));
+                        std::memcpy(chat_message.data(), read_message.body() + sizeof(int), chat_message.size());
+                        ChatMessages.insert(ChatMessages.begin(), {sender_client_id, chat_message, 0});
                     }
                     do_read_header();  // продолжим читать у сервера
                 } else {
@@ -242,14 +276,13 @@ private:
 
     int client_id = -1;  // наш уникальный клиент id
 
-    //----------------------------------------------------------------
-
-    // id серверного игрового кадра
-    int frame_id = 0;
+    int frame_id = 0;  // id серверного игрового кадра
 
     //----------------------------------------------------------------
 
     WindowHandler &window_handler;  // обработчик окна
+
+    Typer typer;
 
     boost::asio::deadline_timer timer;  // таймер для симуляции кадров
 

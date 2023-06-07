@@ -83,6 +83,8 @@ public:
 
     virtual void deliver(const GameMessage &message) = 0;
 
+    virtual void add_chat_message_in_queue(int client_id, const std::string &chat_message) = 0;
+
     //---------------------------------------------------------------------
 
     tcp::socket socket;  // сокет клиента
@@ -207,6 +209,13 @@ public:
         }
     }
 
+    // добавляет это сообщение всем клиентам в их очередь сообщений
+    void add_chat_message(int client_id, const std::string &chat_message) {
+        for (auto &client_ptr : Clients) {
+            client_ptr->add_chat_message_in_queue(client_id, chat_message);
+        }
+    }
+
     //----------------------------------------------------------------------
 
     GameMessage game_state_snapshot;  // сохраненное глобальное состояние игры
@@ -255,6 +264,10 @@ public:
         do_write();
     }
 
+    void add_chat_message_in_queue(int client_id, const std::string &chat_message) override {
+        queue_chat_messages.push({client_id, chat_message});
+    }
+
 private:
     void do_read_header() {
         auto self(shared_from_this());
@@ -281,8 +294,18 @@ private:
             [this, self](boost::system::error_code error_code, std::size_t) {
                 count_of_read_messages++;
                 if (!error_code) {
-                    set_player_input();  // обработаем полученное сообщение
-                    do_read_header();    // продолжим цепочку чтения сообщений
+                    // обработаем полученное сообщение
+                    if (read_message.message_type() == GameMessage::PLAYER_INPUT) {
+                        set_player_input();
+                    } else if (read_message.message_type() == GameMessage::CHAT_MESSAGE) {
+                        std::string chat_message;
+                        chat_message.resize(read_message.body_length());
+                        std::memcpy(chat_message.data(), read_message.body(), chat_message.size());
+                        session.add_chat_message(client_id, chat_message);
+                        std::cout << "client_id: " << client_id << " chat message: \"" << chat_message << '\"'
+                                  << std::endl;
+                    }
+                    do_read_header();  // продолжим цепочку чтения сообщений
                 } else {
                     std::cout << "reading body failed. message: \"" << error_code.message() << "\"" << std::endl;
                     session.leave(shared_from_this());
@@ -324,6 +347,20 @@ private:
             [this, self](boost::system::error_code error_code, std::size_t) {
                 count_of_write_messages++;
                 if (!error_code) {
+                    if (!queue_chat_messages.empty()) {
+                        // отправим сообщение из чата клиенту
+                        auto [sender_client_id, chat_message] = queue_chat_messages.front();
+                        queue_chat_messages.pop();
+
+                        GameMessage message;
+                        message.set_body_length(sizeof(int) + chat_message.size());
+                        message.set_message_type(GameMessage::CHAT_MESSAGE);
+                        message.encode_header();
+
+                        std::memcpy(message.body(), &sender_client_id, sizeof(int));
+                        std::memcpy(message.body() + sizeof(int), chat_message.data(), chat_message.size());
+                        deliver(message);
+                    }
                 } else {
                     session.leave(shared_from_this());
                 }
@@ -338,6 +375,10 @@ private:
     GameMessage read_message;  // нужно получить это сообщение
 
     GameMessage write_message;  // нужно отправить это сообщение
+
+    // (client_id, message)
+    // очередь сообщений, которые нужно отправить
+    std::queue<std::pair<int, std::string>> queue_chat_messages;
 };
 
 //----------------------------------------------------------------------

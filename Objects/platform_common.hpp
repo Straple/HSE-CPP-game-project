@@ -73,6 +73,7 @@ enum button_t : uint8_t {
     BUTTON_8,
     BUTTON_9,
     BUTTON_0,
+
     BUTTON_COUNT,
 };
 
