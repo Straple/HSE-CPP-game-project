@@ -3,22 +3,24 @@
 
 #include "bullet.hpp"
 
-struct Weapon {
+struct Weapon: AbstractObject {
     efloat cooldown;
     efloat cooldown_accum;
     int damage;
     mutable Dot dulo;
     mutable Dot hand;
+    bool is_picked = false;
+    Dot target;
 
-    Weapon(efloat cooldown = 1, int damage = 1);
+    explicit Weapon(Dot p, efloat cooldown = 1, int damage = 1);
 
     bool may_shot();
 
-    void shot(Dot pos, Dot target, BulletHostType bullet_host, sprite_t sprite);
+    void shot(BulletHostType bullet_host, sprite_t sprite);
 
-    void simulate(efloat delta_time, Dot target);
+    void simulate(efloat delta_time);
 
-    void draw(Dot pos, Dot target) const;
+    void draw() const override;
 };
 
 /*struct Melee_weapon : Weapon {

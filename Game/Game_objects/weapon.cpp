@@ -4,14 +4,14 @@
 #include "../../render.hpp"
 #include "../../sprites.hpp"
 
-Weapon::Weapon(efloat cooldown, int damage) : cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
+Weapon::Weapon(Dot p, efloat cooldown, int damage) : AbstractObject(p), cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
 }
 
 bool Weapon::may_shot() {
     return cooldown_accum >= cooldown;
 }
 
-void Weapon::shot(Dot pos, Dot target, BulletHostType bullet_host, sprite_t sprite) {
+void Weapon::shot(BulletHostType bullet_host, sprite_t sprite) {
     if (!may_shot()) {
         return;
     }
@@ -28,13 +28,15 @@ void Weapon::shot(Dot pos, Dot target, BulletHostType bullet_host, sprite_t spri
     game_variables::Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 1, 1000, sprite);
 }
 
-void Weapon::simulate(efloat delta_time, Dot target) {
+void Weapon::simulate(efloat delta_time) {
     cooldown_accum += delta_time;
-    auto angle = get_good_angle(target, Dot(1, 0)) * 57.295779513;
-    int ind = angle / 15;
 }
 
-void Weapon::draw(Dot pos, Dot target) const {
+void Weapon::draw() const {
+    if (!is_picked) {
+        draw_spritesheet(pos, 0.7, SS_GOLDEN_GUN, 0);
+        return;
+    }
     double angle;
     angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
     int ind = angle / 15;

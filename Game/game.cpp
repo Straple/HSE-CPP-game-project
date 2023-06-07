@@ -14,10 +14,27 @@ void simulate_player(efloat delta_time, Player &player) {
     // if (PRESSED(BUTTON_MOUSE_L)) {
     //     add_flower_dome_effect(Players[index].cursor_dir + Players[index].pos);
     // }
+    if (PRESSED(BUTTON_E) && !player.is_paralyzed && !player.is_jumped && !player.is_dead()) {
+        int picked_ind = -1;
+        efloat min_dist = INFINITY;
+        for (int i = 0; i < game_variables::Weapons.size(); i++) {
+            if (game_variables::Weapons[i].is_picked) continue;
+            auto dist = (player.pos - (game_variables::Weapons[i].pos+Dot(17,-10))).get_quare_len();
+            std::cout << player.pos-game_variables::Weapons[i].pos << std::endl;
+            if (dist < 200 && dist < min_dist) {
+                min_dist = dist;
+                picked_ind = i;
+            }
+        }
+        if (picked_ind != -1) {
+            player.drop_weapon();
+            player.pick_weapon(picked_ind);
+        }
+    }
 
     if (PRESSED(BUTTON_MOUSE_L) && !player.is_paralyzed && !player.is_jumped && player.coins > 0 &&
-        player.weapon.may_shot() && !player.is_dead()) {
-        player.weapon.shot(player.pos, player.cursor_dir + player.pos, BulletHostType::PLAYER, SP_COIN);
+          player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].may_shot() && !player.is_dead()) {
+        game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER, SP_COIN);
         player.coins--;
     }
 

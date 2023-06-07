@@ -30,7 +30,7 @@ Player_anim_tree::anim_and_dir_t Player_anim_tree::get_anim(Dot dir, anim_and_di
 Player::Player(const Dot &position) {
     pos = position;
 
-    weapon.cooldown = 0;  // мы боги
+//    weapon.cooldown = 0;  // мы боги
 }
 
 [[nodiscard]] bool Player::is_dead() const {
@@ -50,6 +50,19 @@ void Player::reborn() {
     hp = 1;
 }
 
+void Player::drop_weapon() {
+    if (weapon_ind != -1) {
+        game_variables::Weapons[weapon_ind].is_picked = false;
+        weapon_ind = -1;
+    }
+}
+
+void Player::pick_weapon(int wp_ind) {
+    game_variables::Weapons[wp_ind].is_picked = true;
+    weapon_ind = wp_ind;
+    game_variables::Weapons[wp_ind].cooldown=0;
+}
+
 [[nodiscard]] bool Player::is_invulnerable() const {
     return invulnerable_accum > 0;
 }
@@ -60,7 +73,10 @@ void Player::set_invulnerable() {
 
 void Player::simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
     jump_accum -= delta_time;
-
+    if (weapon_ind != -1) {
+        game_variables::Weapons[weapon_ind].target = cursor_dir + pos;
+        game_variables::Weapons[weapon_ind].pos = pos;
+    }
     if (is_paralyzed) {
         // игрока ест слайм
         anim_type.anim = Player_anim_tree::IDLE;
@@ -93,7 +109,9 @@ void Player::simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
     } else {
         if (!is_dead()) {
             invulnerable_accum -= delta_time;
-            weapon.simulate(delta_time, cursor_dir + pos);
+            if (weapon_ind != -1) {
+                game_variables::Weapons[weapon_ind].simulate(delta_time);
+            }
         }
 
         // simulate move
@@ -151,8 +169,8 @@ void Player::draw() const {
         }
     });
 
-    if (!now_is_customization && !is_jumped && !is_dead()) {
-        weapon.draw(pos, cursor_dir + pos);
+    if (!now_is_customization && !is_jumped && !is_dead() && weapon_ind != -1) {
+        game_variables::Weapons[weapon_ind].draw();
     }
 
     draw_collision(*this);
