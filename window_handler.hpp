@@ -335,16 +335,33 @@ private:
                         update_button(BUTTON_TAB, VK_TAB);
                         update_button(BUTTON_SPACE, VK_SPACE);
                         update_button(BUTTON_SHIFT, VK_SHIFT);
-                        update_button(BUTTON_0, VK_NUMPAD0);
-                        update_button(BUTTON_1, VK_NUMPAD1);
-                        update_button(BUTTON_2, VK_NUMPAD2);
-                        update_button(BUTTON_3, VK_NUMPAD3);
-                        update_button(BUTTON_4, VK_NUMPAD4);
-                        update_button(BUTTON_5, VK_NUMPAD5);
-                        update_button(BUTTON_6, VK_NUMPAD6);
-                        update_button(BUTTON_7, VK_NUMPAD7);
-                        update_button(BUTTON_8, VK_NUMPAD8);
-                        update_button(BUTTON_9, VK_NUMPAD9);
+                        update_button(BUTTON_NUMPAD0, VK_NUMPAD0);
+                        update_button(BUTTON_NUMPAD1, VK_NUMPAD1);
+                        update_button(BUTTON_NUMPAD2, VK_NUMPAD2);
+                        update_button(BUTTON_NUMPAD3, VK_NUMPAD3);
+                        update_button(BUTTON_NUMPAD4, VK_NUMPAD4);
+                        update_button(BUTTON_NUMPAD5, VK_NUMPAD5);
+                        update_button(BUTTON_NUMPAD6, VK_NUMPAD6);
+                        update_button(BUTTON_NUMPAD7, VK_NUMPAD7);
+                        update_button(BUTTON_NUMPAD8, VK_NUMPAD8);
+                        update_button(BUTTON_NUMPAD9, VK_NUMPAD9);
+                        update_button(BUTTON_1, '1');
+                        update_button(BUTTON_2, '2');
+                        update_button(BUTTON_3, '3');
+                        update_button(BUTTON_4, '4');
+                        update_button(BUTTON_5, '5');
+                        update_button(BUTTON_6, '6');
+                        update_button(BUTTON_7, '7');
+                        update_button(BUTTON_8, '8');
+                        update_button(BUTTON_9, '9');
+                        update_button(BUTTON_0, '0');
+                        update_button(BUTTON_MINUS, 189);
+                        update_button(BUTTON_PLUS, 187);
+                        update_button(BUTTON_COLON, 186);
+                        update_button(BUTTON_DOT, 190);
+                        update_button(BUTTON_COMMA, 188);
+                        update_button(BUTTON_QUESTION_MARK, 191);
+                        update_button(BUTTON_BACKSPACE, 8);
                         default: {
                         }
                     }
@@ -372,12 +389,12 @@ private:
     }
 
     void simulate_input(efloat delta_time) {
-        if (PRESSED(BUTTON_ESC)) {
+        if (!global_variables::is_typing && PRESSED(BUTTON_ESC)) {
             global_variables::running = false;
             return;
         }
 
-        if (PRESSED(BUTTON_ENTER)) {
+        if (!global_variables::is_typing && PRESSED(BUTTON_ENTER)) {
             global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
 
             if (global_variables::fullscreen_mode) {
@@ -387,15 +404,15 @@ private:
             }
         }
 
-        if (PRESSED(BUTTON_TAB)) {
+        if (!global_variables::is_typing && PRESSED(BUTTON_TAB)) {
             global_variables::debug_mode = !global_variables::debug_mode;
         }
 
-        if (PRESSED(BUTTON_K)) {
+        if (!global_variables::is_typing && PRESSED(BUTTON_K)) {
             global_variables::show_locator = !global_variables::show_locator;
         }
 
-        if (PRESSED(BUTTON_F)) {
+        if (!global_variables::is_typing&&PRESSED(BUTTON_F)) {
             global_variables::show_fps = !global_variables::show_fps;
         }
 

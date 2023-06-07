@@ -1,4 +1,5 @@
-﻿const char* small_letters[][7] = {
+﻿#include "../utils.hpp"
+const char* small_letters[][7] = {
     "",
     "",
     " 000", // a
