@@ -15,12 +15,12 @@ void simulate_game_mode(
     efloat delta_time,
     Player &player,
     Player &customization_player,
-    WindowHandler &window_handler
+    WindowHandler &window_handler,Typer&typer
 ) {
     window_handler.update(delta_time);
     const auto input = customization_player.input = player.input = window_handler.input;
 
-    if (PRESSED(BUTTON_C)) {
+    if ((!global_variables::is_typing)&&PRESSED(BUTTON_C)) {
         if (game_mode == GM_GAME) {
             game_mode = GM_CUSTOMIZATION;
             customization_player = player;
@@ -45,7 +45,7 @@ void simulate_game_mode(
 
         player.cursor_dir = window_handler.cursor.pos + global_variables::camera.pos - player.pos;
         global_variables::camera.simulate(player.pos, delta_time);
-
+        typer.simulate(input,delta_time);
         // симулируем игроков
         for (auto &player : game_variables::Players) {
             simulate_player(delta_time, player.client_id);
@@ -60,11 +60,11 @@ void simulate_game_mode(
         // false = t-shirt
         // true = cloack
         static bool change_mode = false;
-        if (PRESSED(BUTTON_T)) {
+        if ((!global_variables::is_typing) && PRESSED(BUTTON_T)) {
             change_mode = !change_mode;
         }
 
-        if (PRESSED(BUTTON_Q)) {
+        if ((!global_variables::is_typing) && PRESSED(BUTTON_Q)) {
             if (change_mode) {
                 if (customization_player.cloack_color_id == 0) {
                     customization_player.cloack_color_id = Player::customization_colors.size() / 2 - 1;
@@ -80,7 +80,7 @@ void simulate_game_mode(
             }
         }
 
-        if (PRESSED(BUTTON_E)) {
+        if ((!global_variables::is_typing) && PRESSED(BUTTON_E)) {
             if (change_mode) {
                 customization_player.cloack_color_id++;
                 if (customization_player.cloack_color_id == Player::customization_colors.size() / 2) {
@@ -117,7 +117,7 @@ void simulate_game_mode(
 }
 
 // рисует игру или кастомизацию игрока
-void draw_game_mode(efloat delta_time, int client_id, Player &customization_player, WindowHandler &window_handler) {
+void draw_game_mode(efloat delta_time, int client_id, Player &customization_player, WindowHandler &window_handler,Typer &typer) {
     if (game_mode == GM_GAME) {
         window_handler.draw_frame(delta_time, client_id);
     } else if (game_mode == GM_CUSTOMIZATION) {
@@ -148,7 +148,7 @@ void draw_game_mode(efloat delta_time, int client_id, Player &customization_play
     } else {
         ASSERT(false, "game_mode = ?");
     }
-
+    typer.draw();
     window_handler.release_frame();
 }
 
