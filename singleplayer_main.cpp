@@ -30,9 +30,9 @@ int main() {
     efloat delta_time = 0;
 
     Player customization_player;
-        Typer typer(Dot(0,0),1,Color(0xffffffff));
-        global_variables::is_typing = true;
-        typer.focus = true;
+
+    Typer typer;
+
     while (global_variables::running) {
         auto &player = game_variables::Players[0];
 

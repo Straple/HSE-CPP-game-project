@@ -9,7 +9,7 @@ void simulate_player(efloat delta_time, Player &player) {
         return Dot(IS_DOWN(right) - IS_DOWN(left), IS_DOWN(top) - IS_DOWN(bottom));
     };
 
-    player.simulate(delta_time, (!global_variables::is_typing)?accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S):Dot(0,0), (!global_variables::is_typing)?PRESSED(BUTTON_SPACE):false);
+    player.simulate(delta_time, accum_ddp(BUTTON_A, BUTTON_D, BUTTON_W, BUTTON_S), PRESSED(BUTTON_SPACE));
 
     // if (PRESSED(BUTTON_MOUSE_L)) {
     //     add_flower_dome_effect(Players[index].cursor_dir + Players[index].pos);
