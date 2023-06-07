@@ -36,7 +36,7 @@ int main() {
 
         simulate_game_mode(delta_time, player, customization_player, window_handler);
 
-        draw_game_mode(delta_time, player, customization_player, window_handler);
+        draw_game_mode(delta_time, 0, customization_player, window_handler);
 
         // update time
         {

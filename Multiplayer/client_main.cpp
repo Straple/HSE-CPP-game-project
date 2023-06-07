@@ -67,11 +67,9 @@ public:
     }
 
     void send_input_to_server() {
-        write_message_frame_id = frame_id;
-        sending_chain_is_run = true;
-
         GameMessage message;
-        message.body_length(sizeof(ButtonsState) + sizeof(Dot) + 2 * sizeof(int));
+        message.set_body_length(sizeof(ButtonsState) + sizeof(Dot) + 2 * sizeof(int));
+        message.set_message_type(GameMessage::PLAYER_INPUT);
         message.encode_header();
 
         // запишем ButtonsState
@@ -102,8 +100,6 @@ public:
     }
 
     void simulate_game_frame() {
-        frame_id++;
-
         efloat delta_time;
         // update time
         {
@@ -127,16 +123,14 @@ public:
         }
 
         int index = find_player_index(client_id);
+        ASSERT(index != -1, "where this player?");
         auto &player = game_variables::Players[index];
 
         simulate_game_mode(delta_time, player, customization_player, window_handler);
 
-        draw_game_mode(delta_time, player, customization_player, window_handler);
+        draw_game_mode(delta_time, client_id, customization_player, window_handler);
 
-        if (!sending_chain_is_run) {
-            // восстановим цепочку отправок сообщений инпута на сервер
-            send_input_to_server();
-        }
+        send_input_to_server();
 
         if (!global_variables::running) {
             close();
@@ -166,7 +160,8 @@ private:
         boost::asio::async_read(
             socket, boost::asio::buffer(read_message.data(), GameMessage::header_length),
             [this](boost::system::error_code error_code, std::size_t) {
-                if (!error_code && read_message.decode_header()) {
+                if (!error_code) {
+                    read_message.decode_header();
                     // считали заголовок с размером тела
                     // теперь можем считать и тело
                     do_read_body();
@@ -184,31 +179,34 @@ private:
             [this](boost::system::error_code error_code, std::size_t) {
                 if (!error_code) {
                     this_frame_from_server = true;
-                    if (client_id == -1) {
-                        // это первый пакет от сервера
-                        // он прислал нам наш client_id и игровой снапшот
-
+                    if (read_message.message_type() == GameMessage::CLIENT_ID) {
                         // считали client_id
+                        ASSERT(client_id == -1, "why client_id already init?");
                         std::memcpy(&client_id, read_message.body(), sizeof(int));
                         std::cout << "client_id: " << client_id << std::endl;
+                    } else if (read_message.message_type() == GameMessage::GAME_STATE) {
+                        int game_state_frame_id = -1;
+                        std::memcpy(&game_state_frame_id, read_message.body(), sizeof(int));
+                        if (frame_id < game_state_frame_id) {
+                            // мы получили более новое игровое состояние
+                            bool need_state_simulates_game_frame = frame_id == 0;
+                            frame_id = game_state_frame_id;
 
-                        // считали game_state
-                        std::string game_state;
-                        game_state.resize(read_message.body_length() - sizeof(int));
-                        std::memcpy(game_state.data(), read_message.body() + sizeof(int), game_state.size());
+                            std::string game_state;
+                            game_state.resize(read_message.body_length() - sizeof(int));
+                            std::memcpy(game_state.data(), read_message.body() + sizeof(int), game_state.size());
 
-                        set_game_state(game_state);
+                            set_game_state(game_state);
 
-                        simulate_game_frame();  // теперь мы можем начать играть
-                    } else {
-                        // считали game_state
-                        std::string game_state;
-                        game_state.resize(read_message.body_length());
-                        std::memcpy(game_state.data(), read_message.body(), game_state.size());
-
-                        set_game_state(game_state);
+                            if (need_state_simulates_game_frame) {
+                                std::cout << "Starting first game frame..." << std::endl;
+                                // мы еще ни разу не играли, так как сервер не отправил нам первое игровое состояние
+                                simulate_game_frame();
+                            }
+                        } else {
+                            std::cout << "old frame :_(" << std::endl;
+                        }
                     }
-
                     do_read_header();  // продолжим читать у сервера
                 } else {
                     std::cout << "reading body failed. message: \"" << error_code.message() << "\"" << std::endl;
@@ -225,14 +223,6 @@ private:
             socket, boost::asio::buffer(write_message.data(), write_message.length()),
             [this](boost::system::error_code error_code, std::size_t) {
                 if (!error_code) {
-                    sending_chain_is_run = false;
-
-                    if (write_message_frame_id != frame_id) {
-                        send_input_to_server();
-                    } else {
-                        // мы прервали цепочку отправок инпута на сервер
-                        // мы должны ее восстановить, когда обработаем новый игровой кадр
-                    }
                 } else {
                     close();
                 }
@@ -254,20 +244,8 @@ private:
 
     //----------------------------------------------------------------
 
-    // id нашего (не серверного) игрового кадра
-    // увеличивается на 1 при нашей симуляции
+    // id серверного игрового кадра
     int frame_id = 0;
-
-    // id нашего (не серверного) игрового кадра сообщения, который мы отправили
-    // нужен, чтобы не слать постоянно инпут серверу, когда он даже не пересчитан
-    int write_message_frame_id = 0;
-
-    // если true, то работает цепочка отправок состояний инпута на сервер
-    //
-    // если false, то она не работает и это нужно исправить при первой возможности
-    //
-    // когда мы обработаем свой новый кадр, то должны будем ее восстановить
-    bool sending_chain_is_run = false;
 
     //----------------------------------------------------------------
 
@@ -279,7 +257,7 @@ private:
 
     //----------------------------------------------------------------
 
-    // для дебага
+    // для дебага и статистики
 
     double accum_time_measurement = 0;
 

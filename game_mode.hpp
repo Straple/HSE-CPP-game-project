@@ -18,9 +18,7 @@ void simulate_game_mode(
     WindowHandler &window_handler
 ) {
     window_handler.update(delta_time);
-    customization_player.input = player.input = window_handler.input;
-
-    auto &input = player.input;
+    const auto input = customization_player.input = player.input = window_handler.input;
 
     if (PRESSED(BUTTON_C)) {
         if (game_mode == GM_GAME) {
@@ -119,9 +117,9 @@ void simulate_game_mode(
 }
 
 // рисует игру или кастомизацию игрока
-void draw_game_mode(efloat delta_time, Player &player, Player &customization_player, WindowHandler &window_handler) {
+void draw_game_mode(efloat delta_time, int client_id, Player &customization_player, WindowHandler &window_handler) {
     if (game_mode == GM_GAME) {
-        window_handler.draw_frame(delta_time, 0);
+        window_handler.draw_frame(delta_time, client_id);
     } else if (game_mode == GM_CUSTOMIZATION) {
         clear_screen(GREY);
         customization_player.draw();
