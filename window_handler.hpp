@@ -13,20 +13,20 @@ void relax_scaling_after_change_window_scaling(Dot &cursor_pos) {
     cursor_pos -= global_variables::arena_half_size;
 }
 
-void increase_window_scaling(Dot &cursor_pos) {
+void increase_window_scaling(Dot &cursor_pos, efloat delta_time) {
     cursor_pos += global_variables::arena_half_size;
     cursor_pos *= global_variables::scale_factor;
 
-    global_variables::render_scale *= 0.99;
+    global_variables::render_scale -= global_variables::render_scale * 0.01 * delta_time * 100;
 
     relax_scaling_after_change_window_scaling(cursor_pos);
 }
 
-void decrease_window_scaling(Dot &cursor_pos) {
+void decrease_window_scaling(Dot &cursor_pos, efloat delta_time) {
     cursor_pos += global_variables::arena_half_size;
     cursor_pos *= global_variables::scale_factor;
 
-    global_variables::render_scale /= 0.99;
+    global_variables::render_scale += global_variables::render_scale * 0.01 * delta_time * 100;
 
     relax_scaling_after_change_window_scaling(cursor_pos);
 }
@@ -119,9 +119,9 @@ public:
             window_class.style = CS_HREDRAW | CS_VREDRAW;
             window_class.lpszClassName = GAME_ENGINE_MY_LPCSTR("Game Window Class");
             window_class.lpfnWndProc = window_callback;
-            window_class.hIcon = static_cast<HICON>(
-                LoadImage(nullptr, GAME_ENGINE_MY_LPCSTR("apple.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE)
-            );
+            //window_class.hIcon = static_cast<HICON>(
+            //    LoadImage(nullptr, GAME_ENGINE_MY_LPCSTR("apple.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE)
+            //);
 
             window_class.cbClsExtra = 0;
             window_class.cbWndExtra = sizeof(LONG_PTR);
@@ -157,13 +157,172 @@ public:
     WindowHandler &operator=(WindowHandler &&other) = delete;
 
     // обновляет окно, курсор, кнопки
-    // симулирует логику базовых клавиш:
-    // ESC => выход
-    // ENTER => поменять тип окна (полноэкранный или оконные)
-    // и т.п.
-    void update() {
-        update_controls();
-        simulate_input();
+    // обновляет входные данные с клавиатуры и мыши
+    void update_controls() {
+        input.previous = input.current;
+
+        auto button_up = [&input = input](button_t button_id) -> void { input.current.set_button(button_id, false); };
+        auto button_down = [&input = input](button_t button_id) -> void { input.current.set_button(button_id, true); };
+
+        bool isPeekMessage = false;
+
+        MSG message;
+        while (PeekMessage(&message, window, 0, 0, PM_REMOVE)) {
+            isPeekMessage = true;
+
+            switch (message.message) {
+                case WM_LBUTTONUP: {
+                    button_up(BUTTON_MOUSE_L);
+                } break;
+                case WM_LBUTTONDOWN: {
+                    button_down(BUTTON_MOUSE_L);
+                } break;
+                case WM_RBUTTONUP: {
+                    button_up(BUTTON_MOUSE_R);
+                } break;
+                case WM_RBUTTONDOWN: {
+                    button_down(BUTTON_MOUSE_R);
+                } break;
+                case WM_KEYUP:
+                case WM_KEYDOWN: {
+                    uint64_t vk_code = message.wParam;
+                    bool is_down = (message.message == WM_KEYDOWN);
+
+#define update_button(b, vk)                  \
+    case vk: {                                \
+        input.current.set_button(b, is_down); \
+    } break;
+
+                    switch (vk_code) {
+                        update_button(BUTTON_UP, VK_UP);
+                        update_button(BUTTON_DOWN, VK_DOWN);
+                        update_button(BUTTON_W, 'W');
+                        update_button(BUTTON_S, 'S');
+                        update_button(BUTTON_D, 'D');
+                        update_button(BUTTON_A, 'A');
+                        update_button(BUTTON_B, 'B');
+                        update_button(BUTTON_C, 'C');
+                        update_button(BUTTON_E, 'E');
+                        update_button(BUTTON_F, 'F');
+                        update_button(BUTTON_G, 'G');
+                        update_button(BUTTON_H, 'H');
+                        update_button(BUTTON_I, 'I');
+                        update_button(BUTTON_J, 'J');
+                        update_button(BUTTON_K, 'K');
+                        update_button(BUTTON_L, 'L');
+                        update_button(BUTTON_M, 'M');
+                        update_button(BUTTON_N, 'N');
+                        update_button(BUTTON_O, 'O');
+                        update_button(BUTTON_P, 'P');
+                        update_button(BUTTON_Q, 'Q');
+                        update_button(BUTTON_R, 'R');
+                        update_button(BUTTON_T, 'T');
+                        update_button(BUTTON_U, 'U');
+                        update_button(BUTTON_V, 'V');
+                        update_button(BUTTON_X, 'X');
+                        update_button(BUTTON_Y, 'Y');
+                        update_button(BUTTON_Z, 'Z');
+                        update_button(BUTTON_DEL, VK_DELETE);
+                        update_button(BUTTON_LEFT, VK_LEFT);
+                        update_button(BUTTON_RIGHT, VK_RIGHT);
+                        update_button(BUTTON_ENTER, VK_RETURN);
+                        update_button(BUTTON_ESC, VK_ESCAPE);
+                        update_button(BUTTON_TAB, VK_TAB);
+                        update_button(BUTTON_SPACE, VK_SPACE);
+                        update_button(BUTTON_SHIFT, VK_SHIFT);
+                        update_button(BUTTON_NUMPAD0, VK_NUMPAD0);
+                        update_button(BUTTON_NUMPAD1, VK_NUMPAD1);
+                        update_button(BUTTON_NUMPAD2, VK_NUMPAD2);
+                        update_button(BUTTON_NUMPAD3, VK_NUMPAD3);
+                        update_button(BUTTON_NUMPAD4, VK_NUMPAD4);
+                        update_button(BUTTON_NUMPAD5, VK_NUMPAD5);
+                        update_button(BUTTON_NUMPAD6, VK_NUMPAD6);
+                        update_button(BUTTON_NUMPAD7, VK_NUMPAD7);
+                        update_button(BUTTON_NUMPAD8, VK_NUMPAD8);
+                        update_button(BUTTON_NUMPAD9, VK_NUMPAD9);
+                        update_button(BUTTON_1, '1');
+                        update_button(BUTTON_2, '2');
+                        update_button(BUTTON_3, '3');
+                        update_button(BUTTON_4, '4');
+                        update_button(BUTTON_5, '5');
+                        update_button(BUTTON_6, '6');
+                        update_button(BUTTON_7, '7');
+                        update_button(BUTTON_8, '8');
+                        update_button(BUTTON_9, '9');
+                        update_button(BUTTON_0, '0');
+                        update_button(BUTTON_MINUS, VK_OEM_MINUS);
+                        update_button(BUTTON_PLUS, VK_OEM_PLUS);
+                        update_button(BUTTON_COLON, VK_OEM_1);
+                        update_button(BUTTON_DOT, VK_OEM_PERIOD);
+                        update_button(BUTTON_COMMA, VK_OEM_COMMA);
+                        update_button(BUTTON_QUESTION_MARK, VK_OEM_2);
+                        update_button(BUTTON_BACKSPACE, VK_BACK);
+                        default: {
+                        }
+                    }
+
+#undef update_button
+                } break;
+                default: {
+                    TranslateMessage(&message);
+                    DispatchMessage(&message);
+                }
+            }
+        }
+
+        if (isPeekMessage) {
+            // cursor update
+
+            RECT rect;
+            GetWindowRect(window, &rect);
+
+            cursor.pos = Dot(static_cast<double>(message.pt.x) - std::max<int>(0, rect.left) + 0.2,
+                             static_cast<double>(rect.bottom) - message.pt.y) /
+                             global_variables::scale_factor -
+                         global_variables::arena_half_size;
+        }
+    }
+
+    void simulate_input(efloat delta_time) {
+        if (PRESSED(BUTTON_ESC)) {
+            global_variables::running = false;
+            return;
+        }
+
+        if (PRESSED(BUTTON_ENTER)) {
+            global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
+
+            if (global_variables::fullscreen_mode) {
+                set_fullscreen_mode();
+            } else {
+                set_window_mode();
+            }
+        }
+
+        if (PRESSED(BUTTON_TAB)) {
+            global_variables::debug_mode = !global_variables::debug_mode;
+        }
+
+        if (PRESSED(BUTTON_K)) {
+            global_variables::show_locator = !global_variables::show_locator;
+        }
+
+        if (PRESSED(BUTTON_F)) {
+            global_variables::show_fps = !global_variables::show_fps;
+        }
+
+        // update render_scale
+        {
+            if (IS_DOWN(BUTTON_UP)) {
+                increase_window_scaling(cursor.pos, delta_time);
+            }
+
+            if (IS_DOWN(BUTTON_DOWN)) {
+                decrease_window_scaling(cursor.pos, delta_time);
+            }
+        }
+
+        cursor.simulate(input);
     }
 
     // рисует игру, полезную для дебага информацию, курсор
@@ -260,156 +419,5 @@ private:
             }
         }
         return result;
-    }
-
-    // обновляет входные данные с клавиатуры и мыши
-    void update_controls() {
-        input.previous = input.current;
-
-        auto button_up = [&input = input](button_t button_id) -> void { input.current.set_button(button_id, false); };
-        auto button_down = [&input = input](button_t button_id) -> void { input.current.set_button(button_id, true); };
-
-        bool isPeekMessage = false;
-
-        MSG message;
-        while (PeekMessage(&message, window, 0, 0, PM_REMOVE)) {
-            isPeekMessage = true;
-
-            switch (message.message) {
-                case WM_LBUTTONUP: {
-                    button_up(BUTTON_MOUSE_L);
-                } break;
-                case WM_LBUTTONDOWN: {
-                    button_down(BUTTON_MOUSE_L);
-                } break;
-                case WM_RBUTTONUP: {
-                    button_up(BUTTON_MOUSE_R);
-                } break;
-                case WM_RBUTTONDOWN: {
-                    button_down(BUTTON_MOUSE_R);
-                } break;
-                case WM_KEYUP:
-                case WM_KEYDOWN: {
-                    uint64_t vk_code = message.wParam;
-                    bool is_down = (message.message == WM_KEYDOWN);
-
-#define update_button(b, vk)                  \
-    case vk: {                                \
-        input.current.set_button(b, is_down); \
-    } break;
-
-                    switch (vk_code) {
-                        update_button(BUTTON_UP, VK_UP);
-                        update_button(BUTTON_DOWN, VK_DOWN);
-                        update_button(BUTTON_W, 'W');
-                        update_button(BUTTON_S, 'S');
-                        update_button(BUTTON_D, 'D');
-                        update_button(BUTTON_A, 'A');
-                        update_button(BUTTON_B, 'B');
-                        update_button(BUTTON_C, 'C');
-                        update_button(BUTTON_E, 'E');
-                        update_button(BUTTON_F, 'F');
-                        update_button(BUTTON_G, 'G');
-                        update_button(BUTTON_H, 'H');
-                        update_button(BUTTON_I, 'I');
-                        update_button(BUTTON_J, 'J');
-                        update_button(BUTTON_K, 'K');
-                        update_button(BUTTON_L, 'L');
-                        update_button(BUTTON_M, 'M');
-                        update_button(BUTTON_N, 'N');
-                        update_button(BUTTON_O, 'O');
-                        update_button(BUTTON_P, 'P');
-                        update_button(BUTTON_Q, 'Q');
-                        update_button(BUTTON_R, 'R');
-                        update_button(BUTTON_T, 'T');
-                        update_button(BUTTON_U, 'U');
-                        update_button(BUTTON_V, 'V');
-                        update_button(BUTTON_X, 'X');
-                        update_button(BUTTON_Y, 'Y');
-                        update_button(BUTTON_Z, 'Z');
-                        update_button(BUTTON_DEL, VK_DELETE);
-                        update_button(BUTTON_LEFT, VK_LEFT);
-                        update_button(BUTTON_RIGHT, VK_RIGHT);
-                        update_button(BUTTON_ENTER, VK_RETURN);
-                        update_button(BUTTON_ESC, VK_ESCAPE);
-                        update_button(BUTTON_TAB, VK_TAB);
-                        update_button(BUTTON_SPACE, VK_SPACE);
-                        update_button(BUTTON_SHIFT, VK_SHIFT);
-                        update_button(BUTTON_0, VK_NUMPAD0);
-                        update_button(BUTTON_1, VK_NUMPAD1);
-                        update_button(BUTTON_2, VK_NUMPAD2);
-                        update_button(BUTTON_3, VK_NUMPAD3);
-                        update_button(BUTTON_4, VK_NUMPAD4);
-                        update_button(BUTTON_5, VK_NUMPAD5);
-                        update_button(BUTTON_6, VK_NUMPAD6);
-                        update_button(BUTTON_7, VK_NUMPAD7);
-                        update_button(BUTTON_8, VK_NUMPAD8);
-                        update_button(BUTTON_9, VK_NUMPAD9);
-                        default: {
-                        }
-                    }
-
-#undef update_button
-                } break;
-                default: {
-                    TranslateMessage(&message);
-                    DispatchMessage(&message);
-                }
-            }
-        }
-
-        if (isPeekMessage) {
-            // cursor update
-
-            RECT rect;
-            GetWindowRect(window, &rect);
-
-            cursor.pos = Dot(static_cast<double>(message.pt.x) - std::max<int>(0, rect.left) + 0.2,
-                             static_cast<double>(rect.bottom) - message.pt.y) /
-                             global_variables::scale_factor -
-                         global_variables::arena_half_size;
-        }
-    }
-
-    void simulate_input() {
-        if (PRESSED(BUTTON_ESC)) {
-            global_variables::running = false;
-            return;
-        }
-
-        if (PRESSED(BUTTON_ENTER)) {
-            global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
-
-            if (global_variables::fullscreen_mode) {
-                set_fullscreen_mode();
-            } else {
-                set_window_mode();
-            }
-        }
-
-        if (PRESSED(BUTTON_TAB)) {
-            global_variables::debug_mode = !global_variables::debug_mode;
-        }
-
-        if (PRESSED(BUTTON_K)) {
-            global_variables::show_locator = !global_variables::show_locator;
-        }
-
-        if (PRESSED(BUTTON_F)) {
-            global_variables::show_fps = !global_variables::show_fps;
-        }
-
-        // update render_scale
-        {
-            if (IS_DOWN(BUTTON_UP)) {
-                increase_window_scaling(cursor.pos);
-            }
-
-            if (IS_DOWN(BUTTON_DOWN)) {
-                decrease_window_scaling(cursor.pos);
-            }
-        }
-
-        cursor.simulate(input);
     }
 };

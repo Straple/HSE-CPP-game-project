@@ -26,7 +26,7 @@ int main() {
     Player customization_player;
 
     while (global_variables::running) {
-        window_handler.update();
+        window_handler.update(delta_time);
 
         simulate_leve_maker(window_handler.input, window_handler.cursor.pos, delta_time);
 

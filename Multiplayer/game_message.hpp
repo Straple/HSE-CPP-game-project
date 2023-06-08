@@ -8,18 +8,27 @@
 
 class GameMessage {
 public:
-    enum { header_length = 4 };
+    enum message_t : uint8_t {
+        NONE,
+        GAME_STATE,    // игровое состояние (снапшот)
+        CHAT_MESSAGE,  // сообщение в чате
+        SOUND,         // звук (выстрел, взрыв и т.п.)
+        PLAYER_INPUT,  // инпут игрока
+        CLIENT_ID,     // client id, чтобы клиент узнал о его id
+    };
 
-    enum { max_body_length = 8 * 1024 };
+    enum { header_length = 4, max_body_length = 8 * 1024 };
 
-    GameMessage() : m_body_length(0) {
-    }
+    // сначала записывается 3 байта body_length
+    // потом 1 байт для message_t
 
-    GameMessage(const std::string &string) {
-        body_length(string.size());
+    GameMessage() = default;
+
+    /*GameMessage(const std::string &string) {
+        set_body_length(string.size());
         encode_header();
         std::memcpy(body(), string.data(), body_length());
-    }
+    }*/
 
     [[nodiscard]] const char *data() const {
         return m_data;
@@ -45,30 +54,37 @@ public:
         return m_body_length;
     }
 
-    void body_length(std::size_t new_length) {
-        ASSERT(new_length < max_body_length, "out of memory");
-        m_body_length = new_length;
+    void set_body_length(std::size_t new_body_length) {
+        ASSERT(new_body_length < max_body_length, "out of memory");
+        m_body_length = new_body_length;
     }
 
-    bool decode_header() {
-        char header[header_length + 1] = "";
-        std::strncat(header, m_data, header_length);
-        [[maybe_unused]] char *ptr_end = nullptr;
-        m_body_length = std::strtol(header, &ptr_end, 10);  // получили заголовок из data
+    void set_message_type(message_t new_message_type) {
+        m_message_type = new_message_type;
+    }
+
+    message_t message_type() const {
+        return m_message_type;
+    }
+
+    void decode_header() {
+        m_body_length = 0;
+        std::memcpy(&m_body_length, m_data, 3);
+        std::memcpy(&m_message_type, m_data + 3, 1);
         ASSERT(m_body_length < max_body_length, "out of memory");
-        return true;
     }
 
     void encode_header() {
-        char header[header_length + 1] = "";
-        std::sprintf(header, "%4d", m_body_length);
-        std::memcpy(m_data, header, header_length);
+        std::memcpy(m_data, &m_body_length, 3);
+        std::memcpy(m_data + 3, &m_message_type, 1);
     }
 
 private:
-    char m_data[header_length + max_body_length]{};
+    int m_body_length = 0;
 
-    int m_body_length;
+    message_t m_message_type = NONE;
+
+    char m_data[header_length + max_body_length]{};
 };
 
 #endif  // MULTIPLAYER_GAME_MESSAGE_HPP

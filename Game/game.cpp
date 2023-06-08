@@ -64,6 +64,7 @@ void draw_game(int client_id) {
     // draw UI
     {
         int index = find_player_index(client_id);
+        ASSERT(index != -1, "where this player?");
         auto &player = game_variables::Players[index];
         // draw hp
         for (int i = 0; i < player.hp; i++) {

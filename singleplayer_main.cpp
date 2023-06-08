@@ -31,12 +31,14 @@ int main() {
 
     Player customization_player;
 
+    Typer typer;
+
     while (global_variables::running) {
         auto &player = game_variables::Players[0];
 
-        simulate_game_mode(delta_time, player, customization_player, window_handler);
+        simulate_game_mode(delta_time, player, customization_player, window_handler, typer);
 
-        draw_game_mode(delta_time, player, customization_player, window_handler);
+        draw_game_mode(delta_time, 0, customization_player, window_handler, typer);
 
         // update time
         {

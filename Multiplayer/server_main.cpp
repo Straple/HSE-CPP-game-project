@@ -43,7 +43,29 @@ std::string get_game_state() {
     return oss.str();
 }
 
+GameMessage build_client_id_message(int client_id) {
+    GameMessage message;
+    message.set_message_type(GameMessage::CLIENT_ID);
+    message.set_body_length(sizeof(int));
+    message.encode_header();
+    std::memcpy(message.body(), &client_id, sizeof(int));
+    return message;
+}
+
+GameMessage build_game_state_message(int game_frame_id) {
+    std::string game_state_str = get_game_state();
+    GameMessage message;
+    message.set_message_type(GameMessage::GAME_STATE);
+    message.set_body_length(sizeof(int) + game_state_str.size());
+    message.encode_header();
+    std::memcpy(message.body(), &game_frame_id, sizeof(int));
+    std::memcpy(message.body() + sizeof(int), game_state_str.data(), game_state_str.size());
+    return message;
+}
+
 using boost::asio::ip::tcp;
+
+// using boost::asio::ip::udp;
 
 //----------------------------------------------------------------------
 
@@ -52,17 +74,16 @@ class AbstractClient {
 public:
     virtual ~AbstractClient() = default;
 
-    // проинформировать меня о готовом кадре
-    virtual void inform_me_about_new_frame() = 0;
-
-    //----------------------------------------------------------------------
-
     AbstractClient(tcp::socket socket, const int client_id) : socket(std::move(socket)), client_id(client_id) {
     }
 
     void simulate(efloat delta_time) {
         simulate_player(delta_time, client_id);
     }
+
+    virtual void deliver(const GameMessage &message) = 0;
+
+    virtual void add_chat_message_in_queue(int client_id, const std::string &chat_message) = 0;
 
     //---------------------------------------------------------------------
 
@@ -136,16 +157,14 @@ public:
         // симулируем игру
         simulate_game(delta_time);
 
-        // берем снапшот состояния игры
-        game_state_snapshot = get_game_state();
-
-        // сообщаем о нового кадре клиентам
+        game_state_snapshot = build_game_state_message(frame_id);
+        // отправляем новый игровой кадр клиентам
         for (const auto &client_ptr : Clients) {
-            client_ptr->inform_me_about_new_frame();
+            client_ptr->deliver(game_state_snapshot);
         }
 
         // продлеваем таймер следующей симуляции
-        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(16));
+        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(10));
         timer_for_simulate_game.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
     }
 
@@ -164,8 +183,9 @@ public:
 
         // обновим игровой снапшот, так как мы получили нового игрока
         // иначе будет UB: после join() ClientHandler отправит get_game_state() клиенту,
-        // а потом мы не обновив game_state_snapshot отправим его уже без этого игрока
-        game_state_snapshot = get_game_state();
+        // а потом мы не обновив game_state_snapshot отправим его уже без этого игрокав
+        frame_id++;
+        game_state_snapshot = build_game_state_message(frame_id);
     }
 
     // удаляет клиента из игровой сессии
@@ -185,6 +205,14 @@ public:
 
             // TODO: возможно тут стоит тоже сразу же пересчитать игровой мир
             // так как например, если слайм ел игрока, а он вышел из игры, то кого он в итоге ест?
+            // но да ладно, мы скоро его все равно пересчитаем
+        }
+    }
+
+    // добавляет это сообщение всем клиентам в их очередь сообщений
+    void add_chat_message(int client_id, const std::string &chat_message) {
+        for (auto &client_ptr : Clients) {
+            client_ptr->add_chat_message_in_queue(client_id, chat_message);
         }
     }
 
@@ -192,7 +220,7 @@ public:
 
     GameMessage game_state_snapshot;  // сохраненное глобальное состояние игры
 
-    int frame_id = 0;  // id игрового кадра
+    int frame_id = 1;  // id игрового кадра
 
 private:
     //----------------------------------------------------------------------
@@ -226,32 +254,18 @@ public:
         session.join(shared_from_this());
         do_read_header();  // начинаем читать инпут у клиента
 
-        // нам нужно передать клиенту его client_id, а также снапшот игрового состояния
-        {
-            sending_chain_is_run = true;  // мы начали цепочку отправок
-
-            std::string client_id_string;
-            client_id_string.resize(sizeof(int));
-            std::memcpy(client_id_string.data(), &client_id, sizeof(int));
-
-            GameMessage message = client_id_string + get_game_state();
-            deliver(message);
-        }
+        // нам нужно передать клиенту его client_id
+        deliver(build_client_id_message(client_id));
     }
 
     // отправляет клиенту сообщение
-    void deliver(const GameMessage &message) {
+    void deliver(const GameMessage &message) override {
         write_message = message;
         do_write();
     }
 
-    void inform_me_about_new_frame() override {
-        // если мы не отправляем клиенту сообщения о состоянии игры
-        if (!sending_chain_is_run) {
-            sending_chain_is_run = true;
-            write_message_frame_id = session.frame_id;
-            deliver(session.game_state_snapshot);
-        }
+    void add_chat_message_in_queue(int client_id, const std::string &chat_message) override {
+        queue_chat_messages.push({client_id, chat_message});
     }
 
 private:
@@ -260,7 +274,8 @@ private:
         boost::asio::async_read(
             socket, boost::asio::buffer(read_message.data(), GameMessage::header_length),
             [this, self](boost::system::error_code error_code, std::size_t) {
-                if (!error_code && read_message.decode_header()) {
+                if (!error_code) {
+                    read_message.decode_header();
                     // считали заголовок с размером тела
                     // теперь можем считать и тело
                     do_read_body();
@@ -278,29 +293,18 @@ private:
             socket, boost::asio::buffer(read_message.body(), read_message.body_length()),
             [this, self](boost::system::error_code error_code, std::size_t) {
                 count_of_read_messages++;
-
                 if (!error_code) {
                     // обработаем полученное сообщение
-                    ASSERT(
-                        read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot) + 2 * sizeof(int),
-                        "is not input from client"
-                    );
-
-                    int index = find_player_index(client_id);
-                    auto &player = game_variables::Players[index];
-                    std::memcpy(&player.input.current, read_message.body(), sizeof(ButtonsState));
-
-                    Dot &cursor_dir = player.cursor_dir;
-                    std::memcpy(&cursor_dir, read_message.body() + sizeof(ButtonsState), sizeof(Dot));
-
-                    std::memcpy(
-                        &player.cloack_color_id, read_message.body() + sizeof(ButtonsState) + sizeof(Dot), sizeof(int)
-                    );
-                    std::memcpy(
-                        &player.t_shirt_color_id,
-                        read_message.body() + sizeof(ButtonsState) + sizeof(Dot) + sizeof(int), sizeof(int)
-                    );
-
+                    if (read_message.message_type() == GameMessage::PLAYER_INPUT) {
+                        set_player_input();
+                    } else if (read_message.message_type() == GameMessage::CHAT_MESSAGE) {
+                        std::string chat_message;
+                        chat_message.resize(read_message.body_length());
+                        std::memcpy(chat_message.data(), read_message.body(), chat_message.size());
+                        session.add_chat_message(client_id, chat_message);
+                        std::cout << "client_id: " << client_id << " chat message: \"" << chat_message << '\"'
+                                  << std::endl;
+                    }
                     do_read_header();  // продолжим цепочку чтения сообщений
                 } else {
                     std::cout << "reading body failed. message: \"" << error_code.message() << "\"" << std::endl;
@@ -310,27 +314,52 @@ private:
         );
     }
 
+    // читает input игрока из read_message и устанавливает его
+    void set_player_input() {
+        ASSERT(
+            read_message.message_type() == GameMessage::PLAYER_INPUT &&
+                read_message.body_length() == sizeof(ButtonsState) + sizeof(Dot) + 2 * sizeof(int),
+            "is not input from client"
+        );
+
+        int index = find_player_index(client_id);
+        auto &player = game_variables::Players[index];
+
+        const char *read_ptr = read_message.body();
+
+        std::memcpy(&player.input.current, read_ptr, sizeof(ButtonsState));
+        read_ptr += sizeof(ButtonsState);
+
+        std::memcpy(&player.cursor_dir, read_ptr, sizeof(Dot));
+        read_ptr += sizeof(Dot);
+
+        std::memcpy(&player.cloack_color_id, read_ptr, sizeof(int));
+        read_ptr += sizeof(int);
+
+        std::memcpy(&player.t_shirt_color_id, read_ptr, sizeof(int));
+        read_ptr += sizeof(int);
+    }
+
     void do_write() {
         auto self(shared_from_this());
         boost::asio::async_write(
             socket, boost::asio::buffer(write_message.data(), write_message.length()),
             [this, self](boost::system::error_code error_code, std::size_t) {
                 count_of_write_messages++;
-
                 if (!error_code) {
-                    // возьмем последний кадр и отправим его игроку
+                    if (!queue_chat_messages.empty()) {
+                        // отправим сообщение из чата клиенту
+                        auto [sender_client_id, chat_message] = queue_chat_messages.front();
+                        queue_chat_messages.pop();
 
-                    // если мы очень медленны и не создали новый кадр, то сейчас отсылать нет смысла
+                        GameMessage message;
+                        message.set_body_length(sizeof(int) + chat_message.size());
+                        message.set_message_type(GameMessage::CHAT_MESSAGE);
+                        message.encode_header();
 
-                    // оставим это дело на GameSession, чтобы она после создания нового кадра сказала нам об этом,
-                    // чтобы мы отправили новый кадр
-
-                    sending_chain_is_run = false;
-
-                    // готов ли новый кадр?
-                    if (write_message_frame_id < session.frame_id) {
-                        // сообщим себе об этом и продолжим цепочку сообщений
-                        inform_me_about_new_frame();
+                        std::memcpy(message.body(), &sender_client_id, sizeof(int));
+                        std::memcpy(message.body() + sizeof(int), chat_message.data(), chat_message.size());
+                        deliver(message);
                     }
                 } else {
                     session.leave(shared_from_this());
@@ -347,19 +376,9 @@ private:
 
     GameMessage write_message;  // нужно отправить это сообщение
 
-    //----------------------------------------------------------------------
-
-    // если true, то работает цепочка отправок состояний игры клиенту
-    //
-    // если false, то она не работает и это нужно исправить при первой возможности
-    //
-    // GameSession после создания нового игрового кадра должна сказать нам об этом,
-    // чтобы мы взяли этот кадр и начали новую цепочку отправок клиенту
-    bool sending_chain_is_run = false;
-
-    // id игрового кадра, который мы отправили
-    // нужен для того, чтобы понимать, стоит ли отправлять кадр, возможно он старый
-    int write_message_frame_id = 0;
+    // (client_id, message)
+    // очередь сообщений, которые нужно отправить
+    std::queue<std::pair<int, std::string>> queue_chat_messages;
 };
 
 //----------------------------------------------------------------------
