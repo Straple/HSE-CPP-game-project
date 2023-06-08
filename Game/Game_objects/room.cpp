@@ -347,6 +347,15 @@ void Room::simulate(efloat delta_time) {
                 game_variables::Effects.erase(game_variables::Effects.begin() + i);
                 i--;
             }
+            else if (game_variables::Effects[i].anim.sprite_sheet == SS_FLOWER_EFFECT) {
+                Circle heal(game_variables::Effects[i].pos, 5);
+                for (auto& player: game_variables::Players) {
+                    if (heal.isin(player.pos) && player.healing_cooldown <= 0) {
+                        player.hp++;
+                        player.healing_cooldown+=1;
+                    }
+                }
+            }
         }
     }
 
@@ -425,8 +434,14 @@ void Room::draw() {
                 Objects.emplace_back(&bomber);
             }
         }
+        for (auto &weapon: game_variables::Weapons) {
+            if (!weapon.is_picked) {
+                Objects.emplace_back(&weapon);
+            }
+        }
         for (auto &effect : game_variables::Effects) {
             if (effect.anim.sprite_sheet == SS_FLOWER_EFFECT) {
+                draw_circle(Circle(effect.pos-global_variables::camera.pos, 5), Color(0x00ff00,128));
                 Objects.emplace_back(&effect);
             }
         }
@@ -473,7 +488,7 @@ void Room::draw() {
         }*/
     }
 
-    for (auto [top_left, bottom_right, color] : ColorBoxes) {
-        draw_rect2(top_left - global_variables::camera.pos, bottom_right - global_variables::camera.pos, color);
-    }
+//    for (auto [top_left, bottom_right, color] : ColorBoxes) {
+//        draw_rect2(top_left - global_variables::camera.pos, bottom_right - global_variables::camera.pos, color);
+//    }
 }
