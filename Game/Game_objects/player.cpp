@@ -60,7 +60,7 @@ void Player::drop_weapon() {
 void Player::pick_weapon(int wp_ind) {
     game_variables::Weapons[wp_ind].is_picked = true;
     weapon_ind = wp_ind;
-    game_variables::Weapons[wp_ind].cooldown=0;
+//    game_variables::Weapons[wp_ind].cooldown=0;
 }
 
 [[nodiscard]] bool Player::is_invulnerable() const {

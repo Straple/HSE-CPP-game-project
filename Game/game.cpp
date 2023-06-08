@@ -33,8 +33,20 @@ void simulate_player(efloat delta_time, Player &player) {
 
     if (PRESSED(BUTTON_MOUSE_L) && !player.is_paralyzed && !player.is_jumped && player.coins > 0 &&
           player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].may_shot() && !player.is_dead()) {
-        game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER, SP_COIN);
-        player.coins--;
+        if (game_variables::Weapons[player.weapon_ind].type==GOLDEN_GUN) {
+            if (player.coins > 0) {
+                game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER);
+                player.coins--;
+            }
+        }
+        else {
+            game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER);
+        }
+    }
+    if (IS_DOWN(BUTTON_MOUSE_L) && player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].type == RIFLE
+            && !player.is_paralyzed && !player.is_jumped &&
+            player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].may_shot() && !player.is_dead()) {
+        game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER);
     }
 
     // текущий кадр инпута так и оставим, а вот предыдущий смениться текущим

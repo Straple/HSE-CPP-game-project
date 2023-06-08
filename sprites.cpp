@@ -65,6 +65,7 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_KEK);
         // bullets
         foo(SP_SLIME_BULLET);
+        foo(SP_RIFLE_BULLET);
     }
 #undef foo
 
@@ -169,7 +170,10 @@ void read_sprites() {
         read(SP_COIN, "UI\\coin.png");
     }
     // bullets
-    { read(SP_SLIME_BULLET, "Enemies\\slime_bullet.png"); }
+    {
+        read(SP_SLIME_BULLET, "Enemies\\slime_bullet.png");
+        read(SP_RIFLE_BULLET, "Weapons\\rifle_bullet.png")
+    }
 
 #undef read
 
@@ -216,6 +220,7 @@ void read_spritesheets() {
     {
         read(SS_GOLDEN_GUN, "Weapons\\golden_gun.png", 42);
         read(SS_STAFF, "Weapons\\staff_of_life.png", 32);
+        read(SS_RIFLE, "Weapons\\rifle.png", 256);
 
     }
 

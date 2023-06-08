@@ -70,6 +70,7 @@ enum sprite_t : uint8_t {
 
     // bullets
     SP_SLIME_BULLET,
+    SP_RIFLE_BULLET,
 
     SP_COUNT,
     // НИЖЕ SP_COUNT ничего не должно быть, потому что SP_COUNT является
@@ -99,6 +100,7 @@ enum spritesheet_t : uint8_t {
     // weapons
     SS_GOLDEN_GUN,
     SS_STAFF,
+    SS_RIFLE,
 
     SS_COUNT,
     // НИЖЕ SS_COUNT ничего не должно быть, потому что SS_COUNT является

@@ -6,6 +6,7 @@
 enum weapon_t {
     GOLDEN_GUN,
     STAFF,
+    RIFLE,
 };
 
 struct Weapon: AbstractObject {
@@ -22,18 +23,20 @@ struct Weapon: AbstractObject {
 
     bool may_shot();
 
-    void shot(BulletHostType bullet_host, sprite_t sprite);
+    void shot(BulletHostType bullet_host);
 
     void simulate(efloat delta_time);
 
     void draw() override;
 
     void GoldenGun_draw();
-
-    void GoldenGun_shot(BulletHostType bullet_host, sprite_t sprite);
+    void GoldenGun_shot(BulletHostType bullet_host);
 
     void Staff_draw();
     void Staff_shot();
+
+    void Rifle_draw();
+    void Rifle_shot(BulletHostType bullet_host);
 };
 
 /*struct Melee_weapon : Weapon {
