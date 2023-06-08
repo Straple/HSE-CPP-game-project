@@ -253,9 +253,9 @@ void Room::simulate(efloat delta_time) {
         std::cout << "New wave!" << std::endl;
 
         for (auto [pos, name] : Interesting_dots) {
-            if (name.size() < 5 || name.substr(0, 5) != "player") {
-                if (name == "weapon") {
-                    game_variables::Weapons.emplace_back(pos);
+            if (name.size() < 5 || name.substr(0, 6) != "player") {
+                if (name == "staff") {
+                    game_variables::Weapons.emplace_back(pos, weapon_t::STAFF);
                 } else {
                     if (randomness(40)) {
                         game_variables::Bombers.emplace_back(pos);
@@ -347,6 +347,15 @@ void Room::simulate(efloat delta_time) {
                 game_variables::Effects.erase(game_variables::Effects.begin() + i);
                 i--;
             }
+            else if (game_variables::Effects[i].anim.sprite_sheet == SS_FLOWER_EFFECT) {
+                Circle heal(game_variables::Effects[i].pos, 5);
+                for (auto& player: game_variables::Players) {
+                    if (heal.isin(player.pos) && player.healing_cooldown<=0) {
+                        player.hp++;
+                        player.healing_cooldown+=1;
+                    }
+                }
+            }
         }
     }
 
@@ -379,7 +388,6 @@ void Room::simulate(efloat delta_time) {
             }
         }
     }
-
     simulate_game_collisions(delta_time, Walls);
 }
 
@@ -430,9 +438,19 @@ void Room::draw() {
                 Objects.emplace_back(&effect);
             }
         }
+        for (auto &weapon: game_variables::Weapons) {
+            if (!weapon.is_picked) {
+                Objects.emplace_back(&weapon);
+            }
+        }
         std::stable_sort(Objects.begin(), Objects.end(), [](AbstractObject *lhs, AbstractObject *rhs) {
             return lhs->pos.y > rhs->pos.y;
         });
+        for (auto& effect: game_variables::Effects) {
+            if (effect.anim.sprite_sheet == SS_FLOWER_EFFECT) {
+                draw_circle(Circle(effect.pos-global_variables::camera.pos, 5), Color(0x00ff00, 128));
+            }
+        }
 
         for (auto &obj : Objects) {
             obj->draw();
@@ -473,7 +491,7 @@ void Room::draw() {
         }*/
     }
 
-    for (auto [top_left, bottom_right, color] : ColorBoxes) {
-        draw_rect2(top_left - global_variables::camera.pos, bottom_right - global_variables::camera.pos, color);
-    }
+//    for (auto [top_left, bottom_right, color] : ColorBoxes) {
+//        draw_rect2(top_left - global_variables::camera.pos, bottom_right - global_variables::camera.pos, color);
+//    }
 }

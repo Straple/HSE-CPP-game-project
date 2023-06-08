@@ -21,7 +21,7 @@ struct Loot : AbstractPhysicalObject {
 
     virtual bool simulate_collection() = 0;
 
-    void draw() const override = 0;
+    void draw() override = 0;
 
     void simulate(efloat delta_time);
 };

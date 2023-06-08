@@ -19,7 +19,7 @@ bool Heart::simulate_collection() {
     return false;
 }
 
-void Heart::draw() const {
+void Heart::draw() {
     draw_sprite(pos + Dot(-2.5, 2.5), size, SP_HEART);
     draw_collision(*this);
 }
@@ -37,7 +37,7 @@ bool Coin::simulate_collection() {
     return false;
 }
 
-void Coin::draw() const {
+void Coin::draw() {
     draw_sprite(pos + Dot(-3, 3), size, SP_COIN);
     draw_collision(*this);
 }

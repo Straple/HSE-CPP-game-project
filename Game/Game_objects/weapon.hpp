@@ -3,6 +3,11 @@
 
 #include "bullet.hpp"
 
+enum weapon_t {
+    GOLDEN_GUN,
+    STAFF,
+};
+
 struct Weapon: AbstractObject {
     efloat cooldown;
     efloat cooldown_accum;
@@ -11,8 +16,9 @@ struct Weapon: AbstractObject {
     mutable Dot hand;
     bool is_picked = false;
     Dot target;
+    weapon_t type;
 
-    explicit Weapon(Dot p, efloat cooldown = 1, int damage = 1);
+    explicit Weapon(Dot p, weapon_t t, efloat cooldown = 1, int damage = 1);
 
     bool may_shot();
 
@@ -20,7 +26,14 @@ struct Weapon: AbstractObject {
 
     void simulate(efloat delta_time);
 
-    void draw() const override;
+    void draw() override;
+
+    void GoldenGun_draw();
+
+    void GoldenGun_shot(BulletHostType bullet_host, sprite_t sprite);
+
+    void Staff_draw();
+    void Staff_shot();
 };
 
 /*struct Melee_weapon : Weapon {

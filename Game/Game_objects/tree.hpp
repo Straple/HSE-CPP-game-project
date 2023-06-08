@@ -20,7 +20,7 @@ struct Tree : AbstractPhysicalObject {
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 
-    void draw() const override;
+    void draw() override;
 
     void simulate_hit(int damage);
 

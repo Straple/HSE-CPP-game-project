@@ -73,6 +73,9 @@ void Player::set_invulnerable() {
 
 void Player::simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
     jump_accum -= delta_time;
+    if (healing_cooldown > 0) {
+        healing_cooldown -= delta_time;
+    }
     if (weapon_ind != -1) {
         game_variables::Weapons[weapon_ind].target = cursor_dir + pos;
         game_variables::Weapons[weapon_ind].pos = pos;
@@ -137,7 +140,7 @@ void Player::simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
     }
 }
 
-void Player::draw() const {
+void Player::draw() {
     draw_sprite(pos + Dot(-8, 3), size, SP_MEDIUM_SHADOW);
 
     anim.sprite_sheet = SS_PLAYER_CLOACK;

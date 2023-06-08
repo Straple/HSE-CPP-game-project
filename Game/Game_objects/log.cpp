@@ -10,7 +10,7 @@ Log::Log(const Dot &position) {
     return std::make_unique<CollisionCircle>(pos, collision_radius);
 }
 
-void Log::draw() const {
+void Log::draw() {
     draw_sprite(pos + delta_draw_pos, size, SP_LOG);
     draw_collision(*this);
 }

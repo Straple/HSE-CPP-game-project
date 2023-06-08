@@ -52,7 +52,7 @@ struct Slime : Mob {
         std::vector<CollisionBox> &Walls
     );
 
-    void draw() const override;
+    void draw() override;
 };
 
 #endif  // GAME_SLIME_HPP

@@ -11,7 +11,7 @@ struct AbstractObject {
 
     AbstractObject(Dot pos);
 
-    virtual void draw() const = 0;
+    virtual void draw() = 0;
 };
 
 #endif  // GAME_POSITION_HPP

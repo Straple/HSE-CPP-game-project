@@ -36,7 +36,7 @@ struct Bat : Mob {
 
     void simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid_dots);
 
-    void draw() const override;
+    void draw() override;
 };
 
 #endif  // GAME_BAT_HPP

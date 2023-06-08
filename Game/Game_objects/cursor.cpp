@@ -12,7 +12,7 @@ void Cursor::simulate(const Input &input) {
     focus = false;
 }
 
-void Cursor::draw() const {
+void Cursor::draw() {
     if (is_down) {
         Dot pos0(std::min(focus_pos.x, pos.x), std::max(focus_pos.y, pos.y));
         Dot pos1(std::max(focus_pos.x, pos.x), std::min(focus_pos.y, pos.y));

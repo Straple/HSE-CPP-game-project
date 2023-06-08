@@ -104,7 +104,7 @@ struct Player : AbstractPhysicalObject {
 
     efloat jump_accum = 0;
     efloat invulnerable_accum = 0;
-
+    efloat healing_cooldown = 0;
     int weapon_ind = -1;
 
     animation anim = player_anims[0];
@@ -145,7 +145,7 @@ struct Player : AbstractPhysicalObject {
 
     void simulate(efloat delta_time, Dot ddp, bool pressed_jump);
 
-    void draw() const override;
+    void draw() override;
 
     void drop_weapon();
 

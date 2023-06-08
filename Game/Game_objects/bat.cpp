@@ -75,7 +75,7 @@ void Bat::simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid
     }
 }
 
-void Bat::draw() const {
+void Bat::draw() {
     draw_sprite(pos + Dot(-5, 0) * size, size, SP_SMALL_SHADOW);
 
     anim.draw(pos + delta_draw_pos, size, [&](const Color &color) {

@@ -21,7 +21,7 @@ struct Cursor {
 
     void simulate(const Input &input);
 
-    void draw() const;
+    void draw();
 };
 
 #endif  // GAME_CURSOR_HPP

@@ -8,7 +8,7 @@ Bush::Bush(const Dot &position) {
     return std::make_unique<CollisionCircle>(pos, collision_radius);
 }
 
-void Bush::draw() const {
+void Bush::draw() {
     draw_sprite(pos + delta_draw_pos + Dot(0, -13) * size, size, SP_LARGE_SHADOW);
     draw_sprite(pos + delta_draw_pos, size, SP_BUSH);
 

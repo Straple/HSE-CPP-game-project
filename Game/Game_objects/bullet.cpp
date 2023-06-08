@@ -13,7 +13,7 @@ void Bullet::simulate(efloat delta_time) {
     simulate_move2d(pos, dp, ddp, delta_time);
 }
 
-void Bullet::draw() const {
+void Bullet::draw() {
     draw_sprite(pos + Dot(-2, 2), 0.4, sprite);
     draw_collision(*this);
 }

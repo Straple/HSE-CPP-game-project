@@ -157,7 +157,7 @@ void Slime::simulate(
     }
 }
 
-void Slime::draw() const {
+void Slime::draw()  {
     if (is_devour) {
         if (is_between<uint8_t>(9, anim.frame_count, 25)) {
             draw_sprite(pos + delta_draw_pos, size, SP_SLIME_LARGE_SHADOW, shadow_color_func());

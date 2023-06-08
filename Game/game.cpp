@@ -20,7 +20,6 @@ void simulate_player(efloat delta_time, Player &player) {
         for (int i = 0; i < game_variables::Weapons.size(); i++) {
             if (game_variables::Weapons[i].is_picked) continue;
             auto dist = (player.pos - (game_variables::Weapons[i].pos+Dot(17,-10))).get_quare_len();
-            std::cout << player.pos-game_variables::Weapons[i].pos << std::endl;
             if (dist < 200 && dist < min_dist) {
                 min_dist = dist;
                 picked_ind = i;

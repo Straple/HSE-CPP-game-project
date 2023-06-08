@@ -78,7 +78,7 @@ void Bomber::do_boom() {
     }
 }
 
-void Bomber::draw() const {
+void Bomber::draw() {
     if (is_booming) {
         anim.draw(pos + delta_draw_pos + Dot(-26, 23), size);
     } else {

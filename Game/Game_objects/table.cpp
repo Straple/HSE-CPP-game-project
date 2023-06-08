@@ -11,7 +11,7 @@ Table::Table(const Dot new_pos) {
     return std::make_unique<CollisionBox>(pos + delta_draw_pos + Dot(0, -5), pos + Dot(-delta_draw_pos.x, 0));
 }
 
-void Table::draw() const {
+void Table::draw()  {
     // draw shadow
     {
         Dot shadow_p0 = pos + delta_draw_pos + Dot(-1, 0);

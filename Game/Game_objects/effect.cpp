@@ -12,7 +12,7 @@ bool Effect::simulate(efloat delta_time) {
     return anim.frame_update(delta_time);
 }
 
-void Effect::draw() const {
+void Effect::draw() {
     anim.draw(pos + delta_draw_pos, size);
 }
 

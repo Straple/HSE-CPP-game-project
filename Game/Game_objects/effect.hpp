@@ -19,7 +19,7 @@ struct Effect : AbstractObject {
     // вернет правду, если его анимация закончилась и нужно удалить объект
     bool simulate(efloat delta_time);
 
-    void draw() const;
+    void draw();
 };
 
 void add_hit_effect(const Dot &pos);

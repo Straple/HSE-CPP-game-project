@@ -12,7 +12,7 @@ Tree::Tree(const Dot &position) {
     return std::make_unique<CollisionCircle>(pos, collision_radius);
 }
 
-void Tree::draw() const {
+void Tree::draw() {
     draw_sprite(pos + Dot(-16, 6) * size, size, SP_LARGE_SHADOW);
     draw_sprite(pos + delta_draw_pos, size, SP_TREE);
 

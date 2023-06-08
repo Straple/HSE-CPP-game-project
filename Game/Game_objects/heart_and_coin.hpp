@@ -12,7 +12,7 @@ struct Heart : Loot {
 
     bool simulate_collection() override;
 
-    void draw() const override;
+    void draw() override;
 };
 
 struct Coin : Loot {
@@ -24,7 +24,7 @@ struct Coin : Loot {
 
     bool simulate_collection() override;
 
-    void draw() const override;
+    void draw() override;
 };
 
 #endif  // GAME_LOOT_HEART_AND_COIN_HPP

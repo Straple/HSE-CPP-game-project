@@ -107,7 +107,7 @@ struct Bullet : AbstractPhysicalObject {
 
     void simulate(efloat delta_time);
 
-    void draw() const override;
+    void draw() override;
 };
 
 #endif  // GAME_BULLET_HPP

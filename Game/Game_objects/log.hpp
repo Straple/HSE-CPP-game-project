@@ -18,7 +18,7 @@ struct Log : AbstractPhysicalObject {
 
     [[nodiscard]] std::unique_ptr<Collision> get_collision() const override;
 
-    void draw() const override;
+    void draw() override;
 
     void simulate(efloat delta_time);
 };

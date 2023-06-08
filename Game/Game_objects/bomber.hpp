@@ -41,7 +41,7 @@ struct Bomber : Mob {
 
     void do_boom();
 
-    void draw() const override;
+    void draw() override;
 };
 
 #endif  // BULLETPROOF_BOMBER_HPP
