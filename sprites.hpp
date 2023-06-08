@@ -50,7 +50,6 @@ enum sprite_t : uint8_t {
     SP_WALL_TOP_RIGHT_INSIDE,
 
     SP_GRASS_BACKGROUND,
-    SP_FLOOR,
 
     // shadows
 

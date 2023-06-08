@@ -46,7 +46,6 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_WALL_TOP_RIGHT_INSIDE);
 
         foo(SP_GRASS_BACKGROUND);
-        foo(SP_FLOOR);
 
         // shadows
 
@@ -114,8 +113,6 @@ void read_sprites() {
         read(SP_FIREPLACE, "World\\fireplace.png");
 
         read(SP_GRASS_BACKGROUND, "World\\grass_background.png");
-        // read(SP_WALL, "World\\wall.png");
-        read(SP_FLOOR, "World\\floor.png");
 
         read(SP_BARREL, "World\\barrel.png");
         read(SP_PILLAR, "World\\pillar.png");

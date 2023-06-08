@@ -204,13 +204,14 @@ private:
             socket, boost::asio::buffer(read_message.body(), read_message.body_length()),
             [this](boost::system::error_code error_code, std::size_t) {
                 if (!error_code) {
-                    this_frame_from_server = true;
                     if (read_message.message_type() == GameMessage::CLIENT_ID) {
                         // считали client_id
                         ASSERT(client_id == -1, "why client_id already init?");
                         std::memcpy(&client_id, read_message.body(), sizeof(int));
                         std::cout << "client_id: " << client_id << std::endl;
                     } else if (read_message.message_type() == GameMessage::GAME_STATE) {
+                        this_frame_from_server = true;
+
                         int game_state_frame_id = -1;
                         std::memcpy(&game_state_frame_id, read_message.body(), sizeof(int));
                         if (frame_id < game_state_frame_id) {
