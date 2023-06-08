@@ -42,6 +42,12 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         for (auto &heart : game_variables::Loot_hearts) {
             heart.push_out_of_collision_hard(wall);
         }
+        for (auto &knight : game_variables::Knights) {
+            knight.push_out_of_collision_hard(wall);
+        }
+        for (auto &barrel : game_variables::Barrels) {
+            barrel.push_out_of_collision_hard(wall);
+        }
     }
 
     // сами с собой
@@ -147,7 +153,7 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
     }
 
-    // игрок не может пройти через Bush, Tree, Table
+    // игрок не может пройти через Bush, Tree, Table, Pillar
     for (auto &player : game_variables::Players) {
         for (const auto &bush : game_variables::Bushes) {
             player.push_out_of_collision_soft(*bush.get_collision(), delta_time);
@@ -157,6 +163,23 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }
         for (const auto &table : game_variables::Tables) {
             player.push_out_of_collision_soft(*table.get_collision(), delta_time);
+        }
+        for (const auto &table : game_variables::Tables) {
+            player.push_out_of_collision_soft(*table.get_collision(), delta_time);
+        }
+        for (const auto &pillar : game_variables::Pillars) {
+            player.push_out_of_collision_hard(*pillar.get_collision());
+        }
+        for (const auto &nun_statue : game_variables::NunStatues) {
+            player.push_out_of_collision_hard(*nun_statue.get_collision());
+        }
+        for (auto &knight : game_variables::Knights) {
+            player.push_out_of_collision_soft(*knight.get_collision(), delta_time);
+            knight.push_out_of_collision_soft(*player.get_collision(), delta_time);
+        }
+        for (auto &barrel : game_variables::Barrels) {
+            player.push_out_of_collision_soft(*barrel.get_collision(), delta_time);
+            barrel.push_out_of_collision_soft(*player.get_collision(), delta_time);
         }
     }
 }

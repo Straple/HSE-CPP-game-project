@@ -14,6 +14,7 @@ std::string sprite_type_to_string(sprite_t sp) {
         foo(SP_FIREPLACE);
 
         foo(SP_BARREL);
+        foo(SP_KNIGHT);
 
         foo(SP_PILLAR);
         foo(SP_BROKEN_PILLAR);
@@ -120,6 +121,8 @@ void read_sprites() {
         read(SP_CHESTER, "World\\chester.png");
         // read(SP_OPEN_CHESTER, "World\\open_chester.png");
         read(SP_NUN_STATUE, "World\\nun_statue.png");
+        read(SP_KNIGHT, "World\\knight.png");
+
         read(SP_TELEPORT, "World\\teleport.png");
 
         read(SP_TABLE, "World\\table.png");

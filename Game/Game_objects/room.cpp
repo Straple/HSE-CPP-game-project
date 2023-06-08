@@ -15,6 +15,14 @@ std::string object_type_to_string(object_type type) {
         return "TREE";
     } else if (type == OT_TABLE) {
         return "TABLE";
+    } else if (type == OT_PILLAR) {
+        return "PILLAR";
+    } else if (type == OT_NUN_STATUE) {
+        return "NUN_STATUE";
+    } else if (type == OT_KNIGHT) {
+        return "KNIGHT";
+    } else if (type == OT_BARREL) {
+        return "BARREL";
     }
     ASSERT(false, "type=?");
 }
@@ -26,6 +34,14 @@ object_type string_to_object_type(const std::string &str) {
         return OT_TREE;
     } else if (str == "TABLE") {
         return OT_TABLE;
+    } else if (str == "PILLAR") {
+        return OT_PILLAR;
+    } else if (str == "NUN_STATUE") {
+        return OT_NUN_STATUE;
+    } else if (str == "KNIGHT") {
+        return OT_KNIGHT;
+    } else if (str == "BARREL") {
+        return OT_BARREL;
     }
     ASSERT(false, "str=?");
 }
@@ -73,7 +89,7 @@ void Room::build_grid() {
     // мы построили гряд для воздушных
     // грид для наземных это грид для воздушных - те точки, в которых мы быть не можем
 
-    for(auto grid : visitable_grid_dots_for_air_mob){
+    for (auto grid : visitable_grid_dots_for_air_mob) {
         bool is_visitable = true;
 
         Dot pos = grid_start_dot + step_size * Dot(grid.first, grid.second);
@@ -161,6 +177,14 @@ std::vector<std::pair<Dot, object_type>> Room::read(const std::string &filename)
                 game_variables::Trees.emplace_back(pos);
             } else if (type == OT_TABLE) {
                 game_variables::Tables.emplace_back(pos);
+            } else if (type == OT_PILLAR) {
+                game_variables::Pillars.emplace_back(pos);
+            } else if (type == OT_NUN_STATUE) {
+                game_variables::NunStatues.emplace_back(pos);
+            } else if (type == OT_KNIGHT) {
+                game_variables::Knights.emplace_back(pos);
+            } else if (type == OT_BARREL) {
+                game_variables::Barrels.emplace_back(pos);
             } else {
                 ASSERT(false, "type=?");
             }
@@ -250,7 +274,7 @@ void Room::simulate(efloat delta_time) {
     if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
         // new wave
 
-        std::cout << "New wave!" << std::endl;
+        /*std::cout << "New wave!" << std::endl;
 
         for (auto [pos, name] : Interesting_dots) {
             if (name.size() < 5 || name.substr(0, 6) != "player") {
@@ -266,7 +290,7 @@ void Room::simulate(efloat delta_time) {
                     }
                 }
             }
-        }
+        }*/
 
         /*wave_cooldown_accum += delta_time;
         if (wave_cooldown_accum >= wave_cooldown) {
@@ -283,6 +307,13 @@ void Room::simulate(efloat delta_time) {
                 }
             }
         }*/
+    }
+
+    for (auto &knight : game_variables::Knights) {
+        simulate_move2d(knight.pos, knight.dp, Dot(), delta_time);
+    }
+    for (auto &barrel : game_variables::Barrels) {
+        simulate_move2d(barrel.pos, barrel.dp, Dot(), delta_time);
     }
 
     for (auto &slime : game_variables::Slimes) {
@@ -407,6 +438,18 @@ void Room::draw() {
         }
         for (auto &tree : game_variables::Trees) {
             Objects.emplace_back(&tree);
+        }
+        for (auto &pillar : game_variables::Pillars) {
+            Objects.emplace_back(&pillar);
+        }
+        for (auto &nun_statue : game_variables::NunStatues) {
+            Objects.emplace_back(&nun_statue);
+        }
+        for (auto &knight : game_variables::Knights) {
+            Objects.emplace_back(&knight);
+        }
+        for (auto &barrel : game_variables::Barrels) {
+            Objects.emplace_back(&barrel);
         }
         for (auto &table : game_variables::Tables) {
             Objects.emplace_back(&table);

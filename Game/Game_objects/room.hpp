@@ -23,6 +23,11 @@ enum object_type {
     OT_TREE,
     OT_TABLE,
 
+    OT_PILLAR,
+    OT_NUN_STATUE,
+    OT_KNIGHT,
+    OT_BARREL,
+
     OT_COUNT,
 };
 

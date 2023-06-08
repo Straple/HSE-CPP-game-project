@@ -90,4 +90,6 @@ void Typer::simulate(const Input &input, efloat delta_time) {
             text.pop_back();
         }
     }
+
+#undef BUTTON_HANDLER
 }

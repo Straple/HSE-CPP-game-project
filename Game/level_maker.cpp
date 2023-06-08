@@ -90,6 +90,14 @@ void render_game(const Input &input, const Dot &cursor_pos) {
                 Tree(pos).draw();
             } else if (object_type == OT_TABLE) {
                 Table(pos).draw();
+            } else if (object_type == OT_PILLAR) {
+                Pillar(pos).draw();
+            } else if (object_type == OT_NUN_STATUE) {
+                NunStatue(pos).draw();
+            } else if (object_type == OT_KNIGHT) {
+                Knight(pos).draw();
+            } else if (object_type == OT_BARREL) {
+                Barrel(pos).draw();
             }
         }
     }
@@ -128,6 +136,14 @@ void render_game(const Input &input, const Dot &cursor_pos) {
                 Tree(current_pos).draw();
             } else if (current_object == OT_TABLE) {
                 Table(current_pos).draw();
+            } else if (current_object == OT_PILLAR) {
+                Pillar(current_pos).draw();
+            } else if (current_object == OT_NUN_STATUE) {
+                NunStatue(current_pos).draw();
+            } else if (current_object == OT_KNIGHT) {
+                Knight(current_pos).draw();
+            } else if (current_object == OT_BARREL) {
+                Barrel(current_pos).draw();
             }
         } else if (current_mode == LM_COLOR_BOX) {
             for (auto [p0, p1, color] : current_room.ColorBoxes) {
@@ -305,7 +321,11 @@ void simulate_input(const Input &input, Dot &cursor_pos) {
             for (int i = static_cast<int>(Objects.size()) - 1; i >= 0; i--) {
                 if ((Objects[i].second == OT_BUSH && Bush(Objects[i].first).trigger_in_draw_sprite(pos)) ||
                     (Objects[i].second == OT_TREE && Tree(Objects[i].first).trigger_in_draw_sprite(pos)) ||
-                    (Objects[i].second == OT_TABLE && Table(Objects[i].first).trigger_in_draw_sprite(pos))) {
+                    (Objects[i].second == OT_TABLE && Table(Objects[i].first).trigger_in_draw_sprite(pos)) ||
+                    (Objects[i].second == OT_PILLAR && Pillar(Objects[i].first).trigger_in_draw_sprite(pos)) ||
+                    (Objects[i].second == OT_NUN_STATUE && NunStatue(Objects[i].first).trigger_in_draw_sprite(pos)) ||
+                    (Objects[i].second == OT_KNIGHT && Knight(Objects[i].first).trigger_in_draw_sprite(pos)) ||
+                    (Objects[i].second == OT_BARREL && Barrel(Objects[i].first).trigger_in_draw_sprite(pos))) {
                     Objects.erase(Objects.begin() + i);
                     break;
                 }
