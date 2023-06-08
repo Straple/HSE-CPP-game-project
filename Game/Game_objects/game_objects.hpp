@@ -10,8 +10,12 @@
 #include "cursor.hpp"
 
 // world objects
+#include "barrel.hpp"
 #include "bush.hpp"
+#include "knight.hpp"
 #include "log.hpp"
+#include "nun_statue.hpp"
+#include "pillar.hpp"
 #include "table.hpp"
 #include "tree.hpp"
 
@@ -39,7 +43,7 @@
 #include "game_collision.hpp"
 
 // world
-//#include "menu.hpp"
+// #include "menu.hpp"
 #include "room.hpp"
 
 // game objects

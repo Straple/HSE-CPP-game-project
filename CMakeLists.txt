@@ -60,6 +60,10 @@ sprites.cpp
     Game/Game_objects/table.cpp
     Game/Game_objects/tree.cpp
     Game/Game_objects/weapon.cpp
+    Game/Game_objects/pillar.cpp
+    Game/Game_objects/nun_statue.cpp
+    Game/Game_objects/knight.cpp
+    Game/Game_objects/barrel.cpp
 )
 
 

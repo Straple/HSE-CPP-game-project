@@ -15,12 +15,12 @@ enum sprite_t : uint8_t {
     SP_TREE,
     SP_LOG,
 
-    SP_FIREPLACE,
+    SP_FIREPLACE, // OLD
 
     SP_BARREL,
-
     SP_PILLAR,
     SP_BROKEN_PILLAR,
+    SP_KNIGHT,
 
     SP_CHESTER,
     // SP_OPEN_CHESTER,
@@ -50,7 +50,6 @@ enum sprite_t : uint8_t {
     SP_WALL_TOP_RIGHT_INSIDE,
 
     SP_GRASS_BACKGROUND,
-    SP_FLOOR,
 
     // shadows
 
