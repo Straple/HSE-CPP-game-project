@@ -20,6 +20,9 @@ void Weapon::shot(BulletHostType bullet_host) {
         case RIFLE:
             Rifle_shot(bullet_host);
             break;
+        case SNIPER_RIFLE:
+            Sniper_shot(bullet_host);
+            break;
     }
 }
 void Weapon::draw() {
@@ -32,6 +35,9 @@ void Weapon::draw() {
             break;
         case RIFLE:
             Rifle_draw();
+            break;
+        case SNIPER_RIFLE:
+            Sniper_draw();
             break;
     }
 }
@@ -168,7 +174,7 @@ void Weapon::Rifle_draw() {
     } else if (ind >= 20) {
         hand = Dot(-30, 26);
         dulo = Dot(14, 6.5);
-        Dot pivot(-3.5, 4);
+        Dot pivot(-3.9, 3);
         dulo-=pivot;
         Dot new_dulo{};
         new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind + 2)) - dulo.y * sin((15 / 57.2957795) * (-ind + 2));
@@ -195,4 +201,67 @@ void Weapon::Rifle_shot(BulletHostType bullet_host) {
     dir = dir.normalize();
     dir += Circle(Dot(), 0.1).get_random_dot();
     game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 1000, SP_RIFLE_BULLET);
+}
+
+void Weapon::Sniper_draw() {
+    if (!is_picked) {
+        draw_spritesheet(pos, 0.2, SS_SNIPER_RIFLE, 0);
+        return;
+    }
+    double angle;
+    angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
+    int ind = round(angle / 15);
+
+    if (0 <= ind && ind <= 5) {
+        hand = Dot(-30, 27);
+        dulo = Dot(16, 4.5);
+        Dot pivot(-3.5, 4);
+        dulo-=pivot;
+        Dot new_dulo{};
+        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind)) - dulo.y * sin((15 / 57.2957795) * (-ind));
+        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind)) + dulo.y * cos((15 / 57.2957795) * (-ind));
+        dulo = new_dulo+pivot;
+    } else if (ind == 6) {
+        hand = Dot(-20, 28);
+        dulo = Dot(8, -17);
+    } else if (20 > ind && ind >= 7) {
+        hand = Dot(-20, 27);
+        dulo = Dot(8, -18);
+        Dot pivot(4.7,2.5);
+        dulo-=pivot;
+        Dot new_dulo{};
+        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind - 6))) - dulo.y * sin((15 / 57.2957795) * (-(ind - 6)));
+        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind - 6))) + dulo.y * cos((15 / 57.2957795) * (-(ind - 6)));
+        dulo = new_dulo+pivot;
+    } else if (ind >= 20) {
+        hand = Dot(-30, 26);
+        dulo = Dot(14, 6.5);
+        Dot pivot(-3.9, 3);
+        dulo-=pivot;
+        Dot new_dulo{};
+        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind + 2)) - dulo.y * sin((15 / 57.2957795) * (-ind + 2));
+        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
+        dulo = new_dulo+pivot;
+    }
+    draw_rect(pos + Dot(-3,2) - global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+    draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+    draw_spritesheet(pos + hand, 0.2, SS_SNIPER_RIFLE, ind);
+}
+
+void Weapon::Sniper_shot(BulletHostType bullet_host) {
+    if (!may_shot()) {
+        return;
+    }
+    cooldown_accum = 0;
+    Dot shooting_pos = pos;
+    if (hand == Dot(-10, 18)) {
+//        shooting_pos += Dot(2, -1);
+    } else {
+//        shooting_pos += Dot(-2.5, -1.5);
+    }
+    // pos+=dulo;
+    Dot dir = target - shooting_pos;
+    dir = dir.normalize();
+    dir += Circle(Dot(), 0.1).get_random_dot();
+    game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 5, 8000, SP_RIFLE_BULLET);
 }

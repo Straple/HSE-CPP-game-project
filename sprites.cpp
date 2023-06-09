@@ -221,7 +221,7 @@ void read_spritesheets() {
         read(SS_GOLDEN_GUN, "Weapons\\golden_gun.png", 42);
         read(SS_STAFF, "Weapons\\staff_of_life.png", 32);
         read(SS_RIFLE, "Weapons\\rifle.png", 256);
-
+        read(SS_SNIPER_RIFLE, "Weapons\\sniper_rifle.png", 256);
     }
 
 #undef read

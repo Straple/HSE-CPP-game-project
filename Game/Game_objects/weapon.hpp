@@ -7,6 +7,7 @@ enum weapon_t {
     GOLDEN_GUN,
     STAFF,
     RIFLE,
+    SNIPER_RIFLE,
 };
 
 struct Weapon: AbstractObject {
@@ -37,6 +38,9 @@ struct Weapon: AbstractObject {
 
     void Rifle_draw();
     void Rifle_shot(BulletHostType bullet_host);
+
+    void Sniper_draw();
+    void Sniper_shot(BulletHostType bullet_host);
 };
 
 /*struct Melee_weapon : Weapon {

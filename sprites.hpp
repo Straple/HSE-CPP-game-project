@@ -101,6 +101,7 @@ enum spritesheet_t : uint8_t {
     SS_GOLDEN_GUN,
     SS_STAFF,
     SS_RIFLE,
+    SS_SNIPER_RIFLE,
 
     SS_COUNT,
     // НИЖЕ SS_COUNT ничего не должно быть, потому что SS_COUNT является

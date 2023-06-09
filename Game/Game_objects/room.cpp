@@ -271,15 +271,15 @@ void Room::simulate(efloat delta_time) {
         }
     }*/
 
-    if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
+    if (game_variables::Weapons.size()+ game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
         // new wave
 
-        /*std::cout << "New wave!" << std::endl;
+        std::cout << "New wave!" << std::endl;
 
         for (auto [pos, name] : Interesting_dots) {
             if (name.size() < 5 || name.substr(0, 6) != "player") {
-                if (name == "staff") {
-                    game_variables::Weapons.emplace_back(pos, weapon_t::STAFF);
+                if (name == "sniper_rifle") {
+                    game_variables::Weapons.emplace_back(pos, weapon_t::SNIPER_RIFLE, 0);
                 } else {
                     if (randomness(40)) {
                         game_variables::Bombers.emplace_back(pos);
@@ -290,7 +290,7 @@ void Room::simulate(efloat delta_time) {
                     }
                 }
             }
-        }*/
+        }
 
         /*wave_cooldown_accum += delta_time;
         if (wave_cooldown_accum >= wave_cooldown) {
