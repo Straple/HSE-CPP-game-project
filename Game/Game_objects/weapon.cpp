@@ -1,11 +1,24 @@
 #include "weapon.hpp"
 //
 #include "game_variables.hpp"
-#include "../../render.hpp"
-#include "../../sprites.hpp"
 
 
-Weapon::Weapon(Dot p, weapon_t t, efloat cooldown, int damage) : AbstractObject(p), type(t), cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {}
+Weapon::Weapon(Dot p, weapon_t t, efloat cooldown, int damage) : AbstractObject(p), type(t), cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
+    switch (type) {
+        case GOLDEN_GUN:
+            delta = Dot(19, -12);
+            break;
+        case STAFF:
+            delta = Dot(6, -9);
+            break;
+        case RIFLE:
+            delta = Dot(30, -22);
+            break;
+        case SNIPER_RIFLE:
+            delta = Dot(30, -23);
+            break;
+    }
+}
 
 
 
@@ -13,15 +26,19 @@ void Weapon::shot(BulletHostType bullet_host) {
     switch(type) {
         case GOLDEN_GUN:
             GoldenGun_shot(bullet_host);
+            game_variables::Sounds[ST_golden_gun_shot].play();
             break;
         case STAFF:
             Staff_shot();
+            game_variables::Sounds[ST_staff_spell].play();
             break;
         case RIFLE:
             Rifle_shot(bullet_host);
+            game_variables::Sounds[ST_rifle_shot].play();
             break;
         case SNIPER_RIFLE:
             Sniper_shot(bullet_host);
+            game_variables::Sounds[ST_sniper_shot].play();
             break;
     }
 }
@@ -71,11 +88,12 @@ void Weapon::GoldenGun_shot(BulletHostType bullet_host) {
 void Weapon::GoldenGun_draw() {
     if (!is_picked) {
         draw_spritesheet(pos, 0.7, SS_GOLDEN_GUN, 0);
+//        draw_rect(pos + Dot(19, -12)-global_variables::camera.pos, Dot(0.5,0.5), RED);
         return;
     }
     double angle;
     angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
-    int ind = ceil(angle / 15);
+    int ind = round(angle / 15);
 
     if (0 <= ind && ind <= 5) {
         hand = Dot(-10, 18);
@@ -108,14 +126,15 @@ void Weapon::GoldenGun_draw() {
         new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
         dulo = new_dulo+pivot;
     }
-    draw_rect(pos + Dot(-3.5,3) - global_variables::camera.pos, Dot(0.5,0.5), GREEN);
-    draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+//    draw_rect(pos + Dot(-3.5,3) - global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+//    draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
     draw_spritesheet(pos + hand, 0.7, SS_GOLDEN_GUN, ind);
 }
 
 void Weapon::Staff_draw() {
     if (!is_picked) {
         draw_spritesheet(pos, 0.5, SS_STAFF, 0);
+//        draw_rect(pos + Dot(6, -9)-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
         return;
     }
     else {
@@ -144,6 +163,7 @@ void Weapon::Staff_shot() {
 void Weapon::Rifle_draw() {
     if (!is_picked) {
         draw_spritesheet(pos, 0.2, SS_RIFLE, 0);
+        draw_rect(pos + Dot(30, -22)-global_variables::camera.pos, Dot(0.5,0.5), RED);
         return;
     }
     double angle;
@@ -199,13 +219,14 @@ void Weapon::Rifle_shot(BulletHostType bullet_host) {
     // pos+=dulo;
     Dot dir = target - shooting_pos;
     dir = dir.normalize();
-    dir += Circle(Dot(), 0.1).get_random_dot();
+//    dir += Circle(Dot(), 0.1).get_random_dot();
     game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 1000, SP_RIFLE_BULLET);
 }
 
 void Weapon::Sniper_draw() {
     if (!is_picked) {
         draw_spritesheet(pos, 0.2, SS_SNIPER_RIFLE, 0);
+        draw_rect(pos + Dot(30, -23)-global_variables::camera.pos, Dot(0.5,0.5), RED);
         return;
     }
     double angle;

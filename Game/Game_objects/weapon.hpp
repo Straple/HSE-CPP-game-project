@@ -18,6 +18,7 @@ struct Weapon: AbstractObject {
     mutable Dot hand;
     bool is_picked = false;
     Dot target;
+    Dot delta;
     weapon_t type;
 
     explicit Weapon(Dot p, weapon_t t, efloat cooldown = 1, int damage = 1);

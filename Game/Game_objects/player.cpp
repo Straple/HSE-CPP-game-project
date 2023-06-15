@@ -52,6 +52,7 @@ void Player::reborn() {
 
 void Player::drop_weapon() {
     if (weapon_ind != -1) {
+        game_variables::Weapons[weapon_ind].pos -= game_variables::Weapons[weapon_ind].delta;
         game_variables::Weapons[weapon_ind].is_picked = false;
         weapon_ind = -1;
     }

@@ -66,6 +66,7 @@ void Bomber::simulate(const efloat delta_time, const std::set<grid_pos_t> &visit
 void Bomber::do_boom() {
     is_booming = true;
     anim = animation_boom;
+    game_variables::Sounds[ST_boom].play();
     for (auto &player : game_variables::Players) {
         if ((player.pos - pos).get_len() < boom_radius) {
             player.hp -= boom_damage;

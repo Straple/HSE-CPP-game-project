@@ -17,6 +17,8 @@
 #include "table.hpp"
 #include "tree.hpp"
 #include "weapon.hpp"
+#include "../../Audio/audio.hpp"
+
 
 struct game_variables {
     static inline std::vector<Player> Players;
@@ -43,6 +45,9 @@ struct game_variables {
 
     static inline std::vector<Log> Logs;
     static inline std::vector<Table> Tables;
+    static inline Audio::sound Sounds[ST_COUNT];
+    static inline Audio::music Musics[MT_COUNT];
+    static inline Audio::UI_sound UI[UI_COUNT];
 };
 
 #endif  // GAME_VARIABLES_HPP

@@ -1,9 +1,12 @@
 #include "game_mode.hpp"
-
+#include "Audio/audio.hpp"
 // #include "window_handler.hpp"
 
 int main() {
     setlocale(LC_ALL, "ru-RU");
+   audiere::AudioDevicePtr device = audiere::OpenDevice();
+//    audiere::OutputStreamPtr sound_ptr = OpenSound(device, "blaster.mp3" , false);
+//    sound_ptr->play();
 
     // initialize
     {
@@ -14,14 +17,18 @@ int main() {
 
         read_sprites();
         read_spritesheets();
-
+//        audiere::AudioDevicePtr device = audiere::OpenDevice();
+        Audio::init_audio(device);
+//        audiere::OutputStreamPtr sound_ptr = audiere::OpenSound(device, "Audio\\Sounds\\sniper_sound.mp3", false);
+//        sound_ptr->setVolume(0.3f);
+//        sound_ptr->play();
         test_room.read("level.txt");
 
         // создадим персонажа
         game_variables::Players.emplace_back(Dot(25, -100));
         game_variables::Players.back().client_id = 0;
     }
-
+    Audio::play_music(Audio::MT_gameplay);
     WindowHandler window_handler;
 
     uint64_t time_tick_global_start = get_ticks();

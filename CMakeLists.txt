@@ -64,11 +64,15 @@ sprites.cpp
     Game/Game_objects/nun_statue.cpp
     Game/Game_objects/knight.cpp
     Game/Game_objects/barrel.cpp
-)
+        Audio/audio.cpp
+        )
+
+
 
 
 add_executable(singleplayer singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)
 add_executable(levelmaker level_maker_main.cpp $<TARGET_OBJECTS:SOURCES>)
+
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
@@ -85,3 +89,10 @@ IF (Boost_FOUND)
     add_executable(server Multiplayer/server_main.cpp $<TARGET_OBJECTS:SOURCES>)
     target_link_libraries(server ${Boost_LIBRARIES})
 ENDIF ()
+
+find_library(LIB_TO_INCLUDE audiere Audio)
+find_path(LIB_INCLUDES audiere.h Audio)
+include_directories(${LIB_INCLUDES})
+target_link_libraries(singleplayer ${LIB_TO_INCLUDE})
+
+

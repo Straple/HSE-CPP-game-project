@@ -137,6 +137,7 @@ void Slime::simulate(
                     ) {
             anim = animation_shot;
             is_shooting = true;
+            game_variables::Sounds[ST_slime_shot].play();
         } else if (
                 // игрока никто не ест
                     !player.is_paralyzed &&
@@ -151,6 +152,7 @@ void Slime::simulate(
                     ) {
             // игрок не может двигаться и у нас анимация атаки
             player.is_paralyzed = is_devour = true;
+            game_variables::Sounds[ST_slime_eating].play();
             pos = player.pos;  // прыгаем на игрока
             anim = animation_devour;
         }

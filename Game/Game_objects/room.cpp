@@ -279,8 +279,17 @@ void Room::simulate(efloat delta_time) {
         for (auto [pos, name] : Interesting_dots) {
             if (name.size() < 5 || name.substr(0, 6) != "player") {
                 if (name == "sniper_rifle") {
-                    game_variables::Weapons.emplace_back(pos, weapon_t::SNIPER_RIFLE, 0);
-                } else {
+                    game_variables::Weapons.emplace_back(pos, weapon_t::SNIPER_RIFLE, 3);
+                } else if (name == "staff") {
+                    game_variables::Weapons.emplace_back(pos, STAFF);
+                }
+                else if (name == "golden_gun") {
+                    game_variables::Weapons.emplace_back(pos, GOLDEN_GUN);
+                }
+                else if (name == "rifle") {
+                    game_variables::Weapons.emplace_back(pos, RIFLE, 0.1);
+                }
+                else {
                     if (randomness(40)) {
                         game_variables::Bombers.emplace_back(pos);
                     } else if (randomness(30)) {
