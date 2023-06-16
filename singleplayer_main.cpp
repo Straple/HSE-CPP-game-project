@@ -42,7 +42,6 @@ int main() {
 
         // проиграем очередь звуков
         for (auto type : audio_variables::SoundsQueue) {
-            std::cout << static_cast<int>(type) << std::endl;
             audio_variables::Sounds[type].play();
         }
 

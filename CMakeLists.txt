@@ -72,11 +72,12 @@ sprites.cpp
 add_executable(singleplayer singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)
 add_executable(levelmaker level_maker_main.cpp $<TARGET_OBJECTS:SOURCES>)
 
-find_library(LIB_TO_INCLUDE audiere Audio)
+find_library(AUDIERE_LIB audiere Audio)
 find_path(LIB_INCLUDES audiere.h Audio)
 include_directories(${LIB_INCLUDES})
 
-target_link_libraries(singleplayer ${LIB_TO_INCLUDE})
+target_link_libraries(singleplayer ${AUDIERE_LIB})
+target_link_libraries(levelmaker ${AUDIERE_LIB})
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)

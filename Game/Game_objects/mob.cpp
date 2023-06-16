@@ -56,7 +56,7 @@ void Mob::simulate_move_to_player(Dot player_pos, const std::set<grid_pos_t> &vi
                        [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
                        [&](const Dot &request) { return (to - request).get_len() < 15; }
                    )) {
-            ASSERT(false, "oh ho, way not found");
+            // ASSERT(false, "oh ho, way not found");
         }
     }
 }
