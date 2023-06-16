@@ -64,21 +64,29 @@ sprites.cpp
     Game/Game_objects/nun_statue.cpp
     Game/Game_objects/knight.cpp
     Game/Game_objects/barrel.cpp
-        Audio/audio.cpp
+
+    Audio/audio.cpp
         )
-
-
 
 
 add_executable(singleplayer singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)
 add_executable(levelmaker level_maker_main.cpp $<TARGET_OBJECTS:SOURCES>)
 
+find_library(LIB_TO_INCLUDE audiere Audio)
+find_path(LIB_INCLUDES audiere.h Audio)
+include_directories(${LIB_INCLUDES})
+
+target_link_libraries(singleplayer ${LIB_TO_INCLUDE})
 
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
-find_package(Boost COMPONENTS date_time regex)
+set(BOOST_ROOT "C:/Boost")
+message("BOOST_ROOT is ${BOOST_ROOT}")
+
+find_package(Boost REQUIRED)
+#find_package(Boost COMPONENTS date_time regex)
 
 IF (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
@@ -88,11 +96,8 @@ IF (Boost_FOUND)
 
     add_executable(server Multiplayer/server_main.cpp $<TARGET_OBJECTS:SOURCES>)
     target_link_libraries(server ${Boost_LIBRARIES})
+
+    # add audiere
+    target_link_libraries(client ${LIB_TO_INCLUDE})
+    target_link_libraries(server ${LIB_TO_INCLUDE})
 ENDIF ()
-
-find_library(LIB_TO_INCLUDE audiere Audio)
-find_path(LIB_INCLUDES audiere.h Audio)
-include_directories(${LIB_INCLUDES})
-target_link_libraries(singleplayer ${LIB_TO_INCLUDE})
-
-

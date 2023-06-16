@@ -10,16 +10,19 @@ enum weapon_t {
     SNIPER_RIFLE,
 };
 
-struct Weapon: AbstractObject {
+struct Weapon : AbstractObject {
+    ADD_BYTE_SERIALIZATION();
     efloat cooldown;
     efloat cooldown_accum;
     int damage;
-    mutable Dot dulo;
-    mutable Dot hand;
+    Dot dulo;
+    Dot hand;
     bool is_picked = false;
     Dot target;
     Dot delta;
     weapon_t type;
+
+    Weapon() = default;
 
     explicit Weapon(Dot p, weapon_t t, efloat cooldown = 1, int damage = 1);
 

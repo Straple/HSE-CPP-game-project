@@ -3,6 +3,7 @@
 #include "effect.hpp"
 #include "game_variables.hpp"
 #include "player.hpp"
+#include "../../Audio/audio.hpp"
 
 Slime::Slime(const Dot &position) {
     pos = position;
@@ -137,7 +138,7 @@ void Slime::simulate(
                     ) {
             anim = animation_shot;
             is_shooting = true;
-            game_variables::Sounds[ST_slime_shot].play();
+            Audio::play_sound(Audio::ST_slime_shot);
         } else if (
                 // игрока никто не ест
                     !player.is_paralyzed &&
@@ -152,7 +153,7 @@ void Slime::simulate(
                     ) {
             // игрок не может двигаться и у нас анимация атаки
             player.is_paralyzed = is_devour = true;
-            game_variables::Sounds[ST_slime_eating].play();
+            Audio::play_sound(Audio::ST_slime_eating);
             pos = player.pos;  // прыгаем на игрока
             anim = animation_devour;
         }

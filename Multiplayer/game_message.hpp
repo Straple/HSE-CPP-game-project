@@ -12,12 +12,12 @@ public:
         NONE,
         GAME_STATE,    // игровое состояние (снапшот)
         CHAT_MESSAGE,  // сообщение в чате
-        SOUND,         // звук (выстрел, взрыв и т.п.)
+        SOUNDS,        // звуки (выстрел, взрыв и т.п.)
         PLAYER_INPUT,  // инпут игрока
         CLIENT_ID,     // client id, чтобы клиент узнал о его id
     };
 
-    enum { header_length = 4, max_body_length = 8 * 1024 };
+    enum { header_length = 4, max_body_length = 32 * 1024 };
 
     // сначала записывается 3 байта body_length
     // потом 1 байт для message_t

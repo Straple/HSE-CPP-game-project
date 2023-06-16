@@ -1,12 +1,9 @@
-#include "game_mode.hpp"
 #include "Audio/audio.hpp"
-// #include "window_handler.hpp"
+#include "game_mode.hpp"
 
 int main() {
     setlocale(LC_ALL, "ru-RU");
-   audiere::AudioDevicePtr device = audiere::OpenDevice();
-//    audiere::OutputStreamPtr sound_ptr = OpenSound(device, "blaster.mp3" , false);
-//    sound_ptr->play();
+    audiere::AudioDevicePtr device = audiere::OpenDevice();
 
     // initialize
     {
@@ -17,11 +14,7 @@ int main() {
 
         read_sprites();
         read_spritesheets();
-//        audiere::AudioDevicePtr device = audiere::OpenDevice();
         Audio::init_audio(device);
-//        audiere::OutputStreamPtr sound_ptr = audiere::OpenSound(device, "Audio\\Sounds\\sniper_sound.mp3", false);
-//        sound_ptr->setVolume(0.3f);
-//        sound_ptr->play();
         test_room.read("level.txt");
 
         // создадим персонажа
@@ -43,7 +36,15 @@ int main() {
     while (global_variables::running) {
         auto &player = game_variables::Players[0];
 
+        audio_variables::SoundsQueue.clear();  // почистим очередь звуков
+
         simulate_game_mode(delta_time, player, customization_player, window_handler, typer);
+
+        // проиграем очередь звуков
+        for (auto type : audio_variables::SoundsQueue) {
+            std::cout << static_cast<int>(type) << std::endl;
+            audio_variables::Sounds[type].play();
+        }
 
         draw_game_mode(delta_time, 0, customization_player, window_handler, typer);
 
