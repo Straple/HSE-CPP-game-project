@@ -3,7 +3,9 @@
 
 int main() {
     setlocale(LC_ALL, "ru-RU");
+#ifdef AUDIERE
     audiere::AudioDevicePtr device = audiere::OpenDevice();
+#endif
 
     // initialize
     {
@@ -14,7 +16,9 @@ int main() {
 
         read_sprites();
         read_spritesheets();
+#ifdef AUDIERE
         Audio::init_audio(device);
+#endif
         test_room.read("level.txt");
 
         // создадим персонажа

@@ -1,7 +1,14 @@
 #ifndef AUDIO_HPP
 #define AUDIO_HPP
+#include <cstdint>
+#include <vector>
 #include "../Objects/Geometry/geometry_utils.hpp"
+
+//#define AUDIERE
+
+#ifdef AUDIERE
 #include "audiere.h"
+#endif
 
 namespace Audio {
 
@@ -38,7 +45,9 @@ enum music_condition : uint8_t {
 };
 
 struct sound {
+#ifdef AUDIERE
     audiere::OutputStreamPtr *sound_ptr;
+#endif
     size_t size;
 
     void play();
@@ -57,29 +66,39 @@ struct sound {
 
     bool is_play();
 
+#ifdef AUDIERE
     void OpenSound(audiere::AudioDevicePtr &device, const char *path, bool streaming, size_t _size);
+#endif
 };
 
 struct UI_sound {
+#ifdef AUDIERE
     audiere::OutputStreamPtr *sound_ptr;
+#endif
     size_t size;
 
     inline void play();
+#ifdef AUDIERE
     void OpenSound(audiere::AudioDevicePtr &device, const char *path, bool streaming, size_t _size);
+#endif
 };
 
 struct music {
+#ifdef AUDIERE
     audiere::OutputStreamPtr sound_ptr;
+#endif
     music_condition sound_cond;
 
     void update(float dt);
 };
 
+#ifdef AUDIERE
 void init_musics(audiere::AudioDevicePtr &device, std::vector<std::string> Name);
 void init_sounds(audiere::AudioDevicePtr &device, std::vector<std::string> Name);
 void init_UI(audiere::AudioDevicePtr &device, std::vector<std::string> Name);
 
 void init_audio(audiere::AudioDevicePtr &device);
+#endif
 
 void play_music(music_type mus);
 void stop_music(music_type mus);

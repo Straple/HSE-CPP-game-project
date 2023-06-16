@@ -9,7 +9,7 @@ Knight::Knight(const Dot &position) {
 }
 
 void Knight::draw() {
-    draw_sprite(pos + Dot(-12, 8), size, SP_MEDIUM_SHADOW);
+    draw_sprite(pos + Dot(-8, 4), size, SP_MEDIUM_SHADOW);
     draw_sprite(pos + delta_draw_pos, size, SP_KNIGHT);
 
     draw_collision(*this);

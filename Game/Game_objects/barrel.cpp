@@ -18,5 +18,5 @@ void Barrel::draw() {
 }
 
 bool Barrel::trigger_in_draw_sprite(const Dot &check_pos) {
-    return collision_in_draw_sprite(pos + delta_draw_pos, size, SP_NUN_STATUE, check_pos);
+    return collision_in_draw_sprite(pos + delta_draw_pos, size, SP_BARREL, check_pos);
 }

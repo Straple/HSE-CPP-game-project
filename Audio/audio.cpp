@@ -5,6 +5,7 @@ namespace Audio {
 efloat global_volume = 1, sound_volume = 80, music_volume = 1, UI_volume;
 
 void sound::play() {
+#ifdef AUDIERE
     for (size_t i = 0; i < size; i++) {
         if (!sound_ptr[i]->isPlaying()) {
             sound_ptr[i]->setVolume(sound_volume * global_volume);
@@ -14,32 +15,27 @@ void sound::play() {
             break;
         }
     }
+#endif
 }
 
 void sound::stop() {
+#ifdef AUDIERE
     for (size_t i = 0; i < size; i++) {
         sound_ptr[i]->stop();
     }
+#endif
 }
 
-/*void repeat() {
-        for (int i = 0; i < size; i++) {
-                sound_ptr[i]->setRepeat(true);
-        }
-}*/
-/*void no_repeat() {
-        for (int i = 0; i < size; i++) {
-                sound_ptr[i]->setRepeat(false);
-        }
-}*/
-
 bool sound::is_play() {
-    size_t i;
-    for (i = 0; i < size && !sound_ptr[i]->isPlaying(); i++) {
+    size_t i = 0;
+#ifdef AUDIERE
+    for (; i < size && !sound_ptr[i]->isPlaying(); i++) {
     }
+#endif
     return i < size;
 }
 
+#ifdef AUDIERE
 void sound::OpenSound(audiere::AudioDevicePtr &device, const char *path, bool streaming, size_t _size) {
     size = _size;
     sound_ptr = new audiere::OutputStreamPtr[_size];
@@ -49,8 +45,10 @@ void sound::OpenSound(audiere::AudioDevicePtr &device, const char *path, bool st
         sound_ptr[i]->setRepeat(false);
     }
 }
+#endif
 
 inline void UI_sound::play() {
+#ifdef AUDIERE
     for (size_t i = 0; i < size; i++) {
         if (!sound_ptr[i]->isPlaying()) {
             sound_ptr[i]->setVolume(UI_volume * global_volume);
@@ -58,8 +56,10 @@ inline void UI_sound::play() {
             break;
         }
     }
+#endif
 }
 
+#ifdef AUDIERE
 void UI_sound::OpenSound(audiere::AudioDevicePtr &device, const char *path, bool streaming, size_t _size) {
     size = _size;
     sound_ptr = new audiere::OutputStreamPtr[_size];
@@ -67,8 +67,10 @@ void UI_sound::OpenSound(audiere::AudioDevicePtr &device, const char *path, bool
         sound_ptr[i] = audiere::OpenSound(device, path, streaming);
     }
 }
+#endif
 
 void music::update(float dt) {
+#ifdef AUDIERE
     if (sound_cond == SC_down) {
         float Volume = 0;
         if ((sound_ptr->getVolume() - dt * .5f) > 0) {
@@ -91,8 +93,10 @@ void music::update(float dt) {
             sound_cond = SC_play;
         }
     }
+#endif
 }
 
+#ifdef AUDIERE
 void init_musics(audiere::AudioDevicePtr &device, std::vector<std::string> Name) {
     size_t index = 0;
     for (auto it_name = Name.begin(); it_name != Name.end(); it_name++) {
@@ -126,11 +130,15 @@ void init_audio(audiere::AudioDevicePtr &device) {
     //		init_UI(device, { "UI.mp3" });
 }
 
+#endif
+
 void play_music(music_type mus) {
+#ifdef AUDIERE
     audio_variables::Musics[mus].sound_cond = SC_up;
     audio_variables::Musics[mus].sound_ptr->setVolume(0.5f);
     audio_variables::Musics[mus].sound_ptr->play();
     audio_variables::Musics[mus].sound_ptr->setRepeat(true);
+#endif
 }
 
 void stop_music(music_type mus) {
@@ -149,9 +157,11 @@ void update_musics(float dt) {
 }
 
 void update_musics_volume() {
+#ifdef AUDIERE
     for (int i = 0; i < MT_COUNT; i++) {
         audio_variables::Musics[i].sound_ptr->setVolume(music_volume * global_volume);
     }
+#endif
 }
 
 void play_sound(sound_type type) {

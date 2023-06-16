@@ -8,7 +8,7 @@ struct Knight : AbstractPhysicalObject {
     ADD_BYTE_SERIALIZATION();
 
     // visible
-    inline const static efloat size = 1.5;
+    inline const static efloat size = 1;
     inline const static Dot delta_draw_pos = Dot(-16, 28) * size;
 
     Knight() = default;
