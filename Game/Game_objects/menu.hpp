@@ -1,11 +1,23 @@
 #ifndef GAME_MENU_HPP
 #define GAME_MENU_HPP
+enum game_mode_t {
+    GM_GAME,
+    GM_CUSTOMIZATION,
+    GM_MAIN_MENU,
+    GM_PAUSE_MENU,
+    GM_SETTINGS_MENU,
+    GM_MULTIPLAYER_MENU,
+    GM_MAIN_MENU_SETTINGS
+};
 
+game_mode_t game_mode = GM_MAIN_MENU;
+bool now_is_typing = false;
 #include "../../objects.hpp"
 #include "../../render.hpp"
 #include "../../sprites.hpp"
 #include "game_objects.hpp"
 #include <functional>
+
 struct Panel {
     Dot pos;
     efloat size;
@@ -41,7 +53,7 @@ struct Panel {
             focus = false;
         }
     }
-    void simulate_button(Cursor& cursor,Input& input) {
+    void simulate_button(Cursor& cursor,const Input& input) {
         update_focus(cursor);
         if (focus && (PRESSED(BUTTON_MOUSE_L))) {
             function();
@@ -58,53 +70,103 @@ struct Menu {
             panel.draw();
         }
     }
-    void simulate(Cursor& cursor,Input&input) {
+    void simulate(Cursor& cursor,const Input&input) {
         for (auto panel : panels) {
             panel.simulate_button(cursor,input);
         }
     }
 };
-void pause_exit_button_function() {
-    Loot_coins.clear();
-    Loot_hearts.clear();
-    Bullets.clear();
-    Slimes.clear();
-    Bats.clear();
-    game_mode = GM_MAIN_MENU;
-
-    // TODO: save game and reset all stats like coins or hp
-}
-void main_menu_new_game_button_function() {
-    game_mode = GM_GAME;
-    //TODO:
-}
-void main_menu_exit_button_function() {
-    std::exit(0);
+namespace menu_functions {
+    //Функции так вынес, если вдруг потребуется в них что то большее чем поменять режим, да и так вроде удобнее.
+    void pause_exit_button_function() {
+        game_mode = GM_MAIN_MENU;
+        //TODO
+        //Нужно чтобы все чистилось,сохранялось и тд, но думаю это нам пока что не нужно.
+    }
+    void set_settings_gm_function() {
+        game_mode = GM_SETTINGS_MENU;
+    }
+    void main_menu_single_game_button_function() {
+        game_mode = GM_GAME;
+    }
+    void main_menu_exit_button_function() {
+        global_variables::running = false;
+    }
+    void settings_exit_button_function() {
+        game_mode = GM_PAUSE_MENU;
+    }
+    void continue_button_function() {
+        game_mode = GM_GAME;
+    }
+    void to_multiplayer_menu_gm() {
+        game_mode = GM_MULTIPLAYER_MENU;
+    }
+    void multi_menu_exit_button_function() {
+        game_mode = GM_MAIN_MENU;
+    }
+    void settings_in_main_menu() {
+        game_mode = GM_MAIN_MENU_SETTINGS;
+    }
 }
 static inline Menu in_game_menu(
     std::vector{
-        Panel(Dot(-6.5,59.5),1.0,"Pause",false,Color(0xff2c2c2c)),
-        Panel(Dot(-7,60),1.0,"Pause",false,Color(0xffbcbcbc)),
-        Panel(Dot(90.5,-60),0.5,"Exit",false,Color(0xff2c2c2c)),
-        Panel(Dot(90,-59.5),0.5,"Exit",true,Color(0xffbcbcbc),pause_exit_button_function),
-        Panel(Dot(78.5,-50),0.6,"Options",false,Color(0xff2c2c2c)),
-        Panel(Dot(78,-49.5),0.6,"Options",true,Color(0xffbcbcbc)),
-        Panel(Dot(72.5,-40),0.6,"Save game",false,Color(0xff2c2c2c)),
-        Panel(Dot(72,-39.5),0.6,"Save game",true,Color(0xffbcbcbc))
+        Panel(Dot(-10.7,59.3),1.0,"Pause",false,Color(0xff2c2c2c)),
+        Panel(Dot(-10,60),1.0,"Pause",false,Color(0xffbcbcbc)),
+        Panel(Dot(-120.5,-0.5),0.6,"Continue",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,0),0.6,"Continue",true,Color(0xffbcbcbc),menu_functions::continue_button_function),
+        Panel(Dot(-120.5,-10),0.6,"Settings",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-9.5),0.6,"Settings",true,Color(0xffbcbcbc),menu_functions::set_settings_gm_function),
+        Panel(Dot(-120.5,-20),0.6,"Save game",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-19.5),0.6,"Save game",true,Color(0xffbcbcbc))/*TODO:*/,
+        Panel(Dot(-120.5,-30),0.5,"Exit",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-29.5),0.5,"Exit",true,Color(0xffbcbcbc),menu_functions::pause_exit_button_function)
     }
 );
 static inline Menu main_menu(
     std::vector{
-        Panel(Dot(-24.5,59.5),1.0,"Bulletproof",false,Color(0xff2c2c2c)),
-        Panel(Dot(-25,60),1.0,"Bulletproof",false,Color(0xffbcbcbc)),
-        Panel(Dot(-120.5,-10),0.6,"New game",false,Color(0xff2c2c2c)),
-        Panel(Dot(-120,-9.5),0.6,"New game",true,Color(0xffbcbcbc),main_menu_new_game_button_function),
-        Panel(Dot(-120.5,-60),0.5,"Exit",false,Color(0xff2c2c2c)),
-        Panel(Dot(-120,-59.5),0.5,"Exit",true,Color(0xffbcbcbc),main_menu_exit_button_function)
+        Panel(Dot(-26.7,59.3),1.0,"Bulletproof",false,Color(0xff2c2c2c)),
+        Panel(Dot(-26,60),1.0,"Bulletproof",false,Color(0xffbcbcbc)),
+        Panel(Dot(-120.5,-10),0.6,"Singleplayer",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-9.5),0.6,"Singleplayer",true,Color(0xffbcbcbc),menu_functions::main_menu_single_game_button_function),
+        Panel(Dot(-120.5,-20),0.6,"Multiplayer",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-19.5),0.6,"Multiplayer",true,Color(0xffbcbcbc),menu_functions::to_multiplayer_menu_gm),
+        Panel(Dot(-120.5,-30),0.6,"Settings",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-29.5),0.6,"Settings",true,Color(0xffbcbcbc),menu_functions::settings_in_main_menu),
+        Panel(Dot(-120.5,-40),0.5,"Exit",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-39.5),0.5,"Exit",true,Color(0xffbcbcbc),menu_functions::main_menu_exit_button_function)
     }
 
 
 );
+static inline Menu settings_menu(
+    std::vector{
+        Panel(Dot(-26.8,59.8),1.0,"Settings",false,Color(0xff2c2c2c)),
+        Panel(Dot(-26,60),1.0,"Settings",false,Color(0xffbcbcbc)),
+        Panel(Dot(-14.5,19.5),0.6,"Volume",false,Color(0xff2c2c2c)),
+        Panel(Dot(-14,20),0.6,"Volume",false,Color(0xffbcbcbc)),
+        Panel(Dot(-14.5,9.5),0.6,"Tut dolzhen bit polzunik",false,Color(0xff2c2c2c)),
+        Panel(Dot(-14,10),0.6,"Tut dolzhen bit polzunik",false,Color(0xffbcbcbc)),
+    });
+static inline Menu settings_menu_in_main(
+    std::vector{
+        Panel(Dot(-26.8,59.8),1.0,"Settings",false,Color(0xff2c2c2c)),
+        Panel(Dot(-26,60),1.0,"Settings",false,Color(0xffbcbcbc)),
+        Panel(Dot(-14.5,19.5),0.6,"Volume",false,Color(0xff2c2c2c)),
+        Panel(Dot(-14,20),0.6,"Volume",false,Color(0xffbcbcbc)),
+        Panel(Dot(-14.5,9.5),0.6,"Tut dolzhen bit polzunik",false,Color(0xff2c2c2c)),
+        Panel(Dot(-14,10),0.6,"Tut dolzhen bit polzunik",false,Color(0xffbcbcbc)),
+        Panel(Dot(-120.5,-40),0.5,"Exit",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-39.5),0.5,"Exit",true,Color(0xffbcbcbc),menu_functions::multi_menu_exit_button_function)
+    });
+static inline Menu multiplayer_menu(
+    std::vector{
+        Panel(Dot(-26.8,59.8),1.0,"Multiplayer",false,Color(0xff2c2c2c)),
+        Panel(Dot(-26,60),1.0,"Multiplayer",false,Color(0xffbcbcbc)),
+        Panel(Dot(-28.5,39.5),0.6,"Press ENTER for typing",false,Color(0xff2c2c2c)),
+        Panel(Dot(-28,40),0.6,"Press ENTER for typing",false,Color(0xffbcbcbc)),
+        Panel(Dot(-120.5,-40),0.5,"Exit",false,Color(0xff2c2c2c)),
+        Panel(Dot(-120,-39.5),0.5,"Exit",true,Color(0xffbcbcbc),menu_functions::multi_menu_exit_button_function)
+    });
 
 #endif // GAME_MENU_HPP
 

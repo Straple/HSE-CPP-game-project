@@ -284,10 +284,6 @@ public:
     }
 
     void simulate_input(efloat delta_time) {
-        if (PRESSED(BUTTON_ESC)) {
-            global_variables::running = false;
-            return;
-        }
 
         if (PRESSED(BUTTON_ENTER)) {
             global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
