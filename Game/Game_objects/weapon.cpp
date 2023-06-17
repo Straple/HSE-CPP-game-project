@@ -81,7 +81,7 @@ void Weapon::GoldenGun_shot(BulletHostType bullet_host) {
     Dot dir = target - shooting_pos;
     dir = dir.normalize();
     dir += Circle(Dot(), 0.1).get_random_dot();
-    game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 1000, SP_COIN);
+    game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 3000, SP_COIN);
 }
 
 void Weapon::GoldenGun_draw() {
@@ -221,7 +221,7 @@ void Weapon::Rifle_shot(BulletHostType bullet_host) {
     dir = dir.normalize();
     //    dir += Circle(Dot(), 0.1).get_random_dot();
     game_variables::Bullets.emplace_back(
-        bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 1000, SP_RIFLE_BULLET
+        bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 5000, SP_RIFLE_BULLET
     );
 }
 
@@ -288,6 +288,6 @@ void Weapon::Sniper_shot(BulletHostType bullet_host) {
     dir = dir.normalize();
     dir += Circle(Dot(), 0.1).get_random_dot();
     game_variables::Bullets.emplace_back(
-        bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 5, 8000, SP_RIFLE_BULLET
+        bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 5, 10000, SP_RIFLE_BULLET
     );
 }

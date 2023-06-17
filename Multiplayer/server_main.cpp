@@ -184,6 +184,26 @@ public:
         // симулируем игру
         simulate_game(delta_time);
 
+        if (test_room.wave_number == 2) {
+            std::cout << "New level!" << std::endl;
+            // нужно перенестись в новую комнату
+            if (test_room.room_name == "0-lobby-level") {
+                test_room.read("1-forest-level.txt");
+            } else if (test_room.room_name == "1-forest-level") {
+                test_room.read("2-dungeon-level.txt");
+            } else {
+            }
+
+            GameMessage message_new_level;
+            message_new_level.set_message_type(GameMessage::NEW_LEVEL);
+            message_new_level.set_body_length(0);
+            message_new_level.encode_header();
+            // отправляем клиентам сообщение о том, что нужно взять новый уровень
+            for (const auto &client_ptr : Clients) {
+                client_ptr->deliver(message_new_level);
+            }
+        }
+
         game_state_snapshot = build_game_state_message(frame_id);
         // отправляем новый игровой кадр клиентам
         for (const auto &client_ptr : Clients) {
@@ -212,7 +232,13 @@ public:
         std::cout << "Client <" << remote_endpoint << "> joined in session\n" << std::endl;
 
         // добавим персонажа в игру
-        game_variables::Players.emplace_back(Dot(25, -100));
+        std::vector<Dot> player_teleport_dots;
+        for (auto [pos, name] : test_room.Interesting_dots) {
+            if (name.size() >= 6 && name.substr(0, 6) == "player") {
+                player_teleport_dots.emplace_back(pos);
+            }
+        }
+        game_variables::Players.emplace_back(player_teleport_dots[get_random_engine()() % player_teleport_dots.size()]);
         game_variables::Players.back().client_id = client_ptr->client_id;
 
         // обновим игровой снапшот, так как мы получили нового игрока
@@ -474,7 +500,7 @@ private:
 int main() {
     SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
-    test_room.read("level.txt");
+    test_room.read("0-lobby-level.txt");
 
     try {
         boost::asio::io_context io_context;

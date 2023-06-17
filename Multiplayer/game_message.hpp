@@ -15,6 +15,7 @@ public:
         SOUNDS,        // звуки (выстрел, взрыв и т.п.)
         PLAYER_INPUT,  // инпут игрока
         CLIENT_ID,     // client id, чтобы клиент узнал о его id
+        NEW_LEVEL,     // нужно считать новый уровень
     };
 
     enum { header_length = 4, max_body_length = 32 * 1024 };

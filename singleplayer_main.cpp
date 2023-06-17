@@ -19,11 +19,12 @@ int main() {
 #ifdef AUDIERE
         Audio::init_audio(device);
 #endif
-        test_room.read("level.txt");
 
         // создадим персонажа
         game_variables::Players.emplace_back(Dot(25, -100));
         game_variables::Players.back().client_id = 0;
+
+        test_room.read("0-lobby-level.txt");
     }
     Audio::play_music(Audio::MT_gameplay);
     WindowHandler window_handler;
@@ -50,6 +51,18 @@ int main() {
         }
 
         draw_game_mode(delta_time, 0, customization_player, window_handler, typer);
+
+        if (test_room.wave_number == 2) {
+            std::cout << "New level!" << std::endl;
+            // нужно перенестись в новую комнату
+            if (test_room.room_name == "0-lobby-level") {
+                test_room.read("1-forest-level.txt");
+            } else if (test_room.room_name == "1-forest-level") {
+                test_room.read("2-dungeon-level.txt");
+            } else {
+
+            }
+        }
 
         // update time
         {

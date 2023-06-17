@@ -53,10 +53,11 @@ struct Room {
 
     Dot grid_start_dot;
 
-    bool player_spawned = false;
     int wave_number = 0;
-    efloat wave_cooldown = 2;
+    static const inline efloat wave_cooldown = 5;
     efloat wave_cooldown_accum = 0;
+
+    std::string room_name = "none";
 
     void build_grid();
 

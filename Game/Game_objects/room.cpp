@@ -116,6 +116,49 @@ void Room::build_grid() {
 }
 
 std::vector<std::pair<Dot, object_type>> Room::read(const std::string &filename) {
+    // clear
+    {
+        Draw_objects.clear();
+        Walls.clear();
+        Interesting_dots.clear();
+        game_variables::Bushes.clear();
+        game_variables::Trees.clear();
+        game_variables::Tables.clear();
+        game_variables::Pillars.clear();
+        game_variables::NunStatues.clear();
+        game_variables::Knights.clear();
+        game_variables::Barrels.clear();
+        ColorBoxes.clear();
+
+        visitable_grid_dots_for_air_mob.clear();
+        visitable_grid_dots_for_ground_mob.clear();
+
+        wave_number = 0;
+        wave_cooldown_accum = 0;
+
+        game_variables::Loot_coins.clear();
+        game_variables::Loot_hearts.clear();
+
+        game_variables::Slimes.clear();
+        game_variables::Bats.clear();
+        game_variables::Bombers.clear();
+
+        game_variables::Weapons.clear();
+
+        for (auto &player : game_variables::Players) {
+            player.weapon_ind = -1;
+        }
+    }
+
+    {
+        // filename = "room_name.txt"
+        room_name = filename;
+        room_name.pop_back();  // t
+        room_name.pop_back();  // x
+        room_name.pop_back();  // t
+        room_name.pop_back();  // .
+    }
+
     std::ifstream file(filename);
     {
         std::string str;
@@ -210,6 +253,18 @@ std::vector<std::pair<Dot, object_type>> Room::read(const std::string &filename)
         file >> grid_start_dot;
     }
 
+    {
+        std::vector<Dot> player_teleport_dots;
+        for (auto [pos, name] : Interesting_dots) {
+            if (name.size() >= 6 && name.substr(0, 6) == "player") {
+                player_teleport_dots.emplace_back(pos);
+            }
+        }
+        for (auto &player : game_variables::Players) {
+            player.pos = player_teleport_dots[get_random_engine()() % player_teleport_dots.size()];
+        }
+    }
+
     // TODO: пока коллизии не построены такое не надо вызывать
     build_grid();
 
@@ -271,14 +326,55 @@ void Room::simulate(efloat delta_time) {
         }
     }*/
 
-    if (game_variables::Weapons.size() + game_variables::Slimes.size() + game_variables::Bats.size() +
-            game_variables::Bombers.size() ==
-        0) {
-        // new wave
+    if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
+        wave_cooldown_accum += delta_time;
+        if (wave_cooldown_accum > wave_cooldown) {
+            std::cout << "New wave!" << std::endl;
+            wave_cooldown_accum = 0;
+            wave_number++;
 
-        std::cout << "New wave!" << std::endl;
+            for (auto [pos, name] : Interesting_dots) {
+                if (name.size() < 5 || name.substr(0, 6) != "player") {
+                    if (name == "sniper_rifle") {
+                        if (randomness(30)) {
+                            game_variables::Weapons.emplace_back(pos, weapon_t::SNIPER_RIFLE, 3);
+                        }
+                    } else if (name == "staff") {
+                        if (randomness(50)) {
+                            game_variables::Weapons.emplace_back(pos, STAFF);
+                        }
+                    } else if (name == "golden_gun") {
+                        if (randomness(70)) {
+                            game_variables::Weapons.emplace_back(pos, GOLDEN_GUN);
+                        }
+                    } else if (name == "rifle") {
+                        if (randomness(40)) {
+                            game_variables::Weapons.emplace_back(pos, RIFLE, 0.1);
+                        }
+                    } else {  // enemy
+                        int enemy_cnt = 1;
+                        if (randomness(std::min(100, 20 * wave_number))) {
+                            enemy_cnt++;
+                            if (randomness(std::min(100, 5 * wave_number))) {
+                                enemy_cnt++;
+                            }
+                        }
 
-        for (auto [pos, name] : Interesting_dots) {
+                        while (enemy_cnt--) {
+                            if (randomness(40)) {
+                                game_variables::Bombers.emplace_back(pos);
+                            } else if (randomness(30)) {
+                                game_variables::Bats.emplace_back(pos);
+                            } else {
+                                game_variables::Slimes.emplace_back(pos);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        /*for (auto [pos, name] : Interesting_dots) {
             if (name.size() < 5 || name.substr(0, 6) != "player") {
                 if (name == "sniper_rifle") {
                     game_variables::Weapons.emplace_back(pos, weapon_t::SNIPER_RIFLE, 3);
@@ -298,7 +394,7 @@ void Room::simulate(efloat delta_time) {
                     }
                 }
             }
-        }
+        }*/
 
         /*wave_cooldown_accum += delta_time;
         if (wave_cooldown_accum >= wave_cooldown) {

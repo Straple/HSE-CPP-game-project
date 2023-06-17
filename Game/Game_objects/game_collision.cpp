@@ -108,6 +108,17 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
         }                                                                                      \
     } while (0)
 
+#define PUSH_OUT_HARD(Objects, OneWhoPushes, condition)                            \
+    do {                                                                           \
+        for (auto &object : game_variables::Objects) {                             \
+            for (auto &he_pushes : game_variables::OneWhoPushes) {                 \
+                if (condition) {                                                   \
+                    object.push_out_of_collision_hard(*he_pushes.get_collision()); \
+                }                                                                  \
+            }                                                                      \
+        }                                                                          \
+    } while (0)
+
     // heart <-> coin
     PUSH_OUT_SOFT(Loot_hearts, Loot_coins, true);
     PUSH_OUT_SOFT(Loot_coins, Loot_hearts, true);
@@ -171,6 +182,13 @@ void simulate_game_collisions(efloat delta_time, const std::vector<CollisionBox>
 
     // bat with world object
     { PUSH_OUT_SOFT(Bats, Trees, true); }
+
+    // barrel
+    {
+        PUSH_OUT_HARD(Barrels, Bushes, true);
+        PUSH_OUT_HARD(Barrels, Trees, true);
+        PUSH_OUT_HARD(Barrels, Tables, true);
+    }
 
 #undef PUSH_OUT_HARD
 }

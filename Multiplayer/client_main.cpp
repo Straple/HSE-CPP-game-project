@@ -271,6 +271,15 @@ private:
                     *reinterpret_cast<Audio::sound_type *>(read_message.body() + i * sizeof(uint8_t));
                 audio_variables::Sounds[type].play();
             }
+        } else if(read_message.message_type() == GameMessage::NEW_LEVEL){
+
+            // нужно перенестись в новую комнату
+            if (test_room.room_name == "0-lobby-level") {
+                test_room.read("1-forest-level.txt");
+            } else if (test_room.room_name == "1-forest-level") {
+                test_room.read("2-dungeon-level.txt");
+            } else {
+            }
         }
     }
 
@@ -333,7 +342,9 @@ private:
 int main() {
     SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
+#ifdef AUDIERE
     audiere::AudioDevicePtr device = audiere::OpenDevice();
+#endif
 
     // initialize
     {
@@ -343,10 +354,12 @@ int main() {
         ShowCursor(global_variables::show_cursor);
 
         read_sprites();
+#ifdef AUDIERE
         Audio::init_audio(device);
+#endif
         read_spritesheets();
 
-        test_room.read("level.txt");
+        test_room.read("0-lobby-level.txt");
     }
 
     WindowHandler window_handler;
