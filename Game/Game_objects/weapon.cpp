@@ -72,17 +72,12 @@ void Weapon::GoldenGun_shot(BulletHostType bullet_host) {
         return;
     }
     cooldown_accum = 0;
-    Dot shooting_pos = pos;
-    if (hand == Dot(-10, 18)) {
-//        shooting_pos += Dot(2, -1);
-    } else {
-        shooting_pos += Dot(-2.5, -1.5);
-    }
+//    Dot shooting_pos = pos;
     // pos+=dulo;
-    Dot dir = target - shooting_pos;
+    Dot dir = target - (pos + dulo);
     dir = dir.normalize();
-    dir += Circle(Dot(), 0.1).get_random_dot();
-    game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 1000, SP_COIN);
+//    dir += Circle(Dot(), 0.1).get_random_dot();
+    game_variables::Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 1, 1000, SP_COIN);
 }
 
 void Weapon::GoldenGun_draw() {
@@ -93,41 +88,61 @@ void Weapon::GoldenGun_draw() {
     }
     double angle;
     angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
-    int ind = round(angle / 15);
-
-    if (0 <= ind && ind <= 5) {
+    int half, ind = (angle / 90);
+    if (ind == 0 || ind == 3) {
+        half = 0;
+    }
+    else {
+        half = 1;
+    }
+    if (half == 0) {
         hand = Dot(-10, 18);
-        dulo = Dot(14, 6.5);
-        Dot pivot(3.5,3);
-        dulo-=pivot;
+        dulo = Dot(14, 7.5);
+        Dot pivot(5,3.3);
+        draw_rect(pos+pivot-global_variables::camera.pos, Dot(1,1), GREEN);
+        draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+        angle = get_good_angle(target - pos - pivot, Dot(1, 0)) * 57.295779513;
+        ind = static_cast<int>(round(angle/15));
+        if (ind <= 7) {
+            ind = std::min(ind, 6);
+        }
+        if (ind > 7) {
+            ind = std::max(ind, 19);
+        }
+        dulo -= pivot;
         Dot new_dulo{};
         new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind)) - dulo.y * sin((15 / 57.2957795) * (-ind));
         new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind)) + dulo.y * cos((15 / 57.2957795) * (-ind));
-        dulo = new_dulo+pivot;
-    } else if (ind == 6) {
-        hand = Dot(-18, 18);
-        dulo = Dot(1, -6);
-    } else if (20 > ind && ind >= 7) {
-        hand = Dot(-18, 18);
-        dulo = Dot(-5.5, -5.5);
-        Dot pivot(-3.5, 4);
-        dulo-=pivot;
-        Dot new_dulo{};
-        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind - 6))) - dulo.y * sin((15 / 57.2957795) * (-(ind - 6)));
-        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind - 6))) + dulo.y * cos((15 / 57.2957795) * (-(ind - 6)));
-        dulo = new_dulo+pivot;
-    } else if (ind >= 20) {
-        hand = Dot(-10, 18);
-        dulo = Dot(15, 6);
-        Dot pivot(3.5,3);
-        dulo-=pivot;
-        Dot new_dulo{};
-        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind + 2)) - dulo.y * sin((15 / 57.2957795) * (-ind + 2));
-        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
-        dulo = new_dulo+pivot;
+        dulo = new_dulo + pivot;
+        draw_rect(pos + dulo - global_variables::camera.pos, Dot(1,1), RED);
+        if (ind == 6) {
+            dulo.y +=1;
+        }
+        if (ind > 6) {
+            ind += 2;
+        }
     }
-//    draw_rect(pos + Dot(-3.5,3) - global_variables::camera.pos, Dot(0.5,0.5), GREEN);
-//    draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+    else {
+        hand = Dot(-18, 18);
+        dulo = Dot(-7, -4.5);
+        Dot pivot(-3, 4);
+        draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+        draw_rect(pos+pivot-global_variables::camera.pos, Dot(1,1), GREEN);
+        angle = get_good_angle(target - pos - pivot, Dot(1, 0)) * 57.295779513;
+        ind = static_cast<int>(round(angle/15));
+        ind-=1;
+        if (angle <= 180) {
+            ind = std::max(ind, 7);
+        }
+        dulo-=pivot;
+        Dot new_dulo{};
+        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind-7))) - dulo.y * sin((15 / 57.2957795) * (-(ind-7)));
+        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind-7))) + dulo.y * cos((15 / 57.2957795) * (-(ind-7)));
+        dulo = new_dulo+pivot;
+        draw_rect(pos + dulo - global_variables::camera.pos, Dot(1,1), RED);
+    }
+    if (ind == 26) ind = 0;
+    draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
     draw_spritesheet(pos + hand, 0.7, SS_GOLDEN_GUN, ind);
 }
 
@@ -168,41 +183,62 @@ void Weapon::Rifle_draw() {
     }
     double angle;
     angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
-    int ind = round(angle / 15);
-
-    if (0 <= ind && ind <= 5) {
+    int half, ind = (angle / 90);
+    if (ind == 0 || ind == 3) {
+        half = 0;
+    }
+    else {
+        half = 1;
+    }
+    if (half == 0) {
         hand = Dot(-30, 27);
-        dulo = Dot(16, 6.5);
-        Dot pivot(-3.5, 4);
-        dulo-=pivot;
+        dulo = Dot(14, 6.7);
+        Dot pivot(-4.2, 2);
+        draw_rect(pos+pivot-global_variables::camera.pos, Dot(1,1), GREEN);
+        draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+        angle = get_good_angle(target - pos - pivot, Dot(1, 0)) * 57.295779513;
+        ind = static_cast<int>(round(angle/15));
+        if (angle <= 90) {
+            ind = std::min(ind, 5);
+        }
+        if (ind > 5) {
+            ind = std::max(ind, 17);
+        }
+        dulo -= pivot;
         Dot new_dulo{};
         new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind)) - dulo.y * sin((15 / 57.2957795) * (-ind));
         new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind)) + dulo.y * cos((15 / 57.2957795) * (-ind));
-        dulo = new_dulo+pivot;
-    } else if (ind == 6) {
-        hand = Dot(-20, 28);
-        dulo = Dot(10, -17);
-    } else if (20 > ind && ind >= 7) {
-        hand = Dot(-20, 27);
-        dulo = Dot(7, -18);
-        Dot pivot(4.7,2.5);
-        dulo-=pivot;
-        Dot new_dulo{};
-        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind - 6))) - dulo.y * sin((15 / 57.2957795) * (-(ind - 6)));
-        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind - 6))) + dulo.y * cos((15 / 57.2957795) * (-(ind - 6)));
-        dulo = new_dulo+pivot;
-    } else if (ind >= 20) {
-        hand = Dot(-30, 26);
-        dulo = Dot(14, 6.5);
-        Dot pivot(-3.9, 3);
-        dulo-=pivot;
-        Dot new_dulo{};
-        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind + 2)) - dulo.y * sin((15 / 57.2957795) * (-ind + 2));
-        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
-        dulo = new_dulo+pivot;
+        dulo = new_dulo + pivot;
+        if (ind == 5) {
+            dulo += Dot(-1,-1);
+        }
+        draw_rect(pos + dulo - global_variables::camera.pos, Dot(1,1), RED);
+        if (ind > 5) {
+            ind-=2;
+        }
     }
-    draw_rect(pos + Dot(-3,2) - global_variables::camera.pos, Dot(0.5,0.5), GREEN);
-    draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+    else {
+        hand = Dot(-20, 27);
+        dulo = Dot(1, -17);
+        Dot pivot(5.5,2);
+        draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+        draw_rect(pos+pivot-global_variables::camera.pos, Dot(1,1), GREEN);
+        angle = get_good_angle(target - pos - pivot, Dot(1, 0)) * 57.295779513;
+        ind = static_cast<int>(round(angle/15));
+        ind-=1;
+        if (angle <= 180) {
+            ind = std::max(ind, 6);
+        }
+        dulo-=pivot;
+        Dot new_dulo{};
+        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind-5))) - dulo.y * sin((15 / 57.2957795) * (-(ind-5)));
+        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind-5))) + dulo.y * cos((15 / 57.2957795) * (-(ind-5)));
+        dulo = new_dulo+pivot;
+        draw_rect(pos + dulo - global_variables::camera.pos, Dot(1,1), RED);
+
+    }
+//    std::cout << ind << ' ' << angle <<  std::endl;
+    if (ind == 22) ind = 0;
     draw_spritesheet(pos + hand, 0.2, SS_RIFLE, ind);
 }
 void Weapon::Rifle_shot(BulletHostType bullet_host) {
@@ -210,17 +246,11 @@ void Weapon::Rifle_shot(BulletHostType bullet_host) {
         return;
     }
     cooldown_accum = 0;
-    Dot shooting_pos = pos;
-    if (hand == Dot(-10, 18)) {
-//        shooting_pos += Dot(2, -1);
-    } else {
-//        shooting_pos += Dot(-2.5, -1.5);
-    }
-    // pos+=dulo;
-    Dot dir = target - shooting_pos;
+
+    Dot dir = target - (pos+dulo);
     dir = dir.normalize();
-//    dir += Circle(Dot(), 0.1).get_random_dot();
-    game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 1, 1000, SP_RIFLE_BULLET);
+    dir += Circle(Dot(), 0.1).get_random_dot();
+    game_variables::Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 1, 1000, SP_RIFLE_BULLET);
 }
 
 void Weapon::Sniper_draw() {
@@ -230,42 +260,61 @@ void Weapon::Sniper_draw() {
         return;
     }
     double angle;
-    angle = get_good_angle(target - pos, Dot(1, 0)) * 57.295779513;
-    int ind = round(angle / 15);
-
-    if (0 <= ind && ind <= 5) {
+//    draw_rect(pos+Dot(0,2.5)-global_variables::camera.pos, Dot(0.5,0.5), RED);
+    angle = get_good_angle(target - pos - Dot(0,5), Dot(1, 0)) * 57.295779513;
+    int half, ind = (angle / 90);
+    if (ind == 0 || ind == 3) {
+        half = 0;
+    }
+    else {
+        half = 1;
+    }
+    if (half == 0) {
         hand = Dot(-30, 27);
-        dulo = Dot(16, 4.5);
-        Dot pivot(-3.5, 4);
-        dulo-=pivot;
+        dulo = Dot(14, 5);
+        Dot pivot(-4.5, 2);
+        draw_rect(pos+pivot-global_variables::camera.pos, Dot(1,1), GREEN);
+        draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+        angle = get_good_angle(target - pos - pivot, Dot(1, 0)) * 57.295779513;
+        ind = static_cast<int>(round(angle/15));
+        if (angle <= 90) {
+            ind = std::min(ind, 5);
+        }
+        if (ind > 5) {
+            ind = std::max(ind, 17);
+        }
+        dulo -= pivot;
         Dot new_dulo{};
         new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind)) - dulo.y * sin((15 / 57.2957795) * (-ind));
         new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind)) + dulo.y * cos((15 / 57.2957795) * (-ind));
-        dulo = new_dulo+pivot;
-    } else if (ind == 6) {
-        hand = Dot(-20, 28);
-        dulo = Dot(8, -17);
-    } else if (20 > ind && ind >= 7) {
-        hand = Dot(-20, 27);
-        dulo = Dot(8, -18);
-        Dot pivot(4.7,2.5);
-        dulo-=pivot;
-        Dot new_dulo{};
-        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind - 6))) - dulo.y * sin((15 / 57.2957795) * (-(ind - 6)));
-        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind - 6))) + dulo.y * cos((15 / 57.2957795) * (-(ind - 6)));
-        dulo = new_dulo+pivot;
-    } else if (ind >= 20) {
-        hand = Dot(-30, 26);
-        dulo = Dot(14, 6.5);
-        Dot pivot(-3.9, 3);
-        dulo-=pivot;
-        Dot new_dulo{};
-        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-ind + 2)) - dulo.y * sin((15 / 57.2957795) * (-ind + 2));
-        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-ind + 2)) + dulo.y * cos((15 / 57.2957795) * (-ind + 2));
-        dulo = new_dulo+pivot;
+        dulo = new_dulo + pivot;
+        draw_rect(pos + dulo - global_variables::camera.pos, Dot(1,1), RED);
+        if (ind > 5) {
+            ind-=2;
+        }
     }
-    draw_rect(pos + Dot(-3,2) - global_variables::camera.pos, Dot(0.5,0.5), GREEN);
-    draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+    else {
+        hand = Dot(-20, 27);
+        dulo = Dot(3.5, -15);
+        draw_rect(pos+dulo-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
+        Dot pivot(5,3);
+        draw_rect(pos+pivot-global_variables::camera.pos, Dot(2,2), GREEN);
+        angle = get_good_angle(target - pos - pivot, Dot(1, 0)) * 57.295779513;
+        ind = static_cast<int>(round(angle/15));
+        ind-=1;
+        if (angle <= 180) {
+            ind = std::max(ind, 6);
+        }
+        dulo-=pivot;
+        Dot new_dulo{};
+        new_dulo.x = dulo.x * cos((15 / 57.2957795) * (-(ind-5))) - dulo.y * sin((15 / 57.2957795) * (-(ind-5)));
+        new_dulo.y = dulo.x * sin((15 / 57.2957795) * (-(ind-5))) + dulo.y * cos((15 / 57.2957795) * (-(ind-5)));
+        dulo = new_dulo+pivot;
+        draw_rect(pos + dulo - global_variables::camera.pos, Dot(1,1), RED);
+
+    }
+//    std::cout << ind << ' ' << angle <<  std::endl;
+    if (ind == 22) ind = 0;
     draw_spritesheet(pos + hand, 0.2, SS_SNIPER_RIFLE, ind);
 }
 
@@ -274,15 +323,7 @@ void Weapon::Sniper_shot(BulletHostType bullet_host) {
         return;
     }
     cooldown_accum = 0;
-    Dot shooting_pos = pos;
-    if (hand == Dot(-10, 18)) {
-//        shooting_pos += Dot(2, -1);
-    } else {
-//        shooting_pos += Dot(-2.5, -1.5);
-    }
-    // pos+=dulo;
-    Dot dir = target - shooting_pos;
+    Dot dir = target - (pos+dulo);
     dir = dir.normalize();
-    dir += Circle(Dot(), 0.1).get_random_dot();
-    game_variables::Bullets.emplace_back(bullet_host, shooting_pos + dulo, shooting_pos + dulo + dir, 5, 8000, SP_RIFLE_BULLET);
+    game_variables::Bullets.emplace_back(bullet_host, pos + dulo, pos + dulo + dir, 5, 8000, SP_RIFLE_BULLET);
 }
