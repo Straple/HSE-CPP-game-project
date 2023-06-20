@@ -6,6 +6,7 @@
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 //----------------------------------------------------------------------
+#include "../Audio/audio.hpp"
 #include "../main_header.hpp"
 //----------------------------------------------------------------------
 #include "game_message.hpp"
@@ -33,12 +34,20 @@ std::string get_game_state() {
     serialization_traits<std::vector<Tree>>::serialize(oss, game_variables::Trees);
     serialization_traits<std::vector<Bush>>::serialize(oss, game_variables::Bushes);
     serialization_traits<std::vector<Log>>::serialize(oss, game_variables::Logs);
+    serialization_traits<std::vector<Pillar>>::serialize(oss, game_variables::Pillars);
+    serialization_traits<std::vector<NunStatue>>::serialize(oss, game_variables::NunStatues);
+    serialization_traits<std::vector<Knight>>::serialize(oss, game_variables::Knights);
+    serialization_traits<std::vector<Barrel>>::serialize(oss, game_variables::Barrels);
 
-    // objects
-    serialization_traits<std::vector<Effect>>::serialize(oss, game_variables::Effects);
-    serialization_traits<std::vector<Bullet>>::serialize(oss, game_variables::Bullets);
+    // loot
     serialization_traits<std::vector<Coin>>::serialize(oss, game_variables::Loot_coins);
     serialization_traits<std::vector<Heart>>::serialize(oss, game_variables::Loot_hearts);
+
+    serialization_traits<std::vector<Effect>>::serialize(oss, game_variables::Effects);
+
+    // weapons
+    serialization_traits<std::vector<Bullet>>::serialize(oss, game_variables::Bullets);
+    serialization_traits<std::vector<Weapon>>::serialize(oss, game_variables::Weapons);
 
     return oss.str();
 }
@@ -49,6 +58,20 @@ GameMessage build_client_id_message(int client_id) {
     message.set_body_length(sizeof(int));
     message.encode_header();
     std::memcpy(message.body(), &client_id, sizeof(int));
+    return message;
+}
+
+GameMessage build_sounds_message(const std::vector<Audio::sound_type> &Sounds) {
+    GameMessage message;
+
+    message.set_body_length(Sounds.size() * sizeof(Audio::sound_type));
+    message.set_message_type(GameMessage::SOUNDS);
+    message.encode_header();
+
+    std::memcpy(message.body(), Sounds.data(), message.body_length());
+
+    // std::cout << "new sounds message | body length: " << message.body_length() << " Sounds.size(): " << Sounds.size()
+    //           << '\n';
     return message;
 }
 
@@ -80,6 +103,8 @@ public:
     void simulate(efloat delta_time) {
         simulate_player(delta_time, client_id);
     }
+
+    virtual void add_sounds(const std::vector<Audio::sound_type> &Sounds) = 0;
 
     virtual void deliver(const GameMessage &message) = 0;
 
@@ -149,6 +174,8 @@ public:
             time_tick_prev_frame = cur_time_tick;
         }
 
+        audio_variables::SoundsQueue.clear();  // почистим очередь звуков
+
         // симулируем игроков
         for (const auto &client_ptr : Clients) {
             client_ptr->simulate(delta_time);
@@ -157,10 +184,37 @@ public:
         // симулируем игру
         simulate_game(delta_time);
 
+        if (test_room.wave_number == 2) {
+            std::cout << "New level!" << std::endl;
+            // нужно перенестись в новую комнату
+            if (test_room.room_name == "0-lobby-level") {
+                test_room.read("1-forest-level.txt");
+            } else if (test_room.room_name == "1-forest-level") {
+                test_room.read("2-dungeon-level.txt");
+            } else {
+            }
+
+            GameMessage message_new_level;
+            message_new_level.set_message_type(GameMessage::NEW_LEVEL);
+            message_new_level.set_body_length(0);
+            message_new_level.encode_header();
+            // отправляем клиентам сообщение о том, что нужно взять новый уровень
+            for (const auto &client_ptr : Clients) {
+                client_ptr->deliver(message_new_level);
+            }
+        }
+
         game_state_snapshot = build_game_state_message(frame_id);
         // отправляем новый игровой кадр клиентам
         for (const auto &client_ptr : Clients) {
             client_ptr->deliver(game_state_snapshot);
+        }
+
+        // добавим обработчикам клиентов задачу доставить звуки
+        if (!audio_variables::SoundsQueue.empty()) {
+            for (const auto &client_ptr : Clients) {
+                client_ptr->add_sounds(audio_variables::SoundsQueue);
+            }
         }
 
         // продлеваем таймер следующей симуляции
@@ -178,7 +232,13 @@ public:
         std::cout << "Client <" << remote_endpoint << "> joined in session\n" << std::endl;
 
         // добавим персонажа в игру
-        game_variables::Players.emplace_back(Dot(25, -100));
+        std::vector<Dot> player_teleport_dots;
+        for (auto [pos, name] : test_room.Interesting_dots) {
+            if (name.size() >= 6 && name.substr(0, 6) == "player") {
+                player_teleport_dots.emplace_back(pos);
+            }
+        }
+        game_variables::Players.emplace_back(player_teleport_dots[get_random_engine()() % player_teleport_dots.size()]);
         game_variables::Players.back().client_id = client_ptr->client_id;
 
         // обновим игровой снапшот, так как мы получили нового игрока
@@ -268,6 +328,12 @@ public:
         queue_chat_messages.push({client_id, chat_message});
     }
 
+    void add_sounds(const std::vector<Audio::sound_type> &Sounds) override {
+        for (auto sound : Sounds) {
+            SoundsQueue.push_back(sound);
+        }
+    }
+
 private:
     void do_read_header() {
         auto self(shared_from_this());
@@ -347,7 +413,12 @@ private:
             [this, self](boost::system::error_code error_code, std::size_t) {
                 count_of_write_messages++;
                 if (!error_code) {
-                    if (!queue_chat_messages.empty()) {
+                    if (!SoundsQueue.empty()) {
+                        // отправим звуки клиенту
+                        GameMessage sounds_message = build_sounds_message(SoundsQueue);
+                        SoundsQueue.clear();
+                        deliver(sounds_message);
+                    } else if (!queue_chat_messages.empty()) {
                         // отправим сообщение из чата клиенту
                         auto [sender_client_id, chat_message] = queue_chat_messages.front();
                         queue_chat_messages.pop();
@@ -379,6 +450,8 @@ private:
     // (client_id, message)
     // очередь сообщений, которые нужно отправить
     std::queue<std::pair<int, std::string>> queue_chat_messages;
+
+    std::vector<Audio::sound_type> SoundsQueue;  // очередь звуков, которые нужно отправить клиенту
 };
 
 //----------------------------------------------------------------------
@@ -427,7 +500,7 @@ private:
 int main() {
     SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
-    test_room.read("level.txt");
+    test_room.read("0-lobby-level.txt");
 
     try {
         boost::asio::io_context io_context;

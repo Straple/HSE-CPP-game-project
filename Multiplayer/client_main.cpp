@@ -3,6 +3,7 @@
 #include <boost/bind.hpp>
 using boost::asio::ip::tcp;
 //
+#include "../Audio/audio.hpp"
 #include "../game_mode.hpp"
 //
 #include <iostream>
@@ -24,12 +25,19 @@ void set_game_state(const std::string &game_state) {
     game_variables::Trees = serialization_traits<std::vector<Tree>>::deserialize(iss);
     game_variables::Bushes = serialization_traits<std::vector<Bush>>::deserialize(iss);
     game_variables::Logs = serialization_traits<std::vector<Log>>::deserialize(iss);
+    game_variables::Pillars = serialization_traits<std::vector<Pillar>>::deserialize(iss);
+    game_variables::NunStatues = serialization_traits<std::vector<NunStatue>>::deserialize(iss);
+    game_variables::Knights = serialization_traits<std::vector<Knight>>::deserialize(iss);
+    game_variables::Barrels = serialization_traits<std::vector<Barrel>>::deserialize(iss);
 
-    // objects
-    game_variables::Effects = serialization_traits<std::vector<Effect>>::deserialize(iss);
-    game_variables::Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
+    // loot
     game_variables::Loot_coins = serialization_traits<std::vector<Coin>>::deserialize(iss);
     game_variables::Loot_hearts = serialization_traits<std::vector<Heart>>::deserialize(iss);
+
+    game_variables::Effects = serialization_traits<std::vector<Effect>>::deserialize(iss);
+
+    game_variables::Bullets = serialization_traits<std::vector<Bullet>>::deserialize(iss);
+    game_variables::Weapons = serialization_traits<std::vector<Weapon>>::deserialize(iss);
 }
 
 //----------------------------------------------------------------------
@@ -154,6 +162,8 @@ public:
             send_chat_message_to_server(typer_text);
         }
 
+        audio_variables::SoundsQueue.clear();
+
         draw_game_mode(delta_time, client_id, customization_player, window_handler, typer);
 
         send_input_to_server();
@@ -204,44 +214,7 @@ private:
             socket, boost::asio::buffer(read_message.body(), read_message.body_length()),
             [this](boost::system::error_code error_code, std::size_t) {
                 if (!error_code) {
-                    if (read_message.message_type() == GameMessage::CLIENT_ID) {
-                        // считали client_id
-                        ASSERT(client_id == -1, "why client_id already init?");
-                        std::memcpy(&client_id, read_message.body(), sizeof(int));
-                        std::cout << "client_id: " << client_id << std::endl;
-                    } else if (read_message.message_type() == GameMessage::GAME_STATE) {
-                        this_frame_from_server = true;
-
-                        int game_state_frame_id = -1;
-                        std::memcpy(&game_state_frame_id, read_message.body(), sizeof(int));
-                        if (frame_id < game_state_frame_id) {
-                            // мы получили более новое игровое состояние
-                            bool need_state_simulates_game_frame = frame_id == 0;
-                            frame_id = game_state_frame_id;
-
-                            std::string game_state;
-                            game_state.resize(read_message.body_length() - sizeof(int));
-                            std::memcpy(game_state.data(), read_message.body() + sizeof(int), game_state.size());
-
-                            set_game_state(game_state);
-
-                            if (need_state_simulates_game_frame) {
-                                std::cout << "Starting first game frame..." << std::endl;
-                                // мы еще ни разу не играли, так как сервер не отправил нам первое игровое состояние
-                                simulate_game_frame();
-                            }
-                        } else {
-                            std::cout << "old frame :_(" << std::endl;
-                        }
-                    } else if (read_message.message_type() == GameMessage::CHAT_MESSAGE) {
-                        int sender_client_id = -1;
-                        std::memcpy(&sender_client_id, read_message.body(), sizeof(int));
-
-                        std::string chat_message;
-                        chat_message.resize(read_message.body_length() - sizeof(int));
-                        std::memcpy(chat_message.data(), read_message.body() + sizeof(int), chat_message.size());
-                        ChatMessages.insert(ChatMessages.begin(), {sender_client_id, chat_message, 0});
-                    }
+                    process_message_from_server();
                     do_read_header();  // продолжим читать у сервера
                 } else {
                     std::cout << "reading body failed. message: \"" << error_code.message() << "\"" << std::endl;
@@ -249,6 +222,65 @@ private:
                 }
             }
         );
+    }
+
+    void process_message_from_server() {
+        if (read_message.message_type() == GameMessage::CLIENT_ID) {
+            // считали client_id
+            ASSERT(client_id == -1, "why client_id already init?");
+            std::memcpy(&client_id, read_message.body(), sizeof(int));
+            std::cout << "client_id: " << client_id << std::endl;
+
+        } else if (read_message.message_type() == GameMessage::GAME_STATE) {
+            this_frame_from_server = true;
+
+            int game_state_frame_id = -1;
+            std::memcpy(&game_state_frame_id, read_message.body(), sizeof(int));
+            if (frame_id < game_state_frame_id) {
+                // мы получили более новое игровое состояние
+                bool need_state_simulates_game_frame = frame_id == 0;
+                frame_id = game_state_frame_id;
+
+                std::string game_state;
+                game_state.resize(read_message.body_length() - sizeof(int));
+                std::memcpy(game_state.data(), read_message.body() + sizeof(int), game_state.size());
+
+                set_game_state(game_state);
+
+                if (need_state_simulates_game_frame) {
+                    std::cout << "Starting first game frame..." << std::endl;
+                    // мы еще ни разу не играли, так как сервер не отправил нам первое игровое состояние
+                    simulate_game_frame();
+                }
+            } else {
+                std::cout << "old frame :_(" << std::endl;
+            }
+        } else if (read_message.message_type() == GameMessage::CHAT_MESSAGE) {
+            int sender_client_id = -1;
+            std::memcpy(&sender_client_id, read_message.body(), sizeof(int));
+
+            std::string chat_message;
+            chat_message.resize(read_message.body_length() - sizeof(int));
+            std::memcpy(chat_message.data(), read_message.body() + sizeof(int), chat_message.size());
+            ChatMessages.insert(ChatMessages.begin(), {sender_client_id, chat_message, 0});
+
+        } else if (read_message.message_type() == GameMessage::SOUNDS) {
+            int size = read_message.body_length();
+            for (int i = 0; i < size; i++) {
+                Audio::sound_type type =
+                    *reinterpret_cast<Audio::sound_type *>(read_message.body() + i * sizeof(uint8_t));
+                audio_variables::Sounds[type].play();
+            }
+        } else if(read_message.message_type() == GameMessage::NEW_LEVEL){
+
+            // нужно перенестись в новую комнату
+            if (test_room.room_name == "0-lobby-level") {
+                test_room.read("1-forest-level.txt");
+            } else if (test_room.room_name == "1-forest-level") {
+                test_room.read("2-dungeon-level.txt");
+            } else {
+            }
+        }
     }
 
     //----------------------------------------------------------------
@@ -310,6 +342,10 @@ private:
 int main() {
     SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
+#ifdef AUDIERE
+    audiere::AudioDevicePtr device = audiere::OpenDevice();
+#endif
+
     // initialize
     {
         std::cout << "performance_frequency: " << get_performance_frequency() << std::endl;
@@ -318,9 +354,12 @@ int main() {
         ShowCursor(global_variables::show_cursor);
 
         read_sprites();
+#ifdef AUDIERE
+        Audio::init_audio(device);
+#endif
         read_spritesheets();
 
-        test_room.read("level.txt");
+        test_room.read("0-lobby-level.txt");
     }
 
     WindowHandler window_handler;

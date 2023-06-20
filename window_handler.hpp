@@ -119,8 +119,8 @@ public:
             window_class.style = CS_HREDRAW | CS_VREDRAW;
             window_class.lpszClassName = GAME_ENGINE_MY_LPCSTR("Game Window Class");
             window_class.lpfnWndProc = window_callback;
-            //window_class.hIcon = static_cast<HICON>(
-            //    LoadImage(nullptr, GAME_ENGINE_MY_LPCSTR("apple.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE)
+            // window_class.hIcon = static_cast<HICON>(
+            //     LoadImage(nullptr, GAME_ENGINE_MY_LPCSTR("apple.ico"), IMAGE_ICON, 0, 0, LR_LOADFROMFILE)
             //);
 
             window_class.cbClsExtra = 0;
