@@ -39,6 +39,7 @@ int main() {
     Typer typer;
 
     while (global_variables::running) {
+
         auto &player = game_variables::Players[0];
 
         audio_variables::SoundsQueue.clear();  // почистим очередь звуков
