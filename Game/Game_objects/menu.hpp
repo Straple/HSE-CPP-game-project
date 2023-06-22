@@ -34,7 +34,8 @@ struct Panel {
         collision.p1.x = pos_.x + size * len - size + (0 ? -(size * len) * .5f : 0);
         collision.p1.y = pos_.y - size * 6 - size;
     }
-    void draw() {
+    void draw(Cursor& cursor) {
+        update_focus(cursor);
         draw_text(text.c_str(), pos, size, (focus) ? focus_color : color);
         if (/*�� ���� ��� debug ����� ���*/false) {
             draw_rect(collision.p0, Dot(0.5, 0.5), Color(0xff00ff00));
@@ -58,16 +59,16 @@ struct Panel {
         if (focus && (PRESSED(BUTTON_MOUSE_L))) {
             function();
         }
-        draw();
+
     }
 };
 
 struct Menu {
     std::vector<Panel> panels;
     Menu(std::vector<Panel> panels_):panels(std::move(panels_)){}
-    void draw() {
+    void draw(Cursor& cursor) {
         for (auto panel : panels) {
-            panel.draw();
+            panel.draw(cursor);
         }
     }
     void simulate(Cursor& cursor,const Input&input) {

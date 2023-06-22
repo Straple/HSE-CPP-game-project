@@ -131,17 +131,17 @@ void simulate_game_mode(
         break;
     }
     case(GM_MAIN_MENU): {
-        clear_screen(Color(0xff4C4C4C));
+        //clear_screen(Color(0xff4C4C4C));
         main_menu.simulate(window_handler.cursor, input);
-        window_handler.cursor.draw();
+        //window_handler.cursor.draw();
 
         break;
     }
     case (GM_PAUSE_MENU): {
-        window_handler.draw_frame(delta_time, 0);
-        clear_screen(Color(0xbf4C4C4C));
+        //window_handler.draw_frame(delta_time, 0);
+        //clear_screen(Color(0xbf4C4C4C));
         in_game_menu.simulate(window_handler.cursor,input);
-        window_handler.cursor.draw();
+        //window_handler.cursor.draw();
         if (PRESSED(BUTTON_ESC)) {
             game_mode = GM_GAME;
         }
@@ -149,10 +149,7 @@ void simulate_game_mode(
         break;
     }
     case(GM_SETTINGS_MENU): {
-        window_handler.draw_frame(delta_time, 0);
-        clear_screen(Color(0xbf4C4C4C));
         settings_menu.simulate(window_handler.cursor, input);
-        window_handler.cursor.draw();
         if (PRESSED(BUTTON_ESC)) {
             game_mode = GM_PAUSE_MENU;
         }
@@ -307,15 +304,13 @@ void draw_game_mode(
         draw_text_align("use W,A,S,D to walk and SPACE to jump", Dot(0, -50), 0.5, GREEN);
         break;
     }
-                          /*case(GM_PAUSE_MENU): {
-
-                              window_handler.draw_frame(delta_time, 0);
-                              clear_screen(Color(0x9f4C4C4C));
-                              in_game_menu.draw();
-                              window_handler.cursor.draw();
-
-                              break;
-                          }*/
+    case(GM_PAUSE_MENU): {
+        window_handler.draw_frame(delta_time, 0);
+        clear_screen(Color(0x9f4C4C4C));
+        in_game_menu.draw(window_handler.cursor);
+        window_handler.cursor.draw();
+        break;
+    }
     case(GM_MULTIPLAYER_MENU): {
 
         draw_rect2(
@@ -324,6 +319,24 @@ void draw_game_mode(
         if (now_is_typing) {
             draw_text(typer.text.c_str(), -global_variables::arena_half_size + Dot(52, 78), 1, WHITE);
         }
+        window_handler.cursor.draw();
+        break;
+    }case(GM_MAIN_MENU): {
+        clear_screen(Color(0xff4C4C4C));
+        main_menu.draw(window_handler.cursor);
+        window_handler.cursor.draw();
+        break;
+    }
+    case(GM_MAIN_MENU_SETTINGS): {
+        clear_screen(Color(0xff4C4C4C));
+        settings_menu_in_main.draw(window_handler.cursor);
+        window_handler.cursor.draw();
+        break;
+    }
+    case(GM_SETTINGS_MENU): {
+        window_handler.draw_frame(delta_time, client_id);
+        clear_screen(Color(0x9f4C4C4C));
+        settings_menu.draw(window_handler.cursor);
         window_handler.cursor.draw();
         break;
     }
