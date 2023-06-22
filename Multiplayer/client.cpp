@@ -100,6 +100,7 @@ public:
         } else if (game_mode == GM_CUSTOMIZATION) {
             // никаких нажатий нет
         } else if (game_mode == GM_PAUSE_MENU) {
+        } else if (game_mode == GM_SETTINGS_MENU) {
         } else {
             throw std::runtime_error("out of multiplayer");
             // ASSERT(false, "game_mode = ?");

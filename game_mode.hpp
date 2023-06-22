@@ -62,7 +62,7 @@ void simulate_game_mode(
             if (now_is_typing) {
                 typer.simulate(input, delta_time);
                 // ограничить размером окошка
-                while (text_len_in_pixels(typer.text.c_str()) > 150) {
+                while (!typer.text.empty() && text_len_in_pixels(typer.text.c_str()) > 150) {
                     typer.text.pop_back();
                 }
             }
@@ -160,7 +160,7 @@ void simulate_game_mode(
             if (now_is_typing) {
                 typer.simulate(input, delta_time);
                 // ограничить размером окошка
-                while (text_len_in_pixels(typer.text.c_str()) > 150) {
+                while (!typer.text.empty() && text_len_in_pixels(typer.text.c_str()) > 150) {
                     typer.text.pop_back();
                 }
             }
@@ -288,25 +288,21 @@ void draw_game_mode(
         }
         case (GM_PAUSE_MENU): {
             window_handler.draw_frame(delta_time, client_id);
-            clear_screen(Color(0xbf4C4C4C));
+            clear_screen(Color(0x9f4C4C4C));
+            in_game_menu.draw(window_handler.cursor);
             window_handler.cursor.draw();
+            break;
         }
         case (GM_MULTIPLAYER_MENU): {
-
             clear_screen(Color(0xff4C4C4C));
-
-            /*draw_rect2(
-                -global_variables::arena_half_size + Dot(90, 80), -global_variables::arena_half_size + Dot(170, 70),
-                BLACK
-            );
-
             draw_rect2(
                 -global_variables::arena_half_size + Dot(50, 80), -global_variables::arena_half_size + Dot(200, 70),
                 BLACK
-            );*/
-            //if (now_is_typing) {
-                draw_text(typer.text.c_str(), -global_variables::arena_half_size + Dot(52, 78), 1, WHITE);
+            );
+            // if (now_is_typing) {
+            draw_text(typer.text.c_str(), -global_variables::arena_half_size + Dot(52, 78), 1, WHITE);
             //}
+            multiplayer_menu.draw(window_handler.cursor);
             window_handler.cursor.draw();
             break;
         }

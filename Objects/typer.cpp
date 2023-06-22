@@ -21,6 +21,8 @@ void Typer::simulate(const Input &input, efloat delta_time) {
             button_hold_time[button] = 0;                         \
             text += (shift_is_down) ? with_shift : without_shift; \
         }                                                         \
+    } else if (RELEASED(button)) {                                \
+        button_hold_time[button] = 0;                             \
     }
 
     // TODO: можно использовать макро циклы для еще более сжатого кода
@@ -86,7 +88,7 @@ void Typer::simulate(const Input &input, efloat delta_time) {
         text.pop_back();
     } else if (IS_DOWN(BUTTON_BACKSPACE)) {
         button_hold_time[BUTTON_BACKSPACE] += delta_time;
-        if (button_hold_time[BUTTON_BACKSPACE] >= 0.25) {
+        if (button_hold_time[BUTTON_BACKSPACE] >= 0.25 && !text.empty()) {
             button_hold_time[BUTTON_BACKSPACE] = 0;
             text.pop_back();
         }

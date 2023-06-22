@@ -29,11 +29,11 @@ int main() {
 #endif
 
         // создадим персонажа
-        game_variables::Players.emplace_back(Dot(25, -100));
-        game_variables::Players.back().client_id = 0;
+        //game_variables::Players.emplace_back(Dot(25, -100));
+        //game_variables::Players.back().client_id = 0;
 
-        //test_room.read("0-lobby-level.txt");
-        test_room.read("1-forest-level.txt");
+        // test_room.read("0-lobby-level.txt");
+        // test_room.read("1-forest-level.txt");
     }
     Audio::play_music(Audio::MT_gameplay);
     WindowHandler window_handler;
@@ -64,8 +64,8 @@ int main() {
         if (game_mode == GM_MULTIPLAYER) {
             game_mode = GM_GAME;
 
-            //test_room.read("0-lobby-level.txt");
-            test_room.read("1-forest-level.txt");
+            test_room.read("0-lobby-level.txt");
+            // test_room.read("1-forest-level.txt");
 
             std::cout << "connecting to server" << std::endl;
             run_client(window_handler, server_address);

@@ -3,12 +3,15 @@
 enum game_mode_t {
     GM_GAME,
     GM_CUSTOMIZATION,
+
     GM_MAIN_MENU,
+    GM_MAIN_MENU_SETTINGS,
+
     GM_PAUSE_MENU,
     GM_SETTINGS_MENU,
+
     GM_MULTIPLAYER,
     GM_MULTIPLAYER_MENU,
-    GM_MAIN_MENU_SETTINGS,
 };
 
 game_mode_t game_mode = GM_MAIN_MENU;
