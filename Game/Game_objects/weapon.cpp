@@ -1,6 +1,7 @@
 #include "weapon.hpp"
 //
 #include "game_variables.hpp"
+#include "../../Audio/audio.hpp"
 
 
 Weapon::Weapon(Dot p, weapon_t t, efloat cooldown, int damage) : AbstractObject(p), type(t), cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
@@ -26,19 +27,15 @@ void Weapon::shot(BulletHostType bullet_host) {
     switch(type) {
         case GOLDEN_GUN:
             GoldenGun_shot(bullet_host);
-            game_variables::Sounds[ST_golden_gun_shot].play();
             break;
         case STAFF:
             Staff_shot();
-            game_variables::Sounds[ST_staff_spell].play();
             break;
         case RIFLE:
             Rifle_shot(bullet_host);
-            game_variables::Sounds[ST_rifle_shot].play();
             break;
         case SNIPER_RIFLE:
             Sniper_shot(bullet_host);
-            game_variables::Sounds[ST_sniper_shot].play();
             break;
     }
 }
@@ -71,6 +68,8 @@ void Weapon::GoldenGun_shot(BulletHostType bullet_host) {
     if (!may_shot()) {
         return;
     }
+    Audio::play_sound(Audio::ST_golden_gun_shot);
+
     cooldown_accum = 0;
 //    Dot shooting_pos = pos;
     // pos+=dulo;
@@ -172,6 +171,7 @@ void Weapon::Staff_shot() {
     if (!may_shot()) {
         return;
     }
+    Audio::play_sound(Audio::ST_staff_spell);
     add_flower_dome_effect(target);
 }
 
@@ -245,6 +245,8 @@ void Weapon::Rifle_shot(BulletHostType bullet_host) {
     if (!may_shot()) {
         return;
     }
+    Audio::play_sound(Audio::ST_rifle_shot);
+
     cooldown_accum = 0;
 
     Dot dir = target - (pos+dulo);
@@ -322,6 +324,8 @@ void Weapon::Sniper_shot(BulletHostType bullet_host) {
     if (!may_shot()) {
         return;
     }
+    Audio::play_sound(Audio::ST_sniper_shot);
+
     cooldown_accum = 0;
     Dot dir = target - (pos+dulo);
     dir = dir.normalize();
