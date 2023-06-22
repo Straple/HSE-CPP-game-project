@@ -39,6 +39,7 @@ Player::Player(const Dot &position) {
 
 void Player::die() {
     hp = 0;
+    drop_weapon();
     set_invulnerable();
     add_death_effect(pos);
     // Сразу сделаем методом, чтобы сюда занести анимации и тд

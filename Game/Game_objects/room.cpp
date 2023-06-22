@@ -128,6 +128,7 @@ std::vector<std::pair<Dot, object_type>> Room::read(const std::string &filename)
         game_variables::NunStatues.clear();
         game_variables::Knights.clear();
         game_variables::Barrels.clear();
+        game_variables::Bullets.clear();
         ColorBoxes.clear();
 
         visitable_grid_dots_for_air_mob.clear();
@@ -328,7 +329,7 @@ void Room::simulate(efloat delta_time) {
 
     if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
         wave_cooldown_accum += delta_time;
-        if (wave_cooldown_accum > wave_cooldown) {
+        /*if (wave_cooldown_accum > wave_cooldown) {
             std::cout << "New wave!" << std::endl;
             wave_cooldown_accum = 0;
             wave_number++;
@@ -372,7 +373,7 @@ void Room::simulate(efloat delta_time) {
                     }
                 }
             }
-        }
+        }*/
 
         /*for (auto [pos, name] : Interesting_dots) {
             if (name.size() < 5 || name.substr(0, 6) != "player") {

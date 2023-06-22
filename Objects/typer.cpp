@@ -80,6 +80,7 @@ void Typer::simulate(const Input &input, efloat delta_time) {
     BUTTON_HANDLER(BUTTON_COMMA, ",", "");
     BUTTON_HANDLER(BUTTON_QUESTION_MARK, "?", "");
     BUTTON_HANDLER(BUTTON_SPACE, " ", " ");
+    BUTTON_HANDLER(BUTTON_COLON, ":", "");
 
     if (PRESSED(BUTTON_BACKSPACE) && !text.empty()) {
         text.pop_back();
