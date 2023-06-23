@@ -218,7 +218,7 @@ public:
         }
 
         // продлеваем таймер следующей симуляции
-        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(10));
+        timer_for_simulate_game.expires_at(timer_for_simulate_game.expires_at() + boost::posix_time::milliseconds(16));
         timer_for_simulate_game.async_wait(boost::bind(&GameSession::simulate_game_frame, this));
     }
 
