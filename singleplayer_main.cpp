@@ -29,8 +29,8 @@ int main() {
 #endif
 
         // создадим персонажа
-        //game_variables::Players.emplace_back(Dot(25, -100));
-        //game_variables::Players.back().client_id = 0;
+        game_variables::Players.emplace_back(Dot(25, -100));
+        game_variables::Players.back().client_id = 0;
 
         // test_room.read("0-lobby-level.txt");
         // test_room.read("1-forest-level.txt");

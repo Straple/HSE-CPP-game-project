@@ -250,8 +250,6 @@ private:
 
                 if (need_state_simulates_game_frame) {
                     std::cout << "Starting first game frame..." << std::endl;
-                    std::cout << game_variables::Players.size() << std::endl;
-                    std::cout << game_variables::Players[0].client_id << std::endl;
                     // мы еще ни разу не играли, так как сервер не отправил нам первое игровое состояние
                     simulate_game_frame();
                 }
