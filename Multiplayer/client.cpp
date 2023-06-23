@@ -346,7 +346,7 @@ void run_client(WindowHandler &window_handler, std::string ip_server) {
         boost::asio::io_context io_context;
         tcp::resolver resolver(io_context);
         //"194.87.237.93" мой сервер
-        auto endpoints = resolver.resolve("127.0.0.1", "5005");
+        auto endpoints = resolver.resolve("194.87.237.93", "5005");
         Client client(io_context, endpoints, window_handler);
         io_context.run();
     } catch (std::exception &exception) {

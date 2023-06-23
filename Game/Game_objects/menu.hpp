@@ -113,7 +113,7 @@ namespace menu_functions {
     }
 }
 static inline Menu in_game_menu(
-    std::vector{
+    std::vector<Panel>{
         Panel(Dot(-10.7,59.3),1.0,"Pause",false,Color(0xff2c2c2c)),
         Panel(Dot(-10,60),1.0,"Pause",false,Color(0xffbcbcbc)),
         Panel(Dot(-120.5,-0.5),0.6,"Continue",false,Color(0xff2c2c2c)),
@@ -127,7 +127,7 @@ static inline Menu in_game_menu(
     }
 );
 static inline Menu main_menu(
-    std::vector{
+    std::vector<Panel>{
         Panel(Dot(-26.7,59.3),1.0,"Bulletproof",false,Color(0xff2c2c2c)),
         Panel(Dot(-26,60),1.0,"Bulletproof",false,Color(0xffbcbcbc)),
         Panel(Dot(-120.5,-10),0.6,"Singleplayer",false,Color(0xff2c2c2c)),
@@ -143,7 +143,7 @@ static inline Menu main_menu(
 
 );
 static inline Menu settings_menu(
-    std::vector{
+    std::vector<Panel>{
         Panel(Dot(-26.8,59.8),1.0,"Settings",false,Color(0xff2c2c2c)),
         Panel(Dot(-26,60),1.0,"Settings",false,Color(0xffbcbcbc)),
         Panel(Dot(-14.5,19.5),0.6,"Volume",false,Color(0xff2c2c2c)),
@@ -152,7 +152,7 @@ static inline Menu settings_menu(
         Panel(Dot(-14,10),0.6,"Tut dolzhen bit polzunik",false,Color(0xffbcbcbc)),
     });
 static inline Menu settings_menu_in_main(
-    std::vector{
+    std::vector<Panel>{
         Panel(Dot(-26.8,59.8),1.0,"Settings",false,Color(0xff2c2c2c)),
         Panel(Dot(-26,60),1.0,"Settings",false,Color(0xffbcbcbc)),
         Panel(Dot(-14.5,19.5),0.6,"Volume",false,Color(0xff2c2c2c)),
@@ -163,7 +163,7 @@ static inline Menu settings_menu_in_main(
         Panel(Dot(-120,-39.5),0.5,"Exit",true,Color(0xffbcbcbc),menu_functions::multi_menu_exit_button_function)
     });
 static inline Menu multiplayer_menu(
-    std::vector{
+    std::vector<Panel>{
         Panel(Dot(-26.8,59.8),1.0,"Multiplayer",false,Color(0xff2c2c2c)),
         Panel(Dot(-26,60),1.0,"Multiplayer",false,Color(0xffbcbcbc)),
         Panel(Dot(-28.5,39.5),0.6,"Press ENTER for typing",false,Color(0xff2c2c2c)),

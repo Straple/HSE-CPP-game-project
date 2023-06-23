@@ -35,7 +35,7 @@ int main() {
         // test_room.read("0-lobby-level.txt");
         // test_room.read("1-forest-level.txt");
     }
-    Audio::play_music(Audio::MT_gameplay);
+    // Audio::play_music(Audio::MT_gameplay);
     WindowHandler window_handler;
 
     uint64_t time_tick_global_start = get_ticks();

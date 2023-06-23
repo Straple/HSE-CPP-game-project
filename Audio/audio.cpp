@@ -2,7 +2,7 @@
 #include "../utils.hpp"
 
 namespace Audio {
-efloat global_volume = 1, sound_volume = 80, music_volume = 1, UI_volume;
+efloat global_volume = 1, sound_volume = 1, music_volume = 0.3, UI_volume;
 
 void sound::play() {
 #ifdef AUDIERE
