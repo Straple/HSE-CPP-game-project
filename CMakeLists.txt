@@ -12,17 +12,17 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_library(SOURCES OBJECT
 
-utils.cpp
-sprites.cpp
+        utils.cpp
+        sprites.cpp
 
-    # OBJECTS
-    Objects/render_state.cpp
-    Objects/collision.cpp
-    Objects/time.cpp
-    Objects/platform_common.cpp
-    Objects/move.cpp
-    Objects/camera.cpp
-    Objects/typer.cpp
+        # OBJECTS
+        Objects/render_state.cpp
+        Objects/collision.cpp
+        Objects/time.cpp
+        Objects/platform_common.cpp
+        Objects/move.cpp
+        Objects/camera.cpp
+        Objects/typer.cpp
         # GEOMETRY
         Objects/Geometry/dot.cpp
         Objects/Geometry/circle.cpp
@@ -31,41 +31,41 @@ sprites.cpp
         Objects/Sprite/png.cpp
         Objects/Sprite/color.cpp
         Objects/Sprite/sprite_object.cpp
-    # RENDER
-    Render/render_utils.cpp
-    Render/basic_render.cpp
-    Render/render_geometry.cpp
-    Render/render_text.cpp
-    Render/render_sprite.cpp
-    Render/animation.cpp
-    Render/render_object.cpp
-    # GAME OBJECTS
-    Game/Game_objects/abstract_object.cpp
-    Game/Game_objects/abstract_physical_object.cpp
-    Game/Game_objects/bullet.cpp
-    Game/Game_objects/bat.cpp
-    Game/Game_objects/bomber.cpp
-    Game/Game_objects/bush.cpp
-    Game/Game_objects/button.cpp
-    Game/Game_objects/cursor.cpp
-    Game/Game_objects/effect.cpp
-    Game/Game_objects/game_collision.cpp
-    Game/Game_objects/heart_and_coin.cpp
-    Game/Game_objects/log.cpp
-    Game/Game_objects/loot.cpp
-    Game/Game_objects/mob.cpp
-    Game/Game_objects/player.cpp
-    Game/Game_objects/room.cpp
-    Game/Game_objects/slime.cpp
-    Game/Game_objects/table.cpp
-    Game/Game_objects/tree.cpp
-    Game/Game_objects/weapon.cpp
-    Game/Game_objects/pillar.cpp
-    Game/Game_objects/nun_statue.cpp
-    Game/Game_objects/knight.cpp
-    Game/Game_objects/barrel.cpp
+        # RENDER
+        Render/render_utils.cpp
+        Render/basic_render.cpp
+        Render/render_geometry.cpp
+        Render/render_text.cpp
+        Render/render_sprite.cpp
+        Render/animation.cpp
+        Render/render_object.cpp
+        # GAME OBJECTS
+        Game/Game_objects/abstract_object.cpp
+        Game/Game_objects/abstract_physical_object.cpp
+        Game/Game_objects/bullet.cpp
+        Game/Game_objects/bat.cpp
+        Game/Game_objects/bomber.cpp
+        Game/Game_objects/bush.cpp
+        Game/Game_objects/button.cpp
+        Game/Game_objects/cursor.cpp
+        Game/Game_objects/effect.cpp
+        Game/Game_objects/game_collision.cpp
+        Game/Game_objects/heart_and_coin.cpp
+        Game/Game_objects/log.cpp
+        Game/Game_objects/loot.cpp
+        Game/Game_objects/mob.cpp
+        Game/Game_objects/player.cpp
+        Game/Game_objects/room.cpp
+        Game/Game_objects/slime.cpp
+        Game/Game_objects/table.cpp
+        Game/Game_objects/tree.cpp
+        Game/Game_objects/weapon.cpp
+        Game/Game_objects/pillar.cpp
+        Game/Game_objects/nun_statue.cpp
+        Game/Game_objects/knight.cpp
+        Game/Game_objects/barrel.cpp
 
-    Audio/audio.cpp
+        Audio/audio.cpp
         )
 
 
@@ -83,8 +83,8 @@ set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME OFF)
 
-set(BOOST_ROOT "C:/Boost")
-message("BOOST_ROOT is ${BOOST_ROOT}")
+set(BOOST_ROOT "C:/Program Files/boost/boost_1_82_0")
+#message("BOOST_ROOT is ${BOOST_ROOT}")
 
 find_package(Boost REQUIRED)
 #find_package(Boost COMPONENTS date_time regex)

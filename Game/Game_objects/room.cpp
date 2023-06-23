@@ -353,6 +353,8 @@ void Room::simulate(efloat delta_time) {
                         }
                     } else {  // enemy
                         int enemy_cnt = 1;
+                        game_variables::Slimes.emplace_back(pos);
+                        break;
                         if (randomness(std::min(100, 20 * wave_number))) {
                             enemy_cnt++;
                             if (randomness(std::min(100, 5 * wave_number))) {
