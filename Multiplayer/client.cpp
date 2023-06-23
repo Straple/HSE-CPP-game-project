@@ -1,11 +1,9 @@
-// boost
-#include <boost/asio.hpp>
-#include <boost/bind.hpp>
-using boost::asio::ip::tcp;
+
 //
 #include "../Audio/audio.hpp"
-#include "../game_mode.hpp"
+// #include "../game_mode.hpp"
 //
+#include <exception>
 #include <iostream>
 #include "game_message.hpp"
 
@@ -69,7 +67,7 @@ public:
 
     void close() {
         std::cout << "Stopping..." << std::endl;
-        global_variables::running = false;
+        // global_variables::running = false;
         io_context.stop();
         socket.close();
     }
@@ -101,8 +99,11 @@ public:
 
         } else if (game_mode == GM_CUSTOMIZATION) {
             // никаких нажатий нет
+        } else if (game_mode == GM_PAUSE_MENU) {
+        } else if (game_mode == GM_SETTINGS_MENU) {
         } else {
-            ASSERT(false, "game_mode = ?");
+            throw std::runtime_error("out of multiplayer");
+            // ASSERT(false, "game_mode = ?");
         }
 
         // запишем cursor_dir (нужен для пушки и выстрелов от игрока)
@@ -249,6 +250,8 @@ private:
 
                 if (need_state_simulates_game_frame) {
                     std::cout << "Starting first game frame..." << std::endl;
+                    std::cout << game_variables::Players.size() << std::endl;
+                    std::cout << game_variables::Players[0].client_id << std::endl;
                     // мы еще ни разу не играли, так как сервер не отправил нам первое игровое состояние
                     simulate_game_frame();
                 }
@@ -271,8 +274,7 @@ private:
                     *reinterpret_cast<Audio::sound_type *>(read_message.body() + i * sizeof(uint8_t));
                 audio_variables::Sounds[type].play();
             }
-        } else if(read_message.message_type() == GameMessage::NEW_LEVEL){
-
+        } else if (read_message.message_type() == GameMessage::NEW_LEVEL) {
             // нужно перенестись в новую комнату
             if (test_room.room_name == "0-lobby-level") {
                 test_room.read("1-forest-level.txt");
@@ -339,7 +341,21 @@ private:
 
 //----------------------------------------------------------------------
 
-int main() {
+void run_client(WindowHandler &window_handler, std::string ip_server) {
+    try {
+        boost::asio::io_context io_context;
+        tcp::resolver resolver(io_context);
+        //"194.87.237.93" мой сервер
+        auto endpoints = resolver.resolve("127.0.0.1", "5005");
+        Client client(io_context, endpoints, window_handler);
+        io_context.run();
+    } catch (std::exception &exception) {
+        std::cerr << "Exception: " << exception.what() << std::endl;
+    }
+    std::cout << "Out of run_client" << std::endl;
+}
+
+/*int main() {
     SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 
 #ifdef AUDIERE
@@ -367,7 +383,7 @@ int main() {
     try {
         boost::asio::io_context io_context;
         tcp::resolver resolver(io_context);
-        /*"194.87.237.93" мой сервер*/
+        //"194.87.237.93" мой сервер
         auto endpoints = resolver.resolve("127.0.0.1", "5005");
         Client client(io_context, endpoints, window_handler);
         io_context.run();
@@ -375,3 +391,4 @@ int main() {
         std::cerr << "Exception: " << exception.what() << "\n";
     }
 }
+*/

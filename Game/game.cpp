@@ -74,7 +74,7 @@ void draw_game(int client_id) {
     test_room.draw();
 
     // draw UI
-    {
+    /*{
         int index = find_player_index(client_id);
         ASSERT(index != -1, "where this player?");
         auto &player = game_variables::Players[index];
@@ -95,5 +95,5 @@ void draw_game(int client_id) {
                 0.5, SP_COIN
             );
         }
-    }
+    }*/
 }

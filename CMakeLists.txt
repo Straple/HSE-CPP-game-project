@@ -68,15 +68,15 @@ add_library(SOURCES OBJECT
         Audio/audio.cpp
         )
 
-
-add_executable(singleplayer singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)
+#add_executable(singleplayer singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)
+add_executable(game singleplayer_main.cpp $<TARGET_OBJECTS:SOURCES>)
 add_executable(levelmaker level_maker_main.cpp $<TARGET_OBJECTS:SOURCES>)
 
 find_library(AUDIERE_LIB audiere Audio)
 find_path(LIB_INCLUDES audiere.h Audio)
 include_directories(${LIB_INCLUDES})
 
-target_link_libraries(singleplayer ${AUDIERE_LIB})
+target_link_libraries(game ${AUDIERE_LIB})
 target_link_libraries(levelmaker ${AUDIERE_LIB})
 
 set(Boost_USE_STATIC_LIBS ON)
@@ -92,13 +92,13 @@ find_package(Boost REQUIRED)
 IF (Boost_FOUND)
     include_directories(${Boost_INCLUDE_DIRS})
 
-    add_executable(client Multiplayer/client_main.cpp $<TARGET_OBJECTS:SOURCES>)
-    target_link_libraries(client ${Boost_LIBRARIES})
+    #add_executable(client Multiplayer/client.cpp $<TARGET_OBJECTS:SOURCES>)
+    target_link_libraries(game ${Boost_LIBRARIES})
 
     add_executable(server Multiplayer/server_main.cpp $<TARGET_OBJECTS:SOURCES>)
     target_link_libraries(server ${Boost_LIBRARIES})
 
     # add audiere
-    target_link_libraries(client ${LIB_TO_INCLUDE})
+    target_link_libraries(game ${LIB_TO_INCLUDE})
     target_link_libraries(server ${LIB_TO_INCLUDE})
 ENDIF ()

@@ -588,6 +588,14 @@ const char* symbols[][7] = {
     "",
     "",
     "00000",
+
+    "", // :
+    "  0  ",
+    "",
+    "",
+    "",
+    "  0  ",
+    "",
 };
 const char* unused_character[7] = {
     "00000",
@@ -637,6 +645,9 @@ const char **get_symbol(char symbol) {
             }
             case '_': {
                 return symbols[9];
+            }
+            case ':': {
+                return symbols[10];
             }
             default: {
                 return unused_character;

@@ -1,8 +1,7 @@
 #include "weapon.hpp"
 //
-#include "../../Audio/audio.hpp"
 #include "game_variables.hpp"
-
+#include "../../Audio/audio.hpp"
 
 
 Weapon::Weapon(Dot p, weapon_t t, efloat cooldown, int damage) : AbstractObject(p), type(t), cooldown(cooldown), cooldown_accum(cooldown), damage(damage) {
@@ -246,7 +245,9 @@ void Weapon::Rifle_shot(BulletHostType bullet_host) {
         return;
     }
     Audio::play_sound(Audio::ST_rifle_shot);
+
     cooldown_accum = 0;
+
     Dot dir = target - (pos+dulo);
     dir = dir.normalize();
     dir += Circle(Dot(), 0.1).get_random_dot();

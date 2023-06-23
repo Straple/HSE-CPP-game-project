@@ -1,8 +1,16 @@
+// boost
+#include <boost/asio.hpp>
+#include <boost/bind.hpp>
+using boost::asio::ip::tcp;
+
 #include "Audio/audio.hpp"
 #include "game_mode.hpp"
+//
+#include "Multiplayer/client.cpp"
 
 int main() {
-    setlocale(LC_ALL, "ru-RU");
+    // setlocale(LC_ALL, "ru-RU");
+    SetThreadUILanguage(MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US));
 #ifdef AUDIERE
     audiere::AudioDevicePtr device = audiere::OpenDevice();
 #endif
@@ -21,10 +29,11 @@ int main() {
 #endif
 
         // создадим персонажа
-        game_variables::Players.emplace_back(Dot(25, -100));
-        game_variables::Players.back().client_id = 0;
+        //game_variables::Players.emplace_back(Dot(25, -100));
+        //game_variables::Players.back().client_id = 0;
 
-        test_room.read("0-lobby-level.txt");
+        // test_room.read("0-lobby-level.txt");
+        // test_room.read("1-forest-level.txt");
     }
     Audio::play_music(Audio::MT_gameplay);
     WindowHandler window_handler;
@@ -52,6 +61,18 @@ int main() {
 
         draw_game_mode(delta_time, 0, customization_player, window_handler, typer);
 
+        if (game_mode == GM_MULTIPLAYER) {
+            game_mode = GM_GAME;
+
+            test_room.read("0-lobby-level.txt");
+            // test_room.read("1-forest-level.txt");
+
+            std::cout << "connecting to server" << std::endl;
+            run_client(window_handler, server_address);
+
+            game_mode = GM_MAIN_MENU;
+        }
+
         if (test_room.wave_number == 2) {
             std::cout << "New level!" << std::endl;
             // нужно перенестись в новую комнату
@@ -60,7 +81,6 @@ int main() {
             } else if (test_room.room_name == "1-forest-level") {
                 test_room.read("2-dungeon-level.txt");
             } else {
-
             }
         }
 
