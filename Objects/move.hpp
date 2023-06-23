@@ -60,7 +60,7 @@ Dot get_direction(direction_t dir);
 
 // TODO: закинуть все, что ниже, в другой файл
 
-Dot& get_ref_grid_start();
+Dot &get_ref_grid_start();
 
 constexpr efloat step_size = 5;
 
@@ -170,8 +170,8 @@ template <typename visitable_t, typename suitable_t>
 bool get_direction_to_shortest_path_Astar(
     const Dot &from,
     const Dot &to,
-    Dot* path,
-    size_t* path_size,
+    Dot *path,
+    size_t &path_size,
     visitable_t visitable,
     suitable_t suitable
     //,std::vector<Dot> &shortest_path,
@@ -214,8 +214,7 @@ bool get_direction_to_shortest_path_Astar(
         auto [heuristic, grid_pos] = queue.top();
         queue.pop();
 
-
-        if(queue.size() > 100){
+        if (queue.size() > 100) {
             break;
         }
 
@@ -246,24 +245,25 @@ bool get_direction_to_shortest_path_Astar(
     }
     if (find_answer) {
         // пока предыдущая точка не является стартовой
-        std::queue<grid_pos_t>q;
+        std::vector<Dot> shortest_path;
         while (find(starting_points.begin(), starting_points.end(), previous[answer_pos]) == starting_points.end()) {
-            // shortest_path.push_back(cast_grid_coord_to_game_coord(answer_pos));
+            shortest_path.push_back(cast_grid_coord_to_game_coord(answer_pos));
             answer_pos = previous[answer_pos];
-            if (q.size() >= 4) {
-                q.pop();
-            }
-            q.push(answer_pos);
         }
 
-        // shortest_path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
-        // reverse(shortest_path.begin(), shortest_path.end());
-        *path_size = q.size();
+        shortest_path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
+        reverse(shortest_path.begin(), shortest_path.end());
+
+        path_size = std::min(4, static_cast<int>(shortest_path.size()));
+        for (int i = 0; i < path_size; i++) {
+            path[i] = shortest_path[i];
+        }
+
+        /**path_size = q.size();
         for (int i = q.size()-1; i >= 0; i--) {
             path[i] = (cast_grid_coord_to_game_coord(q.front()) - from);
             q.pop();
-        }
-
+        }*/
     }
     // for (auto [grid_pos, d] : dist) {
     //     grid.push_back(cast_grid_coord_to_game_coord(grid_pos));
@@ -275,14 +275,14 @@ template <typename visitable_t, typename suitable_t>
 bool get_direction_to_shortest_path(
     const Dot &from,
     const Dot &to,
-    Dot* path,
-    size_t* sz,
+    Dot *path,
+    size_t &path_size,
     visitable_t visitable,
     suitable_t suitable
     //,std::vector<Dot> &shortest_path,
     // std::vector<Dot> &grid
 ) {
-    return get_direction_to_shortest_path_Astar(from, to, path, sz, visitable, suitable);
+    return get_direction_to_shortest_path_Astar(from, to, path, path_size, visitable, suitable);
 }
 
 #endif  // GAME_ENGINE_MOVE_HPP

@@ -329,7 +329,7 @@ void Room::simulate(efloat delta_time) {
 
     if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
         wave_cooldown_accum += delta_time;
-        /*if (wave_cooldown_accum > wave_cooldown) {
+        if (wave_cooldown_accum > wave_cooldown) {
             std::cout << "New wave!" << std::endl;
             wave_cooldown_accum = 0;
             wave_number++;
@@ -375,7 +375,7 @@ void Room::simulate(efloat delta_time) {
                     }
                 }
             }
-        }*/
+        }
 
         /*for (auto [pos, name] : Interesting_dots) {
             if (name.size() < 5 || name.substr(0, 6) != "player") {
