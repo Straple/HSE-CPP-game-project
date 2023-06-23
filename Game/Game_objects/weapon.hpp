@@ -17,6 +17,7 @@ struct Weapon : AbstractObject {
     int damage;
     Dot dulo;
     Dot hand;
+    int ind;
     bool is_picked = false;
     Dot target;
     Dot delta;
@@ -34,15 +35,19 @@ struct Weapon : AbstractObject {
 
     void draw() override;
 
+    void GoldenGun_simulate();
     void GoldenGun_draw();
     void GoldenGun_shot(BulletHostType bullet_host);
 
+    void Staff_simulate();
     void Staff_draw();
     void Staff_shot();
 
+    void Rifle_simulate();
     void Rifle_draw();
     void Rifle_shot(BulletHostType bullet_host);
 
+    void Sniper_simulate();
     void Sniper_draw();
     void Sniper_shot(BulletHostType bullet_host);
 };

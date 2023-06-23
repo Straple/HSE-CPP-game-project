@@ -27,7 +27,7 @@ void simulate_player(efloat delta_time, Player &player) {
         }
         if (picked_ind != -1) {
             player.drop_weapon();
-            player.pick_weapon(picked_ind);
+            player.pick_weapon(picked_ind, delta_time);
         }
     }
 

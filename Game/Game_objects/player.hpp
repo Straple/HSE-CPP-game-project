@@ -149,7 +149,7 @@ struct Player : AbstractPhysicalObject {
 
     void drop_weapon();
 
-    void pick_weapon(int wp_ind);
+    void pick_weapon(int wp_ind, efloat delta_time);
 
     // возвращает направление анимации игрока
     [[nodiscard]] Dot get_dir() const;

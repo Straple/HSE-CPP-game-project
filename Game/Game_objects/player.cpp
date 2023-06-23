@@ -59,9 +59,10 @@ void Player::drop_weapon() {
     }
 }
 
-void Player::pick_weapon(int wp_ind) {
+void Player::pick_weapon(int wp_ind, efloat delta_time) {
     game_variables::Weapons[wp_ind].is_picked = true;
     weapon_ind = wp_ind;
+    game_variables::Weapons[wp_ind].simulate(delta_time);
 //    game_variables::Weapons[wp_ind].cooldown=0;
 }
 
@@ -81,6 +82,7 @@ void Player::simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
     if (weapon_ind != -1) {
         game_variables::Weapons[weapon_ind].target = cursor_dir + pos;
         game_variables::Weapons[weapon_ind].pos = pos;
+        game_variables::Weapons[weapon_ind].simulate(delta_time);
     }
     if (is_paralyzed) {
         // игрока ест слайм
@@ -114,9 +116,6 @@ void Player::simulate(efloat delta_time, Dot ddp, bool pressed_jump) {
     } else {
         if (!is_dead()) {
             invulnerable_accum -= delta_time;
-            if (weapon_ind != -1) {
-                game_variables::Weapons[weapon_ind].simulate(delta_time);
-            }
         }
 
         // simulate move
