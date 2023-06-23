@@ -4,7 +4,7 @@
 #include <vector>
 #include "../Objects/Geometry/geometry_utils.hpp"
 
-#define AUDIERE
+//#define AUDIERE
 
 #ifdef AUDIERE
 #include "audiere.h"
