@@ -15,7 +15,6 @@ public:
 
     efloat paralyzed_accum = 0;
 
-    Dot move_dir_to_target;
     Dot path_prefix[5];
     size_t path_size=0;
     int target_client_id = -1;

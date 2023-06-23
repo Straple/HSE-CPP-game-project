@@ -3,62 +3,49 @@
 #include "game_variables.hpp"
 
 void Mob::update_move_dir(efloat delta_time, Dot player_pos, const std::set<grid_pos_t> &visitable_grid_dots) {
-//    update_move_dir_accum -= delta_time;
-//    if (update_move_dir_accum <= 0) {
-//        if (randomness(50)) {
-//            update_move_dir_accum = 0.15;
-//        } else {
-//            update_move_dir_accum = 0.1;
-//        }
-        simulate_move_to_player(player_pos, visitable_grid_dots, delta_time);
-//    }
+    //    update_move_dir_accum -= delta_time;
+    //    if (update_move_dir_accum <= 0) {
+    //        if (randomness(50)) {
+    //            update_move_dir_accum = 0.15;
+    //        } else {
+    //            update_move_dir_accum = 0.1;
+    //        }
+    simulate_move_to_player(player_pos, visitable_grid_dots, delta_time);
+    //    }
 }
 
 void Mob::simulate_move_to_player(Dot player_pos, const std::set<grid_pos_t> &visitable_grid_dots, efloat delta_time) {
     // чтобы моб был поверх игрока, а не под ним
     Dot to = player_pos - Dot(0, 0.1);
-    if ((pos - to).get_len() < 20) {
+    if ((pos - to).get_len() < 30) {
         // мы очень близко. можем дойти и так
-        move_dir_to_target = (to - pos).normalize();
         path_size = 0;
+
+        simulate_move_to2d(pos, to, dp, (to - pos).normalize() * 400, delta_time);
     } else {
-        std::vector<Dot>path;
-        //идем по пути, если он сохранен
+        // идем по пути, если он сохранен
+        std::vector<Dot> path;
         if (path_size != 0) {
-            simulate_move_to2d(pos, path_prefix[0], dp, (path_prefix[0]-pos).normalize()*100, delta_time);
+            Dot save_dp = dp;
+            simulate_move_to2d(pos, path_prefix[0], dp, (path_prefix[0] - pos).normalize() * 400, delta_time);
             if (pos == path_prefix[0]) {
-                for (int i = 0; i < path_size-1; i++) {
-                    path_prefix[i] = path_prefix[i+1];
+                dp = save_dp;
+                for (int i = 0; i < path_size - 1; i++) {
+                    path_prefix[i] = path_prefix[i + 1];
                 }
                 path_size--;
             }
-//            std::cout << (pos-path_prefix[path_it-1]).get_len() << std::endl;
-//            if ((pos-path_prefix[path_it-1]).get_len() < 20) {
-//                std::cout << path_it << ' ' << path_size << std::endl;
-//                if (path_it < path_size) {
-//                    move_dir_to_target = path_prefix[path_it].normalize();
-//                    path_it++;
-//                    return;
-//                } else {
-//                    path_size = 0;
-//                    path_it = 0;
-//                }
-//            }
-//            else return;
-        }
-        else if (!get_direction_to_shortest_path(
-                pos, to, path,
-                [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
-                [&](const Dot &request) { return (to - request).get_len() < 15; }
-            )) {
-            move_dir_to_target = (to - pos).normalize();
-        }
-        else {
+        } else if (!get_direction_to_shortest_path(
+                       pos, to, path,
+                       [&](const grid_pos_t &request) { return visitable_grid_dots.count(request); },
+                       [&](const Dot &request) { return (to - request).get_len() < 15; }
+                   )) {
+            simulate_move_to2d(pos, to, dp, (to - pos).normalize() * 400, delta_time);
+        } else {
             path_size = std::min(4, static_cast<int>(path.size()));
             for (int i = 0; i < path_size; i++) {
                 path_prefix[i] = path[i];
             }
-            move_dir_to_target = path_prefix[0].normalize();
         }
         /*std::vector<grid_pos_t> optional = build_optional_grid_dots(pos);
         bool have_visitable_dot_near = false;

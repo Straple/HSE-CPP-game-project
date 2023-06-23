@@ -179,7 +179,9 @@ void Slime::draw()  {
     draw_collision(*this);
     draw_hitbox(*this);
     draw_hp(*this);
-    for (int i = 0; i < path_size; i++) {
+    /*for (int i = 0; i < path_size; i++) {
         draw_rect(path_prefix[i]-global_variables::camera.pos, Dot(0.5,0.5), GREEN);
     }
+
+    draw_object(dp, Dot(), 1, RED);*/
 }

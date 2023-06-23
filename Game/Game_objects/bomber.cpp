@@ -47,7 +47,7 @@ void Bomber::simulate(const efloat delta_time, const std::set<grid_pos_t> &visit
 
         update_move_dir(delta_time, player.pos, visitable_grid_dots);
         // move_dir уже нормализован в get_direction_to_shortest_path
-        simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
+        // simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
         if (
             // игрока никто не ест

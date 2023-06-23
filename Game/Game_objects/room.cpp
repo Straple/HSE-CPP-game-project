@@ -78,6 +78,26 @@ void Room::build_grid() {
                     }
                 }
 
+                for (const auto &tree : game_variables::Trees) {
+                    if (tree.get_collision()->trigger(*slime_tester.get_collision())) {
+                        is_visitable = false;
+                        break;
+                    }
+                }
+
+                for (const auto &pillar : game_variables::Pillars) {
+                    if (pillar.get_collision()->trigger(*slime_tester.get_collision())) {
+                        is_visitable = false;
+                        break;
+                    }
+                }
+                for (const auto &statue : game_variables::NunStatues) {
+                    if (statue.get_collision()->trigger(*slime_tester.get_collision())) {
+                        is_visitable = false;
+                        break;
+                    }
+                }
+
                 if (is_visitable) {
                     queue.push(grid_neighbour);
                     visitable_grid_dots_for_air_mob.insert(grid_neighbour);
@@ -97,24 +117,6 @@ void Room::build_grid() {
 
         for (const auto &bush : game_variables::Bushes) {
             if (bush.get_collision()->trigger(*slime_tester.get_collision())) {
-                is_visitable = false;
-                break;
-            }
-        }
-        for (const auto &tree : game_variables::Trees) {
-            if (tree.get_collision()->trigger(*slime_tester.get_collision())) {
-                is_visitable = false;
-                break;
-            }
-        }
-        for (const auto &pillar : game_variables::Pillars) {
-            if (pillar.get_collision()->trigger(*slime_tester.get_collision())) {
-                is_visitable = false;
-                break;
-            }
-        }
-        for (const auto &statue : game_variables::NunStatues) {
-            if (statue.get_collision()->trigger(*slime_tester.get_collision())) {
                 is_visitable = false;
                 break;
             }
@@ -366,24 +368,22 @@ void Room::simulate(efloat delta_time) {
                         }
                     } else {  // enemy
                         int enemy_cnt = 1;
-                        game_variables::Slimes.emplace_back(pos);
-                        break;
-//                        if (randomness(std::min(100, 20 * wave_number))) {
-//                            enemy_cnt++;
-//                            if (randomness(std::min(100, 5 * wave_number))) {
-//                                enemy_cnt++;
-//                            }
-//                        }
-//
-//                        while (enemy_cnt--) {
-//                            if (randomness(40)) {
-//                                game_variables::Bombers.emplace_back(pos);
-//                            } else if (randomness(30)) {
-//                                game_variables::Bats.emplace_back(pos);
-//                            } else {
-//                                game_variables::Slimes.emplace_back(pos);
-//                            }
-//                        }
+
+                        if (randomness(std::min(100, 20 * wave_number))) {
+                            enemy_cnt++;
+                            if (randomness(std::min(100, 5 * wave_number))) {
+                                enemy_cnt++;
+                            }
+                        }
+                        while (enemy_cnt--) {
+                            if (randomness(40)) {
+                                game_variables::Bombers.emplace_back(pos);
+                            } else if (randomness(30)) {
+                                game_variables::Bats.emplace_back(pos);
+                            } else {
+                                game_variables::Slimes.emplace_back(pos);
+                            }
+                        }
                     }
                 }
             }
