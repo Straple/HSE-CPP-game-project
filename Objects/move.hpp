@@ -170,8 +170,7 @@ template <typename visitable_t, typename suitable_t>
 bool get_direction_to_shortest_path_Astar(
     const Dot &from,
     const Dot &to,
-    Dot *path,
-    size_t &path_size,
+    std::vector<Dot> &path,
     visitable_t visitable,
     suitable_t suitable
     //,std::vector<Dot> &shortest_path,
@@ -245,19 +244,14 @@ bool get_direction_to_shortest_path_Astar(
     }
     if (find_answer) {
         // пока предыдущая точка не является стартовой
-        std::vector<Dot> shortest_path;
+
         while (find(starting_points.begin(), starting_points.end(), previous[answer_pos]) == starting_points.end()) {
-            shortest_path.push_back(cast_grid_coord_to_game_coord(answer_pos));
+            path.push_back(cast_grid_coord_to_game_coord(answer_pos));
             answer_pos = previous[answer_pos];
         }
 
-        shortest_path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
-        reverse(shortest_path.begin(), shortest_path.end());
-
-        path_size = std::min(4, static_cast<int>(shortest_path.size()));
-        for (int i = 0; i < path_size; i++) {
-            path[i] = shortest_path[i];
-        }
+        path.push_back(cast_grid_coord_to_game_coord(previous[answer_pos]));
+        reverse(path.begin(), path.end());
 
         /**path_size = q.size();
         for (int i = q.size()-1; i >= 0; i--) {
@@ -275,14 +269,13 @@ template <typename visitable_t, typename suitable_t>
 bool get_direction_to_shortest_path(
     const Dot &from,
     const Dot &to,
-    Dot *path,
-    size_t &path_size,
+    std::vector<Dot>&path,
     visitable_t visitable,
     suitable_t suitable
     //,std::vector<Dot> &shortest_path,
     // std::vector<Dot> &grid
 ) {
-    return get_direction_to_shortest_path_Astar(from, to, path, path_size, visitable, suitable);
+    return get_direction_to_shortest_path_Astar(from, to, path, visitable, suitable);
 }
 
 #endif  // GAME_ENGINE_MOVE_HPP
