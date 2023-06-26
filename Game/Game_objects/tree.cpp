@@ -4,29 +4,32 @@
 #include "../../sprites.hpp"
 #include "effect.hpp"
 
-Tree::Tree(const Dot &position) { pos = position; }
+Tree::Tree(const Dot &position) {
+    pos = position;
+}
 
 [[nodiscard]] std::unique_ptr<Collision> Tree::get_collision() const {
-  return std::make_unique<CollisionCircle>(pos, collision_radius);
+    return std::make_unique<CollisionCircle>(pos, collision_radius);
 }
 
 void Tree::draw() {
-  draw_sprite(pos + Dot(-16, 6) * size, size, SP_LARGE_SHADOW);
-  draw_sprite(pos + delta_draw_pos, size, SP_TREE);
+    draw_sprite(pos + Dot(-16, 6) * size, size, SP_LARGE_SHADOW);
+    draw_sprite(pos + delta_draw_pos, size, SP_TREE);
 
-  draw_collision(*this);
-  draw_hp(*this);
+    draw_collision(*this);
+    draw_hp(*this);
 }
 
 void Tree::simulate_hit(int damage) {
-  add_hit_effect(pos + Dot(-8, 8) * size);
-  hp -= damage;
-  if (hp <= 0) {
-    add_death_effect(pos + Dot(-12, 12) * size);
-  }
+    add_hit_effect(pos + Dot(-8, 8) * size);
+    hp -= damage;
+    if (hp <= 0) {
+        add_death_effect(pos + Dot(-12, 12) * size);
+    }
 }
 
 bool Tree::trigger_in_draw_sprite(const Dot &check_pos) {
-  return collision_in_draw_sprite(pos + delta_draw_pos, size, SP_TREE,
-                                  check_pos);
+    return collision_in_draw_sprite(
+        pos + delta_draw_pos, size, SP_TREE, check_pos
+    );
 }
