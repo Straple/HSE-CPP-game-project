@@ -1,3 +1,3 @@
-﻿#include "dot.hpp"
-#include "circle.hpp"
+﻿#include "circle.hpp"
+#include "dot.hpp"
 #include "line.hpp"

@@ -4,27 +4,27 @@
 #include "loot.hpp"
 
 struct Heart : Loot {
-    ADD_BYTE_SERIALIZATION();
+  ADD_BYTE_SERIALIZATION();
 
-    Heart() = default;
+  Heart() = default;
 
-    Heart(Dot position, Dot dir);
+  Heart(Dot position, Dot dir);
 
-    bool simulate_collection() override;
+  bool simulate_collection() override;
 
-    void draw() override;
+  void draw() override;
 };
 
 struct Coin : Loot {
-    ADD_BYTE_SERIALIZATION();
+  ADD_BYTE_SERIALIZATION();
 
-    Coin() = default;
+  Coin() = default;
 
-    Coin(Dot position, Dot dir);
+  Coin(Dot position, Dot dir);
 
-    bool simulate_collection() override;
+  bool simulate_collection() override;
 
-    void draw() override;
+  void draw() override;
 };
 
-#endif  // GAME_LOOT_HEART_AND_COIN_HPP
+#endif // GAME_LOOT_HEART_AND_COIN_HPP

@@ -13,21 +13,21 @@ const efloat get_performance_frequency();
 uint64_t get_ticks();
 
 class Timer {
-    uint64_t start_tick;
+  uint64_t start_tick;
 
 public:
-    Timer();
+  Timer();
 
-    // вернет время между начальным тиком и текущим
-    [[nodiscard]] efloat get() const;
+  // вернет время между начальным тиком и текущим
+  [[nodiscard]] efloat get() const;
 
-    // обновит начальный тик
-    void reset();
+  // обновит начальный тик
+  void reset();
 
-    // вернет тик начала отсчета
-    [[nodiscard]] uint64_t get_tick() const;
+  // вернет тик начала отсчета
+  [[nodiscard]] uint64_t get_tick() const;
 };
 
 std::ostream &operator<<(std::ostream &output, const Timer &time);
 
-#endif  // GAME_ENGINE_TIME_HPP
+#endif // GAME_ENGINE_TIME_HPP

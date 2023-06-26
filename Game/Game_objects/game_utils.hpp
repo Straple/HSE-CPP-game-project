@@ -4,4 +4,4 @@
 // TODO: зачем этот файл нужен?
 // явно будет, что сюда добавить
 
-#endif  // GAME_UTILS_HPP
+#endif // GAME_UTILS_HPP

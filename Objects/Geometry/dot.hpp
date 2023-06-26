@@ -1,38 +1,38 @@
 ﻿#ifndef GAME_ENGINE_GEOMETRY_DOT_HPP
 #define GAME_ENGINE_GEOMETRY_DOT_HPP
 
-#include <iostream>
 #include "geometry_utils.hpp"
+#include <iostream>
 
 // (x, y)
 struct Dot {
-    efloat x = 0, y = 0;
+  efloat x = 0, y = 0;
 
-    Dot() = default;
+  Dot() = default;
 
-    Dot(efloat x, efloat y);
+  Dot(efloat x, efloat y);
 
-    [[nodiscard]] Dot operator-() const;
+  [[nodiscard]] Dot operator-() const;
 
-    Dot &operator+=(const Dot &p);
+  Dot &operator+=(const Dot &p);
 
-    Dot &operator-=(const Dot &p);
+  Dot &operator-=(const Dot &p);
 
-    [[nodiscard]] Dot operator*(efloat k) const;
+  [[nodiscard]] Dot operator*(efloat k) const;
 
-    Dot &operator*=(efloat k);
+  Dot &operator*=(efloat k);
 
-    [[nodiscard]] Dot operator/(efloat k) const;
+  [[nodiscard]] Dot operator/(efloat k) const;
 
-    Dot &operator/=(efloat k);
+  Dot &operator/=(efloat k);
 
-    [[nodiscard]] efloat get_quare_len() const;
+  [[nodiscard]] efloat get_quare_len() const;
 
-    // VERY SLOW!!!
-    // зато очень точно
-    [[nodiscard]] efloat get_len() const;
+  // VERY SLOW!!!
+  // зато очень точно
+  [[nodiscard]] efloat get_len() const;
 
-    [[nodiscard]] Dot normalize() const;
+  [[nodiscard]] Dot normalize() const;
 };
 
 Dot operator+(const Dot &lhs, const Dot &rhs);
@@ -71,4 +71,4 @@ efloat get_good_angle(const Dot &a, const Dot &b);
 // возвращает неотрицательный угол меньше 180 между векторами
 efloat get_very_good_angle(const Dot &a, const Dot &b);
 
-#endif  // GAME_ENGINE_GEOMETRY_DOT_HPP
+#endif // GAME_ENGINE_GEOMETRY_DOT_HPP
