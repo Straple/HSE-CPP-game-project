@@ -14,4 +14,4 @@ void draw_line(const Line &line, efloat half_size, const Color &color);
 
 void draw_rhombus(Dot pos, Dot half_size, const Color &color);
 
-#endif // GAME_ENGINE_RENDER_GEOMETRY_HPP
+#endif  // GAME_ENGINE_RENDER_GEOMETRY_HPP

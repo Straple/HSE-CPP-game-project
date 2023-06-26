@@ -9,23 +9,29 @@
 
 // текст с колизией
 struct button {
-  std::string text;
-  Dot pos; // центр текста по x
-  efloat size;
-  CollisionBox coll;
-  Color color,     // usual color
-      focus_color; // color when the button doesn't focus
-  bool is_focus;
+    std::string text;
+    Dot pos;  // центр текста по x
+    efloat size;
+    CollisionBox coll;
+    Color color,      // usual color
+        focus_color;  // color when the button doesn't focus
+    bool is_focus;
 
-  button() {}
+    button() {
+    }
 
-  button(std::string text, Dot pos, efloat size, Color color,
-         Color focus_color);
+    button(
+        std::string text,
+        Dot pos,
+        efloat size,
+        Color color,
+        Color focus_color
+    );
 
-  // обновит состояние фокуса курсора
-  void simulate(Cursor &cursor);
+    // обновит состояние фокуса курсора
+    void simulate(Cursor &cursor);
 
-  void draw();
+    void draw();
 };
 
-#endif // GAME_BUTTON_HPP
+#endif  // GAME_BUTTON_HPP

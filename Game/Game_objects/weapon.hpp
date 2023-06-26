@@ -4,52 +4,52 @@
 #include "bullet.hpp"
 
 enum weapon_t {
-  GOLDEN_GUN,
-  STAFF,
-  RIFLE,
-  SNIPER_RIFLE,
+    GOLDEN_GUN,
+    STAFF,
+    RIFLE,
+    SNIPER_RIFLE,
 };
 
 struct Weapon : AbstractObject {
-  ADD_BYTE_SERIALIZATION();
-  efloat cooldown;
-  efloat cooldown_accum;
-  int damage;
-  Dot dulo;
-  Dot hand;
-  int ind;
-  bool is_picked = false;
-  Dot target;
-  Dot delta;
-  weapon_t type;
+    ADD_BYTE_SERIALIZATION();
+    efloat cooldown;
+    efloat cooldown_accum;
+    int damage;
+    Dot dulo;
+    Dot hand;
+    int ind;
+    bool is_picked = false;
+    Dot target;
+    Dot delta;
+    weapon_t type;
 
-  Weapon() = default;
+    Weapon() = default;
 
-  explicit Weapon(Dot p, weapon_t t, efloat cooldown = 1, int damage = 1);
+    explicit Weapon(Dot p, weapon_t t, efloat cooldown = 1, int damage = 1);
 
-  bool may_shot();
+    bool may_shot();
 
-  void shot(BulletHostType bullet_host);
+    void shot(BulletHostType bullet_host);
 
-  void simulate(efloat delta_time);
+    void simulate(efloat delta_time);
 
-  void draw() override;
+    void draw() override;
 
-  void GoldenGun_simulate();
-  void GoldenGun_draw();
-  void GoldenGun_shot(BulletHostType bullet_host);
+    void GoldenGun_simulate();
+    void GoldenGun_draw();
+    void GoldenGun_shot(BulletHostType bullet_host);
 
-  void Staff_simulate();
-  void Staff_draw();
-  void Staff_shot();
+    void Staff_simulate();
+    void Staff_draw();
+    void Staff_shot();
 
-  void Rifle_simulate();
-  void Rifle_draw();
-  void Rifle_shot(BulletHostType bullet_host);
+    void Rifle_simulate();
+    void Rifle_draw();
+    void Rifle_shot(BulletHostType bullet_host);
 
-  void Sniper_simulate();
-  void Sniper_draw();
-  void Sniper_shot(BulletHostType bullet_host);
+    void Sniper_simulate();
+    void Sniper_draw();
+    void Sniper_shot(BulletHostType bullet_host);
 };
 
 /*struct Melee_weapon : Weapon {
@@ -85,4 +85,4 @@ struct Range_weapon : Weapon {
     }
 };*/
 
-#endif // GAME_WEAPON_HPP
+#endif  // GAME_WEAPON_HPP

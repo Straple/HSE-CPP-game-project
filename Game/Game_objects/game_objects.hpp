@@ -49,4 +49,4 @@
 // game objects
 #include "game_objects.hpp"
 
-#endif // GAME_OBJECTS_HPP
+#endif  // GAME_OBJECTS_HPP

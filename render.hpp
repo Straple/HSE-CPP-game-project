@@ -13,4 +13,4 @@
 //
 #include "Render/render_object.hpp"
 
-#endif // GAME_ENGINE_RENDER_HPP
+#endif  // GAME_ENGINE_RENDER_HPP

@@ -4,11 +4,11 @@
 #include "Geometry/dot.hpp"
 
 struct Camera {
-  Dot pos;
-  Dot dp;
+    Dot pos;
+    Dot dp;
 
-  // симулирует движение камеры к точке to
-  void simulate(const Dot &to, efloat delta_time);
+    // симулирует движение камеры к точке to
+    void simulate(const Dot &to, efloat delta_time);
 };
 
-#endif // GAME_ENGINE_CAMERA_HPP
+#endif  // GAME_ENGINE_CAMERA_HPP

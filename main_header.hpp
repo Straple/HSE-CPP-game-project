@@ -4,7 +4,7 @@
 // я предполагаю, что это должно быть только в одном месте
 // потому что <game.cpp> очень сложная структура с кучей глобальных переменных
 static_assert(false);
-#endif // GAME_ENGINE_MAIN_HEADER_HPP
+#endif  // GAME_ENGINE_MAIN_HEADER_HPP
 //-----------------------------------------------
 
 // use LPCSTR or LPCWSTR
