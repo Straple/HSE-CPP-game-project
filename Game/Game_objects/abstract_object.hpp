@@ -5,13 +5,13 @@
 #include "../../objects.hpp"
 
 struct AbstractObject {
-    Dot pos;
+  Dot pos;
 
-    AbstractObject() = default;
+  AbstractObject() = default;
 
-    AbstractObject(Dot pos);
+  AbstractObject(Dot pos);
 
-    virtual void draw() = 0;
+  virtual void draw() = 0;
 };
 
-#endif  // GAME_POSITION_HPP
+#endif // GAME_POSITION_HPP

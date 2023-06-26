@@ -11,15 +11,15 @@ Sprite read_sprite_from_png(const std::string &path);
 
 // надстройка над Sprite, позволяющая хранить покадровую анимацию
 class Spritesheet {
-    std::vector<Sprite> frames;
+  std::vector<Sprite> frames;
 
 public:
-    Spritesheet() = default;
+  Spritesheet() = default;
 
-    // распарсить спрайт на кадры
-    Spritesheet(const Sprite &sprite, int frame_len_x);
+  // распарсить спрайт на кадры
+  Spritesheet(const Sprite &sprite, int frame_len_x);
 
-    const Sprite &operator[](unsigned int i) const;
+  const Sprite &operator[](unsigned int i) const;
 };
 
-#endif  // GAME_ENGINE_SPRITE_OBJECT_HPP
+#endif // GAME_ENGINE_SPRITE_OBJECT_HPP
