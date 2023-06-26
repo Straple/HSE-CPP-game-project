@@ -1,9 +1,9 @@
 #include "slime.hpp"
 //
+#include "../../Audio/audio.hpp"
 #include "effect.hpp"
 #include "game_variables.hpp"
 #include "player.hpp"
-#include "../../Audio/audio.hpp"
 
 Slime::Slime(const Dot &position) {
     pos = position;
@@ -126,31 +126,31 @@ void Slime::simulate(
 
         update_move_dir(delta_time, player.pos, visitable_grid_dots);
         // move_dir уже нормализован в get_direction_to_shortest_path
-//        simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
+        //        simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
         if (
-                // игрока никто не ест
-                    !player.is_paralyzed &&
-                    // перезарядка выстрела прошла
-                    shot_accum <= 0 &&
-                    // мы можем попасть по нему
-                    is_reachable(pos + Dot(0, 15), player.pos, Walls)
-                    ) {
+            // игрока никто не ест
+            !player.is_paralyzed &&
+            // перезарядка выстрела прошла
+            shot_accum <= 0 &&
+            // мы можем попасть по нему
+            is_reachable(pos + Dot(0, 15), player.pos, Walls)
+        ) {
             anim = animation_shot;
             is_shooting = true;
             Audio::play_sound(Audio::ST_slime_shot);
         } else if (
-                // игрока никто не ест
-                    !player.is_paralyzed &&
-                    // игрок не прыгает
-                    !player.is_jumped &&
-                    // игрок не неуязвим
-                    !player.is_invulnerable() &&
-                    // мы близко к игроку
-                    (player.pos - pos).get_len() <= jump_radius &&
-                    // перезарядка атаки прошла
-                    devour_accum <= 0
-                    ) {
+            // игрока никто не ест
+            !player.is_paralyzed &&
+            // игрок не прыгает
+            !player.is_jumped &&
+            // игрок не неуязвим
+            !player.is_invulnerable() &&
+            // мы близко к игроку
+            (player.pos - pos).get_len() <= jump_radius &&
+            // перезарядка атаки прошла
+            devour_accum <= 0
+        ) {
             // игрок не может двигаться и у нас анимация атаки
             player.is_paralyzed = is_devour = true;
             Audio::play_sound(Audio::ST_slime_eating);
@@ -160,7 +160,7 @@ void Slime::simulate(
     }
 }
 
-void Slime::draw()  {
+void Slime::draw() {
     if (is_devour) {
         if (is_between<uint8_t>(9, anim.frame_count, 25)) {
             draw_sprite(pos + delta_draw_pos, size, SP_SLIME_LARGE_SHADOW, shadow_color_func());

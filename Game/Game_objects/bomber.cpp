@@ -1,8 +1,8 @@
 #include "bomber.hpp"
 //
+#include "../../Audio/audio.hpp"
 #include "game_variables.hpp"
 #include "player.hpp"
-#include "../../Audio/audio.hpp"
 
 Bomber::Bomber(const Dot &position) {
     pos = position;
@@ -51,14 +51,14 @@ void Bomber::simulate(const efloat delta_time, const std::set<grid_pos_t> &visit
 
         if (
             // игрока никто не ест
-                !player.is_paralyzed &&
-                // игрок не прыгает
-                !player.is_jumped &&
-                // игрок не неуязвим
-                !player.is_invulnerable() &&
-                // мы близко к игроку
-                (player.pos - pos).get_len() <= jump_radius
-                ) {
+            !player.is_paralyzed &&
+            // игрок не прыгает
+            !player.is_jumped &&
+            // игрок не неуязвим
+            !player.is_invulnerable() &&
+            // мы близко к игроку
+            (player.pos - pos).get_len() <= jump_radius
+        ) {
             do_boom();
         }
     }

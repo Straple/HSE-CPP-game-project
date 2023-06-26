@@ -2,7 +2,8 @@
 #include <cmath>
 #include "../../assert.hpp"
 
-Dot::Dot(efloat x, efloat y) : x(x), y(y) {
+Dot::Dot(efloat x, efloat y)
+    : x(x), y(y) {
 }
 
 Dot Dot::operator-() const {

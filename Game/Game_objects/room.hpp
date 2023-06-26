@@ -63,7 +63,7 @@ struct Room {
 
     std::vector<std::pair<Dot, object_type>> read(const std::string &filename);
 
-    void write(const std::string &filename, const std::vector<std::pair<Dot, object_type>>& Objects);
+    void write(const std::string &filename, const std::vector<std::pair<Dot, object_type>> &Objects);
 
     void simulate(efloat delta_time);
 

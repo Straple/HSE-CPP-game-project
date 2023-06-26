@@ -10,9 +10,9 @@ struct animation {
     efloat frame_time_accum = 0;  // время накопления продолжительности кадра
 
     mutable spritesheet_t sprite_sheet = spritesheet_t::SS_COUNT;  // лист спрайтов
-    uint8_t frame_begin = 0;      // начало кадра в листе спрайтов
-    uint8_t frame_count = 0;      // количество кадров в анимации
-    uint8_t frame_cur_count = 0;  // счетчик текущего кадра с 0
+    uint8_t frame_begin = 0;                                       // начало кадра в листе спрайтов
+    uint8_t frame_count = 0;                                       // количество кадров в анимации
+    uint8_t frame_cur_count = 0;                                   // счетчик текущего кадра с 0
 
     animation() = default;
 

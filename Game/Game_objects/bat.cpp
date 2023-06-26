@@ -49,19 +49,20 @@ void Bat::simulate(efloat delta_time, const std::set<grid_pos_t> &visitable_grid
 
         update_move_dir(delta_time, player.pos, visitable_grid_dots);
         // move_dir уже нормализован в get_direction_to_shortest_path
-        //simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
+        // simulate_move_to2d(pos, pos + move_dir_to_target, dp, move_dir_to_target * ddp_speed, delta_time);
 
         if (
             // игрока никто не ест
-                !player.is_paralyzed &&
-                // игрок не прыгает
-                !player.is_jumped &&
-                // игрок не неуязвим
-                !player.is_invulnerable() &&
-                // мы близко к игроку
-                (player.pos - pos).get_len() <= jump_radius &&
-                // перезарядка атаки прошла
-                attack_accum <= 0) {
+            !player.is_paralyzed &&
+            // игрок не прыгает
+            !player.is_jumped &&
+            // игрок не неуязвим
+            !player.is_invulnerable() &&
+            // мы близко к игроку
+            (player.pos - pos).get_len() <= jump_radius &&
+            // перезарядка атаки прошла
+            attack_accum <= 0
+        ) {
             // hit
             attack_accum = attack_cooldown;
             pos = player.pos;  // прыгаем на игрока

@@ -96,7 +96,8 @@ void Mob::update_target(efloat delta_time) {
         // или цель кокнулась
         game_variables::Players[index].is_dead() ||
         // или мы уже долго гонялись за ней
-        target_change_accum <= 0) {
+        target_change_accum <= 0
+    ) {
         target_client_id = find_best_player(pos);
         target_change_accum = target_change_cooldown;
     }

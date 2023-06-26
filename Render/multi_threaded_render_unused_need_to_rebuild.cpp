@@ -3,8 +3,8 @@
 
 #elif MULTITHREAD_RENDER == 1
 
-#include <thread>
 #include <atomic>
+#include <thread>
 #include <vector>
 
 struct render_task {
@@ -24,23 +24,23 @@ std::thread Threads[count_of_render_threads];
 void simulate_render_thread(int thread_id) {
     int task_index = 0;
     while (global_variables::running) {
-        if(task_index)
-        if (thr.spin) {
-            // появилось новое задание
+        if (task_index)
+            if (thr.spin) {
+                // появилось новое задание
 
-            Color color = thr.color;
-            /*if(thread_id == 0){
-                color = GREEN;
-            } else if(thread_id == 1){
-                color = BLUE;
-            } else if(thread_id == 2){
-                color = RED;
-            }*/
+                Color color = thr.color;
+                /*if(thread_id == 0){
+                    color = GREEN;
+                } else if(thread_id == 1){
+                    color = BLUE;
+                } else if(thread_id == 2){
+                    color = RED;
+                }*/
 
-            draw_pixels_impl(thr.x0, thr.y0, thr.x1, thr.y1, color);
+                draw_pixels_impl(thr.x0, thr.y0, thr.x1, thr.y1, color);
 
-            thr.spin = false;
-        }
+                thr.spin = false;
+            }
     }
 }
 

@@ -269,7 +269,7 @@ template <typename visitable_t, typename suitable_t>
 bool get_direction_to_shortest_path(
     const Dot &from,
     const Dot &to,
-    std::vector<Dot>&path,
+    std::vector<Dot> &path,
     visitable_t visitable,
     suitable_t suitable
     //,std::vector<Dot> &shortest_path,

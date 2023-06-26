@@ -2,7 +2,8 @@
 //
 #include "game_variables.hpp"
 
-Heart::Heart(Dot position, Dot dir) : Loot(position, dir) {
+Heart::Heart(Dot position, Dot dir)
+    : Loot(position, dir) {
 }
 
 bool Heart::simulate_collection() {
@@ -24,7 +25,8 @@ void Heart::draw() {
     draw_collision(*this);
 }
 
-Coin::Coin(Dot position, Dot dir) : Loot(position, dir) {
+Coin::Coin(Dot position, Dot dir)
+    : Loot(position, dir) {
 }
 
 bool Coin::simulate_collection() {

@@ -97,7 +97,8 @@ class AbstractClient {
 public:
     virtual ~AbstractClient() = default;
 
-    AbstractClient(tcp::socket socket, const int client_id) : socket(std::move(socket)), client_id(client_id) {
+    AbstractClient(tcp::socket socket, const int client_id)
+        : socket(std::move(socket)), client_id(client_id) {
     }
 
     void simulate(efloat delta_time) {
@@ -229,7 +230,8 @@ public:
         Clients.insert(client_ptr);  // НИКАКИХ STD::MOVE!!!
 
         auto remote_endpoint = client_ptr->socket.remote_endpoint();
-        std::cout << "Client <" << remote_endpoint << "> joined in session\n" << std::endl;
+        std::cout << "Client <" << remote_endpoint << "> joined in session\n"
+                  << std::endl;
 
         // добавим персонажа в игру
         std::vector<Dot> player_teleport_dots;

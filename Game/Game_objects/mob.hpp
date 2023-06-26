@@ -16,7 +16,7 @@ public:
     efloat paralyzed_accum = 0;
 
     Dot path_prefix[5];
-    size_t path_size=0;
+    size_t path_size = 0;
     int target_client_id = -1;
     void update_move_dir(efloat delta_time, Dot player_pos, const std::set<grid_pos_t> &visitable_grid_dots);
 

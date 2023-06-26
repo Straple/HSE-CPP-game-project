@@ -4,7 +4,8 @@
 #include "game_variables.hpp"
 
 // pos лежит в AbstractObject
-Effect::Effect(const Dot &pos, const animation &anim) : AbstractObject(pos), anim(anim) {
+Effect::Effect(const Dot &pos, const animation &anim)
+    : AbstractObject(pos), anim(anim) {
 }
 
 // вернет правду, если его анимация закончилась и нужно удалить объект

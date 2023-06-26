@@ -16,7 +16,12 @@ efloat current_size = 1;
 Dot current_pos;
 int current_level = 0;
 
-enum level_maker_mode { LM_SPRITE, LM_COLLISION_BOX, LM_RENDER_LEVEL, LM_OBJECT, LM_INTERESTING_DOT, LM_COLOR_BOX };
+enum level_maker_mode { LM_SPRITE,
+                        LM_COLLISION_BOX,
+                        LM_RENDER_LEVEL,
+                        LM_OBJECT,
+                        LM_INTERESTING_DOT,
+                        LM_COLOR_BOX };
 
 level_maker_mode current_mode;
 

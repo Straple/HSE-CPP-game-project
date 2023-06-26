@@ -30,7 +30,7 @@ Player_anim_tree::anim_and_dir_t Player_anim_tree::get_anim(Dot dir, anim_and_di
 Player::Player(const Dot &position) {
     pos = position;
 
-//    weapon.cooldown = 0;  // мы боги
+    //    weapon.cooldown = 0;  // мы боги
 }
 
 [[nodiscard]] bool Player::is_dead() const {
@@ -63,7 +63,7 @@ void Player::pick_weapon(int wp_ind, efloat delta_time) {
     game_variables::Weapons[wp_ind].is_picked = true;
     weapon_ind = wp_ind;
     game_variables::Weapons[wp_ind].simulate(delta_time);
-//    game_variables::Weapons[wp_ind].cooldown=0;
+    //    game_variables::Weapons[wp_ind].cooldown=0;
 }
 
 [[nodiscard]] bool Player::is_invulnerable() const {

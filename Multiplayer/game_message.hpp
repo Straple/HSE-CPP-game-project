@@ -18,7 +18,8 @@ public:
         NEW_LEVEL,     // нужно считать новый уровень
     };
 
-    enum { header_length = 4, max_body_length = 32 * 1024 };
+    enum { header_length = 4,
+           max_body_length = 32 * 1024 };
 
     // сначала записывается 3 байта body_length
     // потом 1 байт для message_t

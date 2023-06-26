@@ -45,7 +45,8 @@ const efloat get_performance_frequency() {
     return performance_frequency;
 }
 
-Timer::Timer() : start_tick(get_ticks()) {
+Timer::Timer()
+    : start_tick(get_ticks()) {
 }
 
 [[nodiscard]] efloat Timer::get() const {

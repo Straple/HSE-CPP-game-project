@@ -1,10 +1,12 @@
 #include "collision.hpp"
 #include "../utils.hpp"
 
-CollisionCircle::CollisionCircle(const Circle &circle) : circle(circle) {
+CollisionCircle::CollisionCircle(const Circle &circle)
+    : circle(circle) {
 }
 
-CollisionCircle::CollisionCircle(Dot pos, efloat radius) : circle(pos, radius) {
+CollisionCircle::CollisionCircle(Dot pos, efloat radius)
+    : circle(pos, radius) {
 }
 
 Dot CollisionCircle::get_pos() const {
@@ -69,7 +71,8 @@ std::unique_ptr<Collision> CollisionCircle::bubble(const Collision &other) const
 //==CollisionBox==//
 //================//
 
-CollisionBox::CollisionBox(const Dot &new_p0, const Dot &new_p1) : p0(new_p0), p1(new_p1) {
+CollisionBox::CollisionBox(const Dot &new_p0, const Dot &new_p1)
+    : p0(new_p0), p1(new_p1) {
     ASSERT(p0.x <= p1.x && p1.y <= p0.y, "bad points");
 }
 

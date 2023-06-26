@@ -111,7 +111,8 @@ public:
 
     Cursor cursor;
 
-    WindowHandler() : cursor(Cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09)) {
+    WindowHandler()
+        : cursor(Cursor(SP_CURSOR, SP_FOCUS_CURSOR, 0.09)) {
         hInstance = GetModuleHandle(nullptr);
 
         // Create Window class
@@ -284,7 +285,6 @@ public:
     }
 
     void simulate_input(efloat delta_time) {
-
         if (PRESSED(BUTTON_ENTER)) {
             global_variables::fullscreen_mode = !global_variables::fullscreen_mode;
 

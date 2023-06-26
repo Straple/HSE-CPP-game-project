@@ -177,7 +177,8 @@ void read_sprites() {
 
 #undef read
 
-    std::cout << "total_time: " << finish_time << std::endl << std::endl;
+    std::cout << "total_time: " << finish_time << std::endl
+              << std::endl;
 }
 
 void read_spritesheets() {
@@ -226,5 +227,6 @@ void read_spritesheets() {
 
 #undef read
 
-    std::cout << "total_time: " << finish_time << std::endl << std::endl;
+    std::cout << "total_time: " << finish_time << std::endl
+              << std::endl;
 }

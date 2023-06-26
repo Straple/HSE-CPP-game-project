@@ -3,7 +3,8 @@
 #include "game_variables.hpp"
 #include "player.hpp"
 
-Loot::Loot(Dot position, Dot dir) : AbstractPhysicalObject(position) {
+Loot::Loot(Dot position, Dot dir)
+    : AbstractPhysicalObject(position) {
     dp = dir * 200;
 }
 

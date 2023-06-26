@@ -15,7 +15,7 @@ enum sprite_t : uint8_t {
     SP_TREE,
     SP_LOG,
 
-    SP_FIREPLACE, // OLD
+    SP_FIREPLACE,  // OLD
 
     SP_BARREL,
     SP_PILLAR,

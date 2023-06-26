@@ -18,8 +18,9 @@ void simulate_player(efloat delta_time, Player &player) {
         int picked_ind = -1;
         efloat min_dist = INFINITY;
         for (int i = 0; i < game_variables::Weapons.size(); i++) {
-            if (game_variables::Weapons[i].is_picked) continue;
-            auto dist = (player.pos - (game_variables::Weapons[i].pos+game_variables::Weapons[i].delta)).get_quare_len();
+            if (game_variables::Weapons[i].is_picked)
+                continue;
+            auto dist = (player.pos - (game_variables::Weapons[i].pos + game_variables::Weapons[i].delta)).get_quare_len();
             if (dist < 200 && dist < min_dist) {
                 min_dist = dist;
                 picked_ind = i;
@@ -32,20 +33,18 @@ void simulate_player(efloat delta_time, Player &player) {
     }
 
     if (PRESSED(BUTTON_MOUSE_L) && !player.is_paralyzed && !player.is_jumped && player.coins > 0 &&
-          player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].may_shot() && !player.is_dead()) {
-        if (game_variables::Weapons[player.weapon_ind].type==GOLDEN_GUN) {
+        player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].may_shot() && !player.is_dead()) {
+        if (game_variables::Weapons[player.weapon_ind].type == GOLDEN_GUN) {
             if (player.coins > 0) {
                 game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER);
                 player.coins--;
             }
-        }
-        else {
+        } else {
             game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER);
         }
     }
-    if (IS_DOWN(BUTTON_MOUSE_L) && player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].type == RIFLE
-            && !player.is_paralyzed && !player.is_jumped &&
-            player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].may_shot() && !player.is_dead()) {
+    if (IS_DOWN(BUTTON_MOUSE_L) && player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].type == RIFLE && !player.is_paralyzed && !player.is_jumped &&
+        player.weapon_ind != -1 && game_variables::Weapons[player.weapon_ind].may_shot() && !player.is_dead()) {
         game_variables::Weapons[player.weapon_ind].shot(BulletHostType::PLAYER);
     }
 

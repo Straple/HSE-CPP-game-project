@@ -25,7 +25,6 @@ enum button_t : uint8_t {
     BUTTON_QUESTION_MARK,
     BUTTON_BACKSPACE,
 
-
     BUTTON_A,
     BUTTON_B,
     BUTTON_C,

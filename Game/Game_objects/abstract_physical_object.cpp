@@ -1,6 +1,7 @@
 #include "abstract_physical_object.hpp"
 
-AbstractPhysicalObject::AbstractPhysicalObject(Dot pos) : AbstractObject(pos) {
+AbstractPhysicalObject::AbstractPhysicalObject(Dot pos)
+    : AbstractObject(pos) {
 }
 
 void AbstractPhysicalObject::push_out_of_collision_hard(const Collision &collision) {
