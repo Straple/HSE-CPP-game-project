@@ -341,9 +341,7 @@ void Room::simulate(efloat delta_time) {
         }
     }*/
 
-    if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() +
-            game_variables::Weapons.size() ==
-        0) {
+    if (game_variables::Slimes.size() + game_variables::Bats.size() + game_variables::Bombers.size() == 0) {
         wave_cooldown_accum += delta_time;
         if (wave_cooldown_accum > wave_cooldown) {
             std::cout << "New wave!" << std::endl;
@@ -369,7 +367,7 @@ void Room::simulate(efloat delta_time) {
                         game_variables::Weapons.emplace_back(pos, RIFLE, 0.1);
                         //}
                     } else {  // enemy
-                        /*int enemy_cnt = 1;
+                        int enemy_cnt = 1;
 
                         if (randomness(std::min(100, 20 * wave_number))) {
                             enemy_cnt++;
@@ -385,7 +383,7 @@ void Room::simulate(efloat delta_time) {
                             } else {
                                 game_variables::Slimes.emplace_back(pos);
                             }
-                        }*/
+                        }
                     }
                 }
             }

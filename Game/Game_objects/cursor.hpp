@@ -6,22 +6,22 @@
 #include "../../sprites.hpp"
 
 struct Cursor {
-  sprite_t sprite;
-  sprite_t focus_sprite;
+    sprite_t sprite;
+    sprite_t focus_sprite;
 
-  efloat size;
+    efloat size;
 
-  Dot pos;
-  Dot focus_pos; // позиция точки, когда мы нажали на мышку и удерживали
+    Dot pos;
+    Dot focus_pos;  // позиция точки, когда мы нажали на мышку и удерживали
 
-  bool focus = false;
-  bool is_down = false;
+    bool focus = false;
+    bool is_down = false;
 
-  Cursor(sprite_t sprite, sprite_t focus_sprite, efloat size);
+    Cursor(sprite_t sprite, sprite_t focus_sprite, efloat size);
 
-  void simulate(const Input &input);
+    void simulate(const Input &input);
 
-  void draw();
+    void draw();
 };
 
-#endif // GAME_CURSOR_HPP
+#endif  // GAME_CURSOR_HPP
