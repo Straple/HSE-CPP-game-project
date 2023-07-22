@@ -1,3 +1,5 @@
 #include "abstract_object.hpp"
 
-AbstractObject::AbstractObject(Dot pos) : pos(pos) {}
+AbstractObject::AbstractObject(Dot pos)
+    : pos(pos) {
+}
